@@ -1,0 +1,64 @@
+\documentclass[titlepage, 12pt]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{parskip}
+
+\usepackage[a4paper, margin=1.5in]{geometry}
+
+\title{Task 0 Specification}
+\date{08/10/2019}
+\author{Federico Fregosi, Mirko Laruina, \\Riccardo Mancini, Gianmarco Petrelli}
+
+
+\begin{document}
+\maketitle
+
+\section{Application overview}
+The application is a messaging system where registered users can create an 
+account, exchange text messages and make groups.
+
+A registered user can initiate a chat with another user, create a new group chat
+(of which he becomes the admin) and send messages to the chats he belongs to,
+as well as receiving messages from those chats. He can also leave a group.
+
+A group admin can add and remove new users to the group. He cannot assign his
+powers to another user in the group and if he leaves the group the latter 
+is deleted.
+
+Everytime a user views a chat, all the latest messages from the chat are 
+fetched from the server and shown to the user.
+
+\section{Actors}
+Anonymous user, registered user, group admin and a time-based event.
+
+\section{Functional specifications}
+An \textbf{anonymous user} must be able to register in order to become a 
+\emph{registered user}.
+
+A \textbf{registered user} must be able to:
+\begin{itemize}
+    \item Send a message to a chat
+    \item Read chat messages
+    \item Create a private chat
+    \item Create a group chat
+\end{itemize}
+
+A \textbf{group admin} must be able to:
+\begin{itemize}
+    \item Add users to the group
+    \item Remove users from the group
+\end{itemize}
+
+The \textbf{time-based event} updates the user interface on regular intervals
+to show new received messages from the current chat, if any.
+
+\section{Software Architecture}
+The proposed software architecture is a classic three-layer architecture:
+
+\begin{enumerate}
+    \item database (MySQL)
+    \item server back-end (Java + Spring)
+    \item user web app (ReactJS)
+\end{enumerate}
+
+\end{document}
