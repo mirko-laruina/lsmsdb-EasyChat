@@ -1,26 +1,69 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react';
+import { Button, Form } from "react-bootstrap";
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './login.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class LoginForm extends Component {
+  constructor(){
+    //Controllare se lo stato serve poi
+    super();
+    this.state = {
+      username: '',
+      password: ''
+    };
+
+    this.handleSubmit = this.handleSubmit.bind(this)
+  }
+
+  handlePw(value){
+    this.setState({
+      password: value
+    });
+  }
+
+  handleUser(value){
+    this.setState({
+      username: value
+    });
+  }
+
+  handleSubmit(evt){
+    evt.preventDefault();
+    /*.post('http://localhost:8080/login', {
+      username: this.state.username,
+      password: this.state.password
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });*/
+  }
+
+  render() {
+    return (
+      <div className="Login">
+        <Form onSubmit={this.handleSubmit}>
+          <Form.Group controlId="formUsername">
+            <Form.Label>Username</Form.Label>
+            <Form.Control type="text"placeholder="Enter username"
+                          value={this.state.username} onChange={(evt) => this.handleUser(evt.target.value)}/>
+          </Form.Group>
+
+          <Form.Group controlId="formPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control type="password" placeholder="Password"
+                          value={this.state.password} onChange={(evt) => this.handlePw(evt.target.value)} />
+          </Form.Group>
+          <Button variant="primary" type="submit">
+            Submit
+          </Button>
+        </Form>
+      </div>
+    );
+  }
 }
 
-export default App;
+export default LoginForm;
