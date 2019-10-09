@@ -11,6 +11,13 @@ La webapp React, al momento, e' vuota. In ogni caso, per lanciarla (da dentro la
     npm start
 La webapp e' disponibile su `localhost:3000` .
 
+## Database
+Creato un database con
+
+    CREATE DATABASE Task0;
+    USE Task0;
+si esegue il file `database.sql`
+
 ## Git
 Per evitare problemi, prima di fare un commit conviene fare un pull
 
