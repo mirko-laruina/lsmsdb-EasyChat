@@ -109,9 +109,9 @@ DROP TABLE IF EXISTS `Users`;
 CREATE TABLE `Users` (
   `userId` int(11) NOT NULL AUTO_INCREMENT,
   `password` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `publicName` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,4 +132,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-10-09 14:04:43
+-- Dump completed on 2019-10-09 14:35:05
