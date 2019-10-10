@@ -302,6 +302,35 @@ public class MySQLAdapter implements DatabaseAdapter {
         }
     }
 
+    @Override
+    public long getUserId(String username){
+        try{
+            PreparedStatement statement = conn.prepareStatement(
+                    "SELECT userId\n"
+                            + "FROM Users\n"
+                            + "WHERE username = ?;"
+            );
+
+            statement.setString(1, username);
+            statement.execute();
+            ResultSet rs = statement.getResultSet();
+            if(!rs.next()){
+                rs.close();
+                statement.close();
+                return -1;
+            }
+
+            long dbUserId = rs.getLong("userId");
+
+            rs.close();
+            statement.close();
+            return dbUserId;
+        } catch(SQLException ex) {
+            dumpSQLException(ex);
+            return -1;
+        }
+    }
+
     private void dumpSQLException(SQLException ex){
         System.out.println("SQLException: " + ex.getMessage());
         System.out.println("SQLState: " + ex.getSQLState());
