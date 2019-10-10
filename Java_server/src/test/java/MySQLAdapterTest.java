@@ -105,7 +105,7 @@ public class MySQLAdapterTest {
         String username = UUID.randomUUID().toString();
         long userId = db.createUser(new User(username, "password"));
         assert userId != -1;
-        String password = db.getUserDBPassword(userId);
+        String password = db.getUserDBPassword(username);
         assert password.equals("password");
     }
 }

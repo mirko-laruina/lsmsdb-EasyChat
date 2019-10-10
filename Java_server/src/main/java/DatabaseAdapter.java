@@ -11,6 +11,6 @@ public interface DatabaseAdapter {
     long createChat(String name, long adminId, List<Long> userIds);
     boolean deleteChat(long chatId);
     long createUser(User user);
-    String getUserDBPassword(long userId);
+    String getUserDBPassword(String username);
     long getUserId(String username);
 }

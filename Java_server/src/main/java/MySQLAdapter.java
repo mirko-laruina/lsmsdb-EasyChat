@@ -274,15 +274,15 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public String getUserDBPassword(long userId) {
+    public String getUserDBPassword(String username) {
         try{
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT password\n"
                             + "FROM Users\n"
-                            + "WHERE userId = ?;"
+                            + "WHERE username = ?;"
             );
 
-            statement.setLong(1, userId);
+            statement.setString(1, username);
             statement.execute();
             ResultSet rs = statement.getResultSet();
             if(!rs.next()){

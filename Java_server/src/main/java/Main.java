@@ -22,10 +22,13 @@ public class Main {
     public @ResponseBody String login(@RequestParam("username") String user, @RequestParam("password") String pw) throws Exception {
         //da rivedere il throws exception
         MySQLAdapter dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
-        long userId = dba.getUserId(user);
         Gson gson =  new Gson();
-        Boolean b = (dba.getUserDBPassword(userId) == pw);
-        return gson.toJson("success: " + ( pw.compareTo( dba.getUserDBPassword(userId) ) == 0 ));
+        if(user == "" || pw == ""){
+            return gson.toJson(new BooleanResult(false));
+        }
+        String dbPw = dba.getUserDBPassword(user);
+        BooleanResult br = new BooleanResult((dbPw != "" && dbPw.compareTo(pw) == 0));
+        return gson.toJson(br);
     }
 
     public static void main(String[] args) {
