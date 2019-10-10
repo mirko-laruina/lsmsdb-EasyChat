@@ -3,14 +3,21 @@ import java.util.Date;
 public class Message {
     private long id;
     private long chatId;
-    private String userId;
+    private User sender;
     private Date timestamp;
     private String text;
 
-    public Message(long id, long chatId, String userId, Date timestamp, String text) {
+    public Message(long chatId, User sender, Date timestamp, String text) {
+        this.chatId = chatId;
+        this.sender = sender;
+        this.timestamp = timestamp;
+        this.text = text;
+    }
+
+    public Message(long id, long chatId, User sender, Date timestamp, String text) {
         this.id = id;
         this.chatId = chatId;
-        this.userId = userId;
+        this.sender = sender;
         this.timestamp = timestamp;
         this.text = text;
     }
@@ -47,11 +54,11 @@ public class Message {
         this.text = text;
     }
 
-    public String getUserId() {
-        return userId;
+    public User getSender() {
+        return sender;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
 }

@@ -6,16 +6,17 @@ import java.util.List;
 public class MySQLAdapter implements DatabaseAdapter {
     private Connection conn;
 
-    public MySQLAdapter(String connStr){
+    public MySQLAdapter(String connStr) throws SQLException{
         try{
             conn = DriverManager.getConnection(connStr);
         } catch (SQLException ex){
             dumpSQLException(ex);
+            throw ex;
         }
     }
 
     @Override
-    public List<Chat> getChats(String userId) {
+    public List<Chat> getChats(long userId) {
         List<Chat> chats = new ArrayList<>();
         try{
             PreparedStatement statement = conn.prepareStatement(
@@ -24,7 +25,7 @@ public class MySQLAdapter implements DatabaseAdapter {
                         + "WHERE M.userId = ?;"
             );
 
-            statement.setString(1, userId);
+            statement.setLong(1, userId);
             statement.execute();
             ResultSet rs = statement.getResultSet();
             while(rs.next()){
@@ -47,22 +48,24 @@ public class MySQLAdapter implements DatabaseAdapter {
         List<Message> messages = new ArrayList<>();
         try{
             PreparedStatement statement = conn.prepareStatement(
-                    "SELECT M.messageId, M.timestamp, M.senderUserId, M.text\n"
+                    "SELECT M.messageId, M.timestamp, U.userId, U.username, M.text\n"
                         + "FROM Chats C INNER JOIN Messages M ON C.chatId = M.chatId\n"
-                        + "WHERE M.timestamp < ?"
+                        + "INNER JOIN Users U on U.userId = M.senderUserId\n"
+                        + "WHERE M.timestamp < ?\n"
                         + "ORDER BY M.timestamp DESC"
-                        + "LIMIT ?"
+                        + (n == 0 ? ";" : "\nLIMIT ?;")
             );
 
             statement.setTimestamp(1, new java.sql.Timestamp(to.getTime()));
-            statement.setInt(2, n);
+            if (n != 0)
+                statement.setInt(2, n);
             statement.execute();
             ResultSet rs = statement.getResultSet();
             while(rs.next()){
                 messages.add(new Message(
                         rs.getLong("M.messageId"),
                         chatId,
-                        rs.getString("M.senderUserId"),
+                        new User(rs.getLong("U.userId"), rs.getString("U.username")),
                         rs.getTimestamp("M.timestamp"),
                         rs.getString("M.text")
                 ));
@@ -77,12 +80,13 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public List<String> getChatMembers(long chatId) {
-        List<String> users = new ArrayList<>();
+    public List<User> getChatMembers(long chatId) {
+        List<User> users = new ArrayList<>();
         try{
             PreparedStatement statement = conn.prepareStatement(
-                    "SELECT M.userId\n"
+                    "SELECT M.userId, U.username\n"
                             + "FROM Chats C INNER JOIN Chatmembers M ON C.chatId = M.chatId\n"
+                            + "INNER JOIN Users U ON U.userId = M.userId\n"
                             + "WHERE C.chatId = ?;"
             );
 
@@ -90,7 +94,7 @@ public class MySQLAdapter implements DatabaseAdapter {
             statement.execute();
             ResultSet rs = statement.getResultSet();
             while(rs.next()){
-                users.add(rs.getString("M.userId"));
+                users.add(new User(rs.getLong("M.userId"), rs.getString("U.username")));
             }
             rs.close();
             statement.close();
@@ -102,15 +106,15 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean addChatMember(long chatId, String userId) {
+    public boolean addChatMember(long chatId, long userId) {
         try{
             PreparedStatement statement = conn.prepareStatement(
-                    "INSERT INTO Chatmembers(userId, chatId)\n"
+                    "INSERT INTO Chatmembers(chatId, userId)\n"
                         + "VALUES (?,?);"
             );
 
             statement.setLong(1, chatId);
-            statement.setString(2, userId);
+            statement.setLong(2, userId);
             int rows = statement.executeUpdate();
 
             statement.close();
@@ -122,7 +126,7 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean removeChatMember(long chatId, String userId) {
+    public boolean removeChatMember(long chatId, long userId) {
         try{
             PreparedStatement statement = conn.prepareStatement(
                     "DELETE FROM Chatmembers\n"
@@ -130,7 +134,7 @@ public class MySQLAdapter implements DatabaseAdapter {
             );
 
             statement.setLong(1, chatId);
-            statement.setString(2, userId);
+            statement.setLong(2, userId);
             int rows = statement.executeUpdate();
 
             statement.close();
@@ -142,29 +146,40 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean addChatMessage(Message message) {
+    public long addChatMessage(Message message) {
         try{
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO Messages(chatId, timestamp, senderUserId, text)\n"
-                            + "VALUES (?, ?, ?, ?);"
+                            + "VALUES (?, ?, ?, ?);",
+                    Statement.RETURN_GENERATED_KEYS
             );
 
             statement.setLong(1, message.getChatId());
             statement.setTimestamp(2, new Timestamp(message.getTimestamp().getTime()));
-            statement.setString(3, message.getUserId());
+            statement.setLong(3, message.getSender().getUserId());
             statement.setString(4, message.getText());
-            boolean result = statement.execute();
+            int rows = statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+
+            if (!generatedKeys.next()){
+                statement.close();
+                return -1;
+            }
+            long messageId = generatedKeys.getLong(1);
+
+            generatedKeys.close();
 
             statement.close();
-            return result;
+            return messageId;
         } catch(SQLException ex) {
             dumpSQLException(ex);
-            return false;
+            return -1;
         }
     }
 
     @Override
-    public boolean createChat(String name, String adminId, List<String> userIds) {
+    public long createChat(String name, long adminId, List<Long> userIds) {
         try{
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO Chats(name, adminId)\n"
@@ -173,44 +188,45 @@ public class MySQLAdapter implements DatabaseAdapter {
             );
 
             statement.setString(1, name);
-            statement.setString(2, adminId);
+            statement.setLong(2, adminId);
 
             int rows = statement.executeUpdate();
 
             if (rows == 0){
                 statement.close();
-                return false;
+                return -1;
             }
 
             ResultSet generatedKeys = statement.getGeneratedKeys();
 
             if (!generatedKeys.next()){
                 statement.close();
-                return false;
+                return -1;
             }
             long chatId = generatedKeys.getLong(1);
 
             generatedKeys.close();
             statement.close();
 
-            for (String userId: userIds){
+            for (long userId: userIds){
                 if (!addChatMember(chatId, userId))
-                    return false;
+                    return -1;
             }
 
             statement.close();
+
+            return chatId;
         } catch(SQLException ex) {
             dumpSQLException(ex);
-            return false;
+            return -1;
         }
-        return true;
     }
 
     @Override
     public boolean deleteChat(long chatId) {
         try{
             PreparedStatement statement = conn.prepareStatement(
-                    "DELETE FROM CHats\n"
+                    "DELETE FROM Chats\n"
                             + "WHERE chatId = ?;"
             );
 
@@ -226,27 +242,39 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean createUser(User user) {
+    public long createUser(User user) {
         try{
             PreparedStatement statement = conn.prepareStatement(
-                    "INSERT INTO Users(userId, password)\n"
-                            + "VALUES (?,?);"
+                    "INSERT INTO Users(userId, username, password)\n"
+                            + "VALUES (?,?,?);",
+                    Statement.RETURN_GENERATED_KEYS
             );
 
-            statement.setString(1, user.getUserId());
-            statement.setString(2, user.getPassword());
+            statement.setLong(1, user.getUserId());
+            statement.setString(2, user.getUsername());
+            statement.setString(3, user.getPassword());
             int rows = statement.executeUpdate();
 
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+
+            if (!generatedKeys.next()){
+                statement.close();
+                return -1;
+            }
+            long userId = generatedKeys.getLong(1);
+
+            generatedKeys.close();
+
             statement.close();
-            return rows != 0;
+            return userId;
         } catch(SQLException ex) {
             dumpSQLException(ex);
-            return false;
+            return -1;
         }
     }
 
     @Override
-    public String getUserDBPassword(String userId) {
+    public String getUserDBPassword(long userId) {
         try{
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT password\n"
@@ -254,13 +282,13 @@ public class MySQLAdapter implements DatabaseAdapter {
                             + "WHERE userId = ?;"
             );
 
-            statement.setString(1, userId);
+            statement.setLong(1, userId);
             statement.execute();
             ResultSet rs = statement.getResultSet();
             if(!rs.next()){
                 rs.close();
                 statement.close();
-                return false;
+                return null;
             }
 
             String dbPassword = rs.getString("password");

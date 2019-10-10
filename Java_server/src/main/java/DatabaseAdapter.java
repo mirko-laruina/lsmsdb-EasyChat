@@ -2,14 +2,14 @@ import java.util.Date;
 import java.util.List;
 
 public interface DatabaseAdapter {
-    List<Chat> getChats(String userId);
+    List<Chat> getChats(long userId);
     List<Message> getChatMessages(long chatId, Date to, int n);
-    List<String> getChatMembers(long chatId);
-    boolean addChatMember(long chatId, String userId);
-    boolean removeChatMember(long chatId, String userId);
-    boolean addChatMessage(Message message);
-    boolean createChat(String name, String adminId, List<String> userIds);
+    List<User> getChatMembers(long chatId);
+    boolean addChatMember(long chatId, long userId);
+    boolean removeChatMember(long chatId, long userId);
+    long addChatMessage(Message message);
+    long createChat(String name, long adminId, List<Long> userIds);
     boolean deleteChat(long chatId);
-    boolean createUser(User user);
-    String getUserDBPassword(String userId);
+    long createUser(User user);
+    String getUserDBPassword(long userId);
 }
