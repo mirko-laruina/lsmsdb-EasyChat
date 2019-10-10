@@ -1,3 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
 #
 # TABLE STRUCTURE FOR: Chatmembers
 #
@@ -1545,7 +1546,6 @@ INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `tex
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (995, 195, '1987-06-10 15:51:45', 195, 'Mollitia possimus perferendis provident dolore expedita. Magnam voluptatem optio et. Consequatur eligendi voluptatem voluptates reiciendis sapiente quo officiis.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (996, 196, '1970-12-14 16:25:52', 196, 'Qui laborum nihil reiciendis ut. Tempora quasi accusamus aliquam. Culpa voluptatum dignissimos ullam odio.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (997, 197, '1993-06-19 00:12:50', 197, 'Totam omnis at sit quia dicta. Ipsa laboriosam hic id explicabo. Neque et suscipit reiciendis illum. Quaerat voluptatum quos soluta quo voluptatem est aut.');
-INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (998, 198, '2001-03-25 02:51:58', 198, 'Sed distinctio eos exercitationem repudiandae nesciunt eius. Nihil corporis vel aut quia autem. Corporis dicta esse dolore minus a qui perspiciatis.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (999, 199, '1984-11-09 13:43:53', 199, 'Quidem voluptatibus eaque alias blanditiis. Voluptatem veniam suscipit eos dolores. Eius est maxime eos error autem dolor qui. Est expedita et ut id minus.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (1000, 200, '1991-02-11 23:07:26', 200, 'Omnis beatae iusto quae hic eum. Neque iste eum aspernatur. Iusto eaque ut qui tempore ea aut adipisci.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (1001, 1, '2013-06-07 07:21:40', 101, 'Molestiae delectus culpa culpa qui veritatis et veniam. Et laboriosam mollitia quam dolorem. Voluptates id maxime quo odit qui. Deleniti et et qui velit maiores sed optio enim.');
@@ -5441,7 +5441,6 @@ INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `tex
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (4891, 91, '1979-05-05 07:36:57', 191, 'Quo et sed id voluptatem repellendus ratione nostrum. Porro explicabo quaerat distinctio voluptatem accusantium. Quia tenetur quisquam dolorum ducimus. Sit voluptas rem numquam dolores earum.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (4892, 92, '1992-09-03 22:21:28', 192, 'Quia ut cum aliquam fugit. Et exercitationem odio officiis et sunt ullam. Sapiente nihil sit voluptas.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (4893, 93, '1992-05-26 08:28:59', 193, 'Est aut quia ea unde omnis debitis. Aliquam maiores maiores unde aut ut. Veniam eum earum vel alias consectetur. Quibusdam nostrum natus fugiat labore illum.');
-INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (4894, 94, '1986-03-30 02:59:10', 194, 'Sit dolorum vel voluptatum voluptas. Velit quis illo est et illo quasi voluptas.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (4895, 95, '2016-08-30 07:05:34', 195, 'Rerum itaque dolorem fugiat assumenda corporis. Nemo aliquid fugiat dolore quia. Animi omnis voluptas dolorem voluptas et blanditiis necessitatibus perspiciatis.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (4896, 96, '1974-10-24 10:30:23', 196, 'Assumenda quidem non consectetur optio. Necessitatibus officia in aut alias autem est. Qui vel omnis quos.');
 INSERT INTO `Messages` (`messageId`, `chatId`, `timestamp`, `senderUserId`, `text`) VALUES (4897, 97, '2019-09-21 05:34:46', 197, 'Qui dolor numquam est molestiae voluptatibus. Praesentium dignissimos veniam in fugit laudantium. Possimus sed esse consequatur nihil.');
