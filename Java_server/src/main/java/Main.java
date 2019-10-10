@@ -10,17 +10,13 @@ import java.sql.*;
 @EnableAutoConfiguration
 public class Main {
 
-    @RequestMapping("/")
-    String home() {
-        return "Hello World!";
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value = "/")
+    public String index() {
+        return "index";
     }
 
-    @RequestMapping(value={"/{echo}"}, method=RequestMethod.GET)
-    public @ResponseBody String getAttr(@PathVariable(value="echo") final String text) {
-        Gson gson = new Gson();
-        return gson.toJson(text);
-    }
-
+    @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping(value={"/login"}, method=RequestMethod.POST)
     public @ResponseBody String login(@RequestParam("username") String user, @RequestParam("password") String pw) {
         String connStr = "jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";

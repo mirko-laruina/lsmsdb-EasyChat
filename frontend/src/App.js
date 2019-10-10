@@ -30,16 +30,18 @@ class LoginForm extends Component {
 
   handleSubmit(evt){
     evt.preventDefault();
-    /*.post('http://localhost:8080/login', {
+    console.log(this.state.username);
+    console.log(this.state.password);
+    axios.post('http://localhost:8080/login', null,{ params: {
       username: this.state.username,
       password: this.state.password
-    })
+    }})
     .then(function (response) {
       console.log(response);
     })
     .catch(function (error) {
       console.log(error);
-    });*/
+    });
   }
 
   render() {
