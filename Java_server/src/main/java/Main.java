@@ -7,11 +7,14 @@ import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import java.sql.SQLException;
 import java.util.Random;
 
 @RestController
 @EnableAutoConfiguration
 public class Main {
+
+    static MySQLAdapter dba = null;
 
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping(value = "/")
@@ -23,7 +26,6 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
     public @ResponseBody String login(@RequestParam("username") String user, @RequestParam("password") String pw) throws Exception {
         //da rivedere il throws exception
-        MySQLAdapter dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
         Gson gson =  new Gson();
         if(user.compareTo("")==0 || pw.compareTo("")==0){
             return gson.toJson(new LoginResult(false, ""));
@@ -39,6 +41,22 @@ public class Main {
         LoginResult lr = new LoginResult(success, sid);
         return gson.toJson(lr);
     }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/auth/check"}, method=RequestMethod.POST)
+    public @ResponseBody String isLogged(@RequestParam("sessionId") String sid){
+        Gson gson = new Gson();
+        return gson.toJson(new BooleanResult(dba.getUserFromSession(sid) != -1));
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chats"}, method=RequestMethod.POST)
+    public @ResponseBody String getUserChats(@RequestParam("sessionId") String sid){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+        return gson.toJson(dba.getChats(userId));
+    }
+
 
     public String generateSessionId(){
         SecureRandom random = new SecureRandom();
@@ -68,6 +86,12 @@ public class Main {
 
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
+        try {
+            dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+        } catch (SQLException ex){
+            ex.printStackTrace();
+            return;
+        }
     }
 
 }
