@@ -45,6 +45,7 @@ class LoginForm extends Component {
             wrongAuth: 'hidden',
           })
           cookies.set('sessionId', response['data']['sessionId']);
+          window.location.reload();
         } else {
           self.setState({
             wrongAuth: '',

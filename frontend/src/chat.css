@@ -1,0 +1,8 @@
+.chatLabel {
+    padding: 30px;
+    width: 100%;
+}
+
+.chatsList {
+    height: -webkit-fill-available;
+}

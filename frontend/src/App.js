@@ -1,19 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import React, { Component } from 'react';
 import LoginForm from './LoginForm.js'
 import ChatScreen from './ChatScreen.js'
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
 
-function App() {
-  return (
-    <div className="container">
-      <Router>
-        <Switch>
-          <Route path='/' exact component={LoginForm} />
-          <Route path='/chat' component={ChatScreen} />
-        </Switch>
-      </Router>
-    </div>
-  );
+class App extends Component{
+  constructor(){
+    super();
+    this.state = {
+      sid: cookies.get('sessionId'),
+    }
+  }
+  
+  render(){
+    return (
+          <div className="container">
+            {this.state.sid !== undefined ? (
+              <ChatScreen sid={this.state.sid} />
+            ) : (
+              <LoginForm />
+            )}
+          </div>
+    )
+  }
 }
 
 export default App;
