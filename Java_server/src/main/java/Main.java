@@ -25,13 +25,13 @@ public class Main {
         //da rivedere il throws exception
         MySQLAdapter dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
         Gson gson =  new Gson();
-        if(user == "" || pw == ""){
+        if(user.compareTo("")==0 || pw.compareTo("")==0){
             return gson.toJson(new LoginResult(false, ""));
         }
         String dbPw = dba.getUserDBPassword(user);
-        boolean success = (dbPw != "" && dbPw.compareTo(pw) == 0);
+        boolean success = (dbPw != null && dbPw.compareTo("") != 0 && dbPw.compareTo(pw) == 0);
         String sid = "";
-        if(success == true){
+        if(success){
             sid = generateSessionId();
             long userId = dba.getUserId(user);
             dba.setUserSession(userId, sid);

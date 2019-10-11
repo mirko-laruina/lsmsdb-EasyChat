@@ -1,8 +1,8 @@
 public class LoginResult extends BooleanResult {
-    String authcode;
+    String sessionId;
 
-    public LoginResult(boolean r, String authcode){
+    public LoginResult(boolean r, String sessionId){
         super(r);
-        this.authcode = authcode;
+        this.sessionId = sessionId;
     }
 }

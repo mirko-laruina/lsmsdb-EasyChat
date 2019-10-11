@@ -2,9 +2,13 @@
     width: 30%;
     text-align: center;
     border: 1px solid #dee2e6;
-    padding: 10px 30px;
+    padding: 20px 30px;
     border-radius: 2%;
     margin-right: auto;
     margin-left: auto;
     margin-top: 10%;
+}
+
+.hidden {
+    display: none;
 }
