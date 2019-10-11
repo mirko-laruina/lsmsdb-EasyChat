@@ -331,6 +331,66 @@ public class MySQLAdapter implements DatabaseAdapter {
         }
     }
 
+    public long getUserFromSession(String sessionId){
+        try{
+            PreparedStatement statement = conn.prepareStatement(
+                    "SELECT userId\n"
+                            + "FROM Sessions\n"
+                            + "WHERE sessionId = ?\n"
+                            + "AND expiry > CURRENT_TIMESTAMP;"
+            );
+
+            statement.setString(1, sessionId);
+            statement.execute();
+            ResultSet rs = statement.getResultSet();
+            if(!rs.next()){
+                rs.close();
+                statement.close();
+                return -1;
+            }
+
+            long dbUserId = rs.getLong("userId");
+
+            rs.close();
+            statement.close();
+            return dbUserId;
+        } catch(SQLException ex) {
+            dumpSQLException(ex);
+            return -1;
+        }
+    }
+
+    public boolean setUserSession(long userId, String sessionId){
+        try{
+            PreparedStatement statement = conn.prepareStatement(
+                    "INSERT INTO Sessions(userId, sessionId, expiry)\n"
+                            + "VALUES (?,?,CURRENT_TIMESTAMP + INTERVAL 5 DAY)\n"
+                            + "ON DUPLICATE KEY UPDATE\n"
+                            + "sessionId = ? ,"
+                            + "expiry = (CURRENT_TIMESTAMP + INTERVAL 5 DAY)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+
+            statement.setLong(1, userId);
+            statement.setString(2, sessionId);
+            statement.setString(3, sessionId);
+            int rows = statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+
+            if (!generatedKeys.next()){
+                statement.close();
+                return false;
+            }
+            generatedKeys.close();
+            statement.close();
+            return true;
+        } catch(SQLException ex) {
+            dumpSQLException(ex);
+            return false;
+        }
+    }
+
     private void dumpSQLException(SQLException ex){
         System.out.println("SQLException: " + ex.getMessage());
         System.out.println("SQLState: " + ex.getSQLState());

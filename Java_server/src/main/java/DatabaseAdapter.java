@@ -13,4 +13,6 @@ public interface DatabaseAdapter {
     long createUser(User user);
     String getUserDBPassword(String username);
     long getUserId(String username);
+    long getUserFromSession(String sessionId);
+    boolean setUserSession(long userId, String sessionId);
 }

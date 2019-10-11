@@ -108,4 +108,5 @@ public class MySQLAdapterTest {
         String password = db.getUserDBPassword(username);
         assert password.equals("password");
     }
+
 }
