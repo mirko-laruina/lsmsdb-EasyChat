@@ -9,9 +9,17 @@ const cookies = new Cookies();
 
 class ChatScreen extends Component {
 
+  constructor(){
+    super()
+    this.state = {
+      chatId: 0,
+    }
+
+    this.setChat = this.setChat.bind(this)
+  }
+
   componentDidMount(){
     this.isLogged();
-    console.log(this.props.sid)
   }
 
   isLogged(){
@@ -29,13 +37,19 @@ class ChatScreen extends Component {
     });  
   }
 
+  setChat(id){
+    this.setState({
+      chatId: id,
+    })
+  }
+
   render() {
     return (
       <div className="chat">
         <div className="row">
-            <div className="col-md-4"><ChatsList sid={this.props.sid}/></div>
+            <div className="col-md-4"><ChatsList sid={this.props.sid} setChat={this.setChat}/></div>
             <div className="col-md-8">
-                <ChatMessages />
+                <ChatMessages sid={this.props.sid} chatId={this.state.chatId}/>
             </div>
         </div>
       </div>

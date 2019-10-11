@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Button, Form, Card } from "react-bootstrap";
+import { Button, Form, Alert } from "react-bootstrap";
 import Cookies from 'universal-cookie';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -73,9 +73,9 @@ class LoginForm extends Component {
             <Form.Control type="password" placeholder="Password"
                           value={this.state.password} onChange={(evt) => this.handlePw(evt.target.value)} />
           </Form.Group>
-          <Card body bg="danger"
+          <Alert body variant="danger"
                 style={{ marginBottom: '20px'}}
-                className={this.state.wrongAuth ? 'hidden' : ''}>Wrong username or password</Card>
+                className={this.state.wrongAuth ? 'hidden' : ''}>Wrong username or password</Alert>
           <Button variant="primary" type="submit">
             Submit
           </Button>

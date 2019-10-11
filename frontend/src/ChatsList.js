@@ -27,20 +27,20 @@ class ChatList extends Component {
         self.setState({
           chatList: response.data,
         })
-        console.log(self.state.chatList)
     })
     .catch(function (error) {
       console.log(error);
     }); 
   }
 
-  changeChat(i){
+  changeChat(chatId, i){
     let newState = Object.assign({}, this.state);
     newState.chatList[i].variant = "warning";
-    if(this.selectedChat != -1)
+    if(this.selectedChat !== -1)
       newState.chatList[this.selectedChat].variant = "light";
     this.selectedChat = i;
     this.setState(newState);
+    this.props.setChat(chatId);
   }
 
   render() {
@@ -52,7 +52,7 @@ class ChatList extends Component {
               return <Button className="chatLabel border"
                               variant={chat.variant}
                               key={chat.chatId}
-                              onClick={() => this.changeChat(i)}
+                              onClick={() => this.changeChat(chat.chatId, i)}
                               >
                         {chat.name}
                       </Button>
