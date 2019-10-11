@@ -1,7 +1,7 @@
 import java.util.Date;
 
 public class Message {
-    private long id;
+    private long messageId;
     private long chatId;
     private User sender;
     private Date timestamp;
@@ -15,19 +15,19 @@ public class Message {
     }
 
     public Message(long id, long chatId, User sender, Date timestamp, String text) {
-        this.id = id;
+        this.messageId = id;
         this.chatId = chatId;
         this.sender = sender;
         this.timestamp = timestamp;
         this.text = text;
     }
 
-    public long getId() {
-        return id;
+    public long getMessageId() {
+        return messageId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 
     public long getChatId() {

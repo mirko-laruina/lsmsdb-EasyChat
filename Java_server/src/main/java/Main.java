@@ -8,7 +8,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.sql.SQLException;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @EnableAutoConfiguration
@@ -55,6 +57,32 @@ public class Main {
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
         return gson.toJson(dba.getChats(userId));
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.POST)
+    public @ResponseBody String getMessages(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+
+        //Check if user has access to that chat
+        List<Chat> chats = dba.getChats(userId);
+        boolean access = false;
+        for (Chat chat: chats) {
+            if(chat.getId() == chatId){
+                access = true;
+                break;
+            }
+        }
+
+        if(!access){
+            //Return empty array
+            return gson.toJson(new ArrayList<Message>());
+        }
+
+        Date now = new Date();
+        List<Message> msgs = dba.getChatMessages(chatId, now, 0);
+        return gson.toJson(msgs);
     }
 
 

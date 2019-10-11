@@ -39,7 +39,7 @@ public class MySQLAdapterTest {
         List<Message> messages = db.getChatMessages(CHATID, new Date(), 10);
         System.out.println(String.format("Chat %d has %d messages", CHATID, messages.size()));
         for (Message message:messages){
-            System.out.println(String.format("%d: %s %s", message.getId(), message.getText(), message.getTimestamp().toString()));
+            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp().toString()));
         }
 
         assert messages.size() == 10;

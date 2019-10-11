@@ -52,13 +52,15 @@ public class MySQLAdapter implements DatabaseAdapter {
                         + "FROM Chats C INNER JOIN Messages M ON C.chatId = M.chatId\n"
                         + "INNER JOIN Users U on U.userId = M.senderUserId\n"
                         + "WHERE M.timestamp < ?\n"
+                        + "AND C.chatId = ?\n"
                         + "ORDER BY M.timestamp DESC"
                         + (n == 0 ? ";" : "\nLIMIT ?;")
             );
 
             statement.setTimestamp(1, new java.sql.Timestamp(to.getTime()));
+            statement.setLong(2, chatId);
             if (n != 0)
-                statement.setInt(2, n);
+                statement.setInt(3, n);
             statement.execute();
             ResultSet rs = statement.getResultSet();
             while(rs.next()){
