@@ -4,12 +4,12 @@ The API base URL is: `http://example.com/api/v1/`.
 ## `POST /auth/login`
 Logs the user in (starting a session within Spring using cookies ?).
 
-Also, not logged-in sessions must be able to call this API!
+Also not logged-in sessions must be able to call this API!
 
 ### Input
 ```json
 {
-    "userid": "<userid>",
+    "username": "<username>",
     "password": "<plain_text_password>"
 }
 ```
@@ -17,7 +17,8 @@ Also, not logged-in sessions must be able to call this API!
 ### Output
 ```json
 {
-    "success": "true|false"
+    "success": "true|false",
+    "sessionId": "<sessionId>
 }
 ```
 
@@ -69,20 +70,26 @@ The user must be a member of the chat!
 ]
 ```
 
-## `GET /chat/<id>/members`
-Returns the list of chat members.
+## `GET /chat/<id>`
+Returns information about the chat, including chat name and members.
 
 The user must be a member of the chat!
 
 ### Output
 ```json
-[
-    {
-        "userId": "userId",
-        "admin": "true|false"
-    },
-    ...
-]
+{
+    "id": "<chatId>",
+    "name": "<chatName>",
+    "adminId": "<adminId>",
+    "members":
+        [
+            {
+                "userId": "userId",
+                "username": "username"
+            },
+            ...
+        ]
+}
 ```
 ## `DELETE /chat/<cid>/member/<mid>`
 Removes a user from the chat.
@@ -190,9 +197,6 @@ Also, not logged-in sessions must be able to call this API!
 ```json
 {
     "success": "true|false",
-    "reason": "<reason>"
+    "sessionId": "<sessionId>
 }
 ```
-`reason` could be that the given username is already in use.
-
-
