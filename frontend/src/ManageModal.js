@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Modal, FormControl, Form, Alert, Button, InputGroup} from 'react-bootstrap'
+import {Modal, Form, Button} from 'react-bootstrap'
 
 class ManageModal extends Component{
     render(){

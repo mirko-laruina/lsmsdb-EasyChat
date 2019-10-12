@@ -261,7 +261,7 @@ public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
         try {
-            dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&password=mariadb&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+            dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
         } catch (SQLException ex){
             ex.printStackTrace();
             return;

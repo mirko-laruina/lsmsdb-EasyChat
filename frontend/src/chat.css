@@ -41,17 +41,19 @@
 }
 
 .chatsList{
-    height: 90vh;
-    margin-right: -100%;
-    padding-right: 100%;
+    height: 80vh;
+    margin-right: -1000%;
+    padding-right: 1000%;
+    overflow: auto;
 }
 
 .chatMessages {
     overflow: auto;
-    height: 70vh;
+    height: 64vh;
     padding-right: 20px;
     margin-right: -100%;
     padding-right: 100%;
+    margin-bottom: 3%;
 }
 
 html {
@@ -59,7 +61,6 @@ html {
 }
 
 .sendContainer {
-    margin-top: 15px;
     max-height: 10vh;
 }
 

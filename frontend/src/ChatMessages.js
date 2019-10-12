@@ -23,7 +23,8 @@ class ChatMessages extends Component {
       this.getMessages(this.props.chatId, this.props.sid, 0, 0, 0);
       this.startRefresh(this.props.chatId, this.props.sid);
     }
-    this.ref.current.scrollTop = this.ref.current.scrollHeight;
+    if(prevPops.chatId === 0)
+      this.ref.current.scrollTop = this.ref.current.scrollHeight;
   }
 
   stopRefresh(){
@@ -42,10 +43,6 @@ class ChatMessages extends Component {
     }, 500);
   }
 
-  getNewMessages(chat,sid){
-    //to be implemented
-  }
-
   getMessages(chat, sid, from, to, n){
     var self = this
     axios.get('http://localhost:8080/api/v1/chat/'+chat+'/messages',{ params: {
@@ -58,6 +55,9 @@ class ChatMessages extends Component {
       self.setState({
         messageList: self.state.messageList.concat(response.data),
       })
+      if(response.data.length > 0){
+        self.ref.current.scrollTop = self.ref.current.scrollHeight;
+      }
     })
     .catch(function (error) {
       console.log(error);
