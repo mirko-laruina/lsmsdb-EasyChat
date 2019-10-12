@@ -16,8 +16,11 @@ class ChatMessages extends Component {
 
   componentDidUpdate(prevPops){
     if(this.props.chatId !== prevPops.chatId){
-      this.getMessages(this.props.chatId, this.props.sid);
+      this.setState({
+        messageList: [],
+      });
       this.stopRefresh();
+      this.getMessages(this.props.chatId, this.props.sid, 0, 0, 0);
       this.startRefresh(this.props.chatId, this.props.sid);
     }
     this.ref.current.scrollTop = this.ref.current.scrollHeight;
@@ -30,7 +33,12 @@ class ChatMessages extends Component {
   startRefresh(chat, sid){
     var self = this;
     this.iid = window.setInterval(function() {
-      self.getMessages(chat, sid)
+      var lastMsgTime = 0;
+      if (self.state.messageList.length > 0){
+        var lastMsgTimestamp = self.state.messageList[self.state.messageList.length-1].timestamp;
+        lastMsgTime = new Date(lastMsgTimestamp).getTime();
+      }
+      self.getMessages(chat, sid, lastMsgTime, 0, 0)
     }, 500);
   }
 
@@ -38,14 +46,17 @@ class ChatMessages extends Component {
     //to be implemented
   }
 
-  getMessages(chat, sid){
+  getMessages(chat, sid, from, to, n){
     var self = this
     axios.get('http://localhost:8080/api/v1/chat/'+chat+'/messages',{ params: {
       sessionId: sid,
+      from: from,
+      to: to,
+      n: n
     }})
     .then(function (response) {
       self.setState({
-        messageList: response.data.reverse(),
+        messageList: self.state.messageList.concat(response.data),
       })
     })
     .catch(function (error) {
