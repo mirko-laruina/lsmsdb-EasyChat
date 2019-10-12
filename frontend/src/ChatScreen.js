@@ -3,6 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './chat.css';
 import ChatsList from './ChatsList.js'
 import ChatMessages from './ChatMessages.js'
+import ChatSend from './ChatSend.js'
+import {Container, Row, Col} from 'react-bootstrap';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
@@ -45,13 +47,18 @@ class ChatScreen extends Component {
 
   render() {
     return (
-      <div className="chat">
-        <div className="row">
-            <div className="col-md-4"><ChatsList sid={this.props.sid} setChat={this.setChat}/></div>
-            <div className="col-md-8">
-                <ChatMessages sid={this.props.sid} chatId={this.state.chatId}/>
-            </div>
-        </div>
+      <div className="chat border">
+        <Container>
+          <Row>
+            <Col md={4}>
+              <ChatsList className="chatsList" sid={this.props.sid} setChat={this.setChat}/>
+            </Col>
+            <Col md={8}>
+                <ChatMessages username={cookies.get('username')} sid={this.props.sid} chatId={this.state.chatId}/>
+                <ChatSend sid={this.props.sid} chatId={this.state.chatId}/>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }

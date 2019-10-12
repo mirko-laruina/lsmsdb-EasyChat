@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ListGroup, List} from 'react-bootstrap';
+import {ListGroup, Card, Alert} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
@@ -37,11 +37,17 @@ class ChatMessages extends Component {
       <div className="chatMessages">
           {
             this.state.messageList.length === 0 ? (
-            "Nothing to show"
+            <Alert variant="light" className="empty-chat"> Nothing to show: select a chat to start</Alert>
           ) : (
-            <ListGroup>
+            <ListGroup className="messageList">
               {this.state.messageList.map((message, i) =>
-                <ListGroup.Item key={i}>{message.text}</ListGroup.Item>
+                this.props.username != message.sender.username ? (
+                  <div key={i}><Card bg="info" className="message">{message.text}<p className="text-right">{message.timestamp}</p></Card>
+                  <p className="text-left">{message.sender.username}</p></div>
+                ) : (
+                  <div key={i}><Card bg="success" className="message">{message.text}<p className="text-right">{message.timestamp}</p></Card>
+                  <p className="text-right">You</p></div>
+                )
               )}
             </ListGroup>
           )}

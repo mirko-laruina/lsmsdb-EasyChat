@@ -45,6 +45,7 @@ class LoginForm extends Component {
             wrongAuth: 'hidden',
           })
           cookies.set('sessionId', response['data']['sessionId']);
+          cookies.set('username', self.state.username);
           window.location.reload();
         } else {
           self.setState({
@@ -73,7 +74,7 @@ class LoginForm extends Component {
             <Form.Control type="password" placeholder="Password"
                           value={this.state.password} onChange={(evt) => this.handlePw(evt.target.value)} />
           </Form.Group>
-          <Alert body variant="danger"
+          <Alert variant="danger"
                 style={{ marginBottom: '20px'}}
                 className={this.state.wrongAuth ? 'hidden' : ''}>Wrong username or password</Alert>
           <Button variant="primary" type="submit">

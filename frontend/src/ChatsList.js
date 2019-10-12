@@ -35,9 +35,9 @@ class ChatList extends Component {
 
   changeChat(chatId, i){
     let newState = Object.assign({}, this.state);
-    newState.chatList[i].variant = "warning";
     if(this.selectedChat !== -1)
       newState.chatList[this.selectedChat].variant = "light";
+    newState.chatList[i].variant = "warning";
     this.selectedChat = i;
     this.setState(newState);
     this.props.setChat(chatId);
