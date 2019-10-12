@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { ButtonGroup, Button, Modal, InputGroup, FormControl } from "react-bootstrap";
+import { ButtonGroup, Button, Modal, InputGroup, FormControl, Form } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 
@@ -112,18 +112,20 @@ class ChatList extends Component {
               <Modal.Title>Create group</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <InputGroup>
-                <FormControl  aria-label="Create group"
-                              placeholder="Name of your group"></FormControl>
-                <InputGroup.Append>
-                    <Button type="submit"
-                            variant="outline-success">Create</Button>
-                </InputGroup.Append>
-              </InputGroup>
+              <Form>
+                <Form.Group>
+                  <Form.Control  aria-label="Create group"
+                              placeholder="Name of your group"></Form.Control>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Control placeholder="User to add"></Form.Control>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Control placeholder="User to add"></Form.Control>
+                </Form.Group>
+                <Button block onClick={this.handleShowCreate} variant="outline-success">Add</Button>
+              </Form>
             </Modal.Body>
-            <Modal.Footer>
-              <Button onClick={this.handleShowCreate} variant="outline-danger">Close</Button>
-            </Modal.Footer>
           </Modal>
       </div>
     );
