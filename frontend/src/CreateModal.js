@@ -1,12 +1,72 @@
 import React, {Component} from 'react'
 import {Modal, FormControl, Form, Alert, Button, InputGroup} from 'react-bootstrap'
+import axios from "axios"
 
 class CreateModal extends Component {
     constructor(){
         super()
         this.state = {
-            wrongUser: 'hidden'
+            wrongUser: 'hidden',
+            wrongGroup: 'hidden',
+            newChatValue: '',
+            newGroupValue: '',
+            newUser1Value: '',
+            newUser2Value: '',
         }
+
+        this.createNewChat = this.createNewChat.bind(this)
+        this.createNewGroup = this.createNewGroup.bind(this)
+    }
+
+    handlerChatValue(value){
+        this.setState({
+            newChatValue: value,
+        })
+    }
+
+    createNewChat(){
+        var self = this;
+        axios.post("http://localhost:8080/api/v1/chats", {
+            name: 'null',
+            members: [this.state.newChatValue]
+        }, { params: {
+            sessionId: this.props.sid,
+        }})
+        .then(function(response){
+            if(!response.data.success){
+                self.setState({
+                    wrongUser: '',
+                })
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+    }
+
+    createNewGroup(evt){
+        evt.preventDefault();
+        var self = this;
+        axios.post("http://localhost:8080/api/v1/chats", {
+            name: this.state.newGroupValue,
+            members: [this.state.newUser1Value, this.state.newUser2Value]
+        }, { params: {
+            sessionId: this.props.sid,
+        }})
+        .then(function(response){
+            if(!response.data.success){
+                self.setState({
+                    wrongGroup: '',
+                })
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(function(error){
+            console.log(error);
+        })
     }
 
     render(){
@@ -16,15 +76,18 @@ class CreateModal extends Component {
                 <Modal.Title>Add chat</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                <Alert variant="danger" className={this.state.wrongUser ? 'hidden' : ''}>
+                <Alert variant="danger" className={this.state.wrongUser}>
                 No user found
                 </Alert>
                 <InputGroup>
                     <FormControl  aria-label="Add"
-                                placeholder="Who do you want to chat to?"></FormControl>
+                                placeholder="Who do you want to chat to?"
+                                value={this.state.newChatValue}
+                                onChange={(evt) => this.handlerChatValue(evt.target.value)}></FormControl>
                     <InputGroup.Append>
                         <Button type="submit"
-                                variant="outline-success">Add</Button>
+                                variant="outline-success"
+                                onClick={this.createNewChat}>Add</Button>
                     </InputGroup.Append>
                 </InputGroup>
                 </Modal.Body>
@@ -32,18 +95,33 @@ class CreateModal extends Component {
                 <Modal.Title>Create group</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                <Form>
+                <Form onSubmit={this.createNewGroup}>
+                    <Alert variant="danger" className={this.state.wrongGroup}>
+                    Type 2 valid usernames!
+                    </Alert>
                     <Form.Group>
-                    <Form.Control  aria-label="Create group"
-                                placeholder="Name of your group"></Form.Control>
+                    <Form.Control   aria-label="Create group"
+                                    placeholder="Name of your group"
+                                    onChange={(evt) => {
+                                        this.setState({
+                                            newGroupValue: evt.target.value
+                                    })}}></Form.Control>
                     </Form.Group>
                     <Form.Group>
-                    <Form.Control placeholder="User to add"></Form.Control>
+                    <Form.Control   placeholder="User to add"
+                                    onChange={(evt) => {
+                                        this.setState({
+                                            newUser1Value: evt.target.value
+                                    })}}></Form.Control>
                     </Form.Group>
                     <Form.Group>
-                    <Form.Control placeholder="User to add"></Form.Control>
+                    <Form.Control   placeholder="User to add"
+                                    onChange={(evt) => {
+                                        this.setState({
+                                            newUser2Value: evt.target.value
+                                    })}}></Form.Control>
                     </Form.Group>
-                    <Button block onClick={this.props.handler} variant="outline-success">Add</Button>
+                    <Button block type="submit" variant="outline-success">Add</Button>
                 </Form>
                 </Modal.Body>
             </Modal>

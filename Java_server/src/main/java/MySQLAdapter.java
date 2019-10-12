@@ -253,6 +253,7 @@ public class MySQLAdapter implements DatabaseAdapter {
             generatedKeys.close();
             statement.close();
 
+            userIds.add(adminId);
             for (long userId: userIds){
                 if (!addChatMember(chatId, userId))
                     return -1;

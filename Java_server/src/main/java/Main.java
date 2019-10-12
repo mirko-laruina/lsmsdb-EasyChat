@@ -198,8 +198,13 @@ public class Main {
         if (userId == -1){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+        List<String> members = request.getMembers();
+        List<Long> membIds = new ArrayList<Long>();
+        for(String memb: members){
+            membIds.add(dba.getUserId(memb));
+        }
 
-        long chatId = dba.createChat(request.getName(), userId, request.getMembers());
+        long chatId = dba.createChat(request.getName(), userId, membIds);
         return new ResponseEntity<>(gson.toJson(new BooleanResult(chatId > 0)), HttpStatus.OK);
     }
 

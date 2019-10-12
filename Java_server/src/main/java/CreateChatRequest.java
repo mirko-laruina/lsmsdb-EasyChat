@@ -2,7 +2,7 @@ import java.util.List;
 
 public class CreateChatRequest {
     private String name;
-    private List<Long> members;
+    private List<String> members;
 
     public String getName() {
         return name;
@@ -12,11 +12,11 @@ public class CreateChatRequest {
         this.name = name;
     }
 
-    public List<Long> getMembers() {
+    public List<String> getMembers() {
         return members;
     }
 
-    public void setMembers(List<Long> members) {
+    public void setMembers(List<String> members) {
         this.members = members;
     }
 }

@@ -75,7 +75,7 @@ class ChatList extends Component {
         </ButtonGroup>
           {
             this.state.chatList.map((chat, i) => {
-                if(chat.members.length === 2){
+                if(chat.members.length < 3){
                   return <Button className="chatLabel border"
                         variant={chat.variant}
                         key={chat.chatId}
@@ -110,8 +110,9 @@ class ChatList extends Component {
             })
           }
 
-        <CreateModal handler={this.handleShowCreate} show={this.state.showCreate} />
-        <ManageModal handler={this.handleShowManage}
+        <CreateModal sid={this.props.sid} handler={this.handleShowCreate} show={this.state.showCreate} />
+        <ManageModal sid={this.props.sid}
+                     handler={this.handleShowManage}
                      isAdmin={this.isAdmin}
                      show={this.state.showManage}
                      chatId={this.managedChat} />
