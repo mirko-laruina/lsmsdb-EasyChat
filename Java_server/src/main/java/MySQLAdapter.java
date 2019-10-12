@@ -23,7 +23,8 @@ public class MySQLAdapter implements DatabaseAdapter {
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT C.chatId, C.name, C.adminId\n"
                         + "FROM Chats C INNER JOIN Chatmembers M ON C.chatId = M.chatId\n"
-                        + "WHERE M.userId = ?;"
+                        + "WHERE M.userId = ?\n"
+                        + "ORDER BY lastActivity DESC;"
             );
 
             statement.setLong(1, userId);
