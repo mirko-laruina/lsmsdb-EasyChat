@@ -66,3 +66,17 @@ html {
 .modalAdd {
     padding-bottom: 20%;
 }
+
+.groupLabel {
+    padding: 30px;
+    width: 85%;
+}
+
+.groupLabelManage {
+    width: 15%;
+}
+
+.groupLabelManage button {
+    width: 100%;
+    font-weight: bolder;
+}

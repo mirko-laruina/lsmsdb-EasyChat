@@ -17,6 +17,7 @@ class ChatScreen extends Component {
       chatId: 0,
     }
 
+    this.username = cookies.get('username');
     this.setChat = this.setChat.bind(this)
   }
 
@@ -51,10 +52,10 @@ class ChatScreen extends Component {
         <Container>
           <Row>
             <Col md={4}>
-              <ChatsList className="chatsList" sid={this.props.sid} setChat={this.setChat}/>
+              <ChatsList className="chatsList"  username={this.username} sid={this.props.sid} setChat={this.setChat}/>
             </Col>
             <Col md={8}>
-                <ChatMessages username={cookies.get('username')} sid={this.props.sid} chatId={this.state.chatId}/>
+                <ChatMessages username={this.username} sid={this.props.sid} chatId={this.state.chatId}/>
                 <ChatSend sid={this.props.sid} chatId={this.state.chatId}/>
             </Col>
           </Row>

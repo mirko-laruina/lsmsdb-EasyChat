@@ -56,7 +56,16 @@ public class Main {
     public @ResponseBody String getUserChats(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
-        return gson.toJson(dba.getChats(userId));
+        List<Chat> chats= dba.getChats(userId);
+        for(Chat chat: chats){
+            chat.setMembers(dba.getChatMembers(chat.getId()));
+            if(chat.getAdmin() == userId){
+                chat.isAdmin = true;
+            } else {
+                chat.isAdmin = false;
+            }
+        }
+        return gson.toJson(chats);
     }
 
     @CrossOrigin(origins = "http://localhost:3000")

@@ -12,7 +12,7 @@ class ChatList extends Component {
       show: false,
     }
     this.selectedChat = -1;
-    this.handleShowAdd = this.handleShowAdd.bind(this)
+    this.handleShowCreate = this.handleShowCreate.bind(this)
   }
 
   componentDidMount(){
@@ -45,7 +45,7 @@ class ChatList extends Component {
     this.props.setChat(chatId);
   }
 
-  handleShowAdd(){
+  handleShowCreate(){
     let newState = Object.assign({}, this.state);
     newState.show = !newState.show;
     this.setState(newState);
@@ -57,22 +57,44 @@ class ChatList extends Component {
         <ButtonGroup vertical> 
           <Button className="chatLabel border addChat"
                   variant="outline-success"
-                  onClick={this.handleShowAdd}>+ Create</Button>
-          
+                  onClick={this.handleShowCreate}>+ Create
+          </Button>
+        </ButtonGroup>
           {
             this.state.chatList.map((chat, i) => {
-                      return <Button className="chatLabel border"
-                              variant={chat.variant}
-                              key={chat.chatId}
-                              onClick={() => this.changeChat(chat.chatId, i)}
-                              >
-                        {chat.name}
-                      </Button>
+                if(chat.members.length === 2){
+                  return <Button className="chatLabel border"
+                        variant={chat.variant}
+                        key={chat.chatId}
+                        onClick={() => this.changeChat(chat.chatId, i)}>
+                             {
+                               chat.members.map((member) =>
+                                  member.username !== this.props.username ? (
+                                    member.username
+                                  ) : null
+                              )}
+                        </Button>
+                } else {
+                  return (
+                    <InputGroup className="border">
+                        <Button variant={chat.variant}
+                                className="groupLabel"
+                                key={chat.chatId}
+                                onClick={() => this.changeChat(chat.chatId, i)}>
+                                  {chat.name}
+                        </Button>
+                      <InputGroup.Append className="groupLabelManage">
+                        <Button variant={chat.variant} disabled={!chat.isAdmin}>
+                                  +
+                        </Button>
+                      </InputGroup.Append>
+                    </InputGroup>
+                  )
+                }
             })
           }
-        </ButtonGroup>
 
-        <Modal show={this.state.show} onHide={this.handleShowAdd}>
+        <Modal show={this.state.show} onHide={this.handleShowCreate}>
             <Modal.Header closeButton>
               <Modal.Title>Add chat</Modal.Title>
             </Modal.Header>
@@ -100,7 +122,7 @@ class ChatList extends Component {
               </InputGroup>
             </Modal.Body>
             <Modal.Footer>
-              <Button onClick={this.handleShowAdd} variant="outline-danger">Close</Button>
+              <Button onClick={this.handleShowCreate} variant="outline-danger">Close</Button>
             </Modal.Footer>
           </Modal>
       </div>

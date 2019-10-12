@@ -20,7 +20,7 @@ public class MySQLAdapter implements DatabaseAdapter {
         List<Chat> chats = new ArrayList<>();
         try{
             PreparedStatement statement = conn.prepareStatement(
-                    "SELECT C.chatId, C.name\n"
+                    "SELECT C.chatId, C.name, C.adminId\n"
                         + "FROM Chats C INNER JOIN Chatmembers M ON C.chatId = M.chatId\n"
                         + "WHERE M.userId = ?;"
             );
@@ -31,7 +31,8 @@ public class MySQLAdapter implements DatabaseAdapter {
             while(rs.next()){
                 chats.add(new Chat(
                         rs.getLong("C.chatId"),
-                        rs.getString("C.name")
+                        rs.getString("C.name"),
+                        rs.getLong("C.adminId")
                 ));
             }
             rs.close();

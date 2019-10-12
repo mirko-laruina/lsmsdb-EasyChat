@@ -1,3 +1,4 @@
+import java.lang.reflect.Member;
 import java.util.List;
 
 public class Chat {
@@ -5,19 +6,27 @@ public class Chat {
     private String name;
     private List<Message> messages;
     private List<User> members;
-    private User admin;
+    private long adminId;
+    //just a quick solution, this has to be reviewed
+    public boolean isAdmin;
 
-    public Chat(int id, String name, List<Message> messages, List<User> members, User admin) {
+    public Chat(int id, String name, List<Message> messages, List<User> members, long adminId) {
         this.chatId = id;
         this.name = name;
         this.messages = messages;
         this.members = members;
-        this.admin = admin;
+        this.adminId = adminId;
     }
 
     public Chat(long id, String name) {
         this.chatId = id;
         this.name = name;
+    }
+
+    public Chat(long id, String name, long adminId) {
+        this.chatId = id;
+        this.name = name;
+        this.adminId = adminId;
     }
 
     public long getId() {
@@ -48,11 +57,11 @@ public class Chat {
         this.members = members;
     }
 
-    public User getAdmin() {
-        return admin;
+    public long getAdmin() {
+        return adminId;
     }
 
-    public void setAdmin(User admin) {
-        this.admin = admin;
+    public void setAdmin(long adminId) {
+        this.adminId = adminId;
     }
 }
