@@ -1,6 +1,8 @@
 import com.google.gson.Gson;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
@@ -26,18 +28,18 @@ public class Main {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
-    public @ResponseBody String login(@RequestParam("username") String user, @RequestParam("password") String pw) throws Exception {
+    public @ResponseBody String login(@RequestBody LoginRequest loginRequest) throws Exception {
         //da rivedere il throws exception
         Gson gson =  new Gson();
-        if(user.compareTo("")==0 || pw.compareTo("")==0){
+        if(loginRequest.getUsername().equals("") || loginRequest.getPassword().equals("")){
             return gson.toJson(new LoginResult(false, ""));
         }
-        String dbPw = dba.getUserDBPassword(user);
-        boolean success = (dbPw != null && dbPw.compareTo("") != 0 && dbPw.compareTo(pw) == 0);
+        String dbPw = dba.getUserDBPassword(loginRequest.getUsername());
+        boolean success = (dbPw != null && dbPw.equals(loginRequest.getPassword()));
         String sid = "";
         if(success){
             sid = generateSessionId();
-            long userId = dba.getUserId(user);
+            long userId = dba.getUserId(loginRequest.getUsername());
             dba.setUserSession(userId, sid);
         }
         LoginResult lr = new LoginResult(success, sid);
@@ -45,17 +47,30 @@ public class Main {
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @RequestMapping(value={"/api/v1/auth/check"}, method=RequestMethod.POST)
+    @RequestMapping(value={"/api/v1/auth/check"}, method=RequestMethod.GET)
     public @ResponseBody String isLogged(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
         return gson.toJson(new BooleanResult(dba.getUserFromSession(sid) != -1));
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @RequestMapping(value={"/api/v1/chats"}, method=RequestMethod.POST)
-    public @ResponseBody String getUserChats(@RequestParam("sessionId") String sid){
+    @RequestMapping(value={"/api/v1/auth/logout"}, method=RequestMethod.POST)
+    public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
+
+        return gson.toJson(new BooleanResult(dba.removeUserSession(userId, sid)));
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chats"}, method=RequestMethod.GET)
+    public ResponseEntity getUserChats(@RequestParam("sessionId") String sid){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+        if (userId == -1){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         List<Chat> chats= dba.getChats(userId);
         for(Chat chat: chats){
             chat.setMembers(dba.getChatMembers(chat.getId()));
@@ -65,65 +80,131 @@ public class Main {
                 chat.isAdmin = false;
             }
         }
-        return gson.toJson(chats);
+        return new ResponseEntity<>(gson.toJson(chats), HttpStatus.OK);
     }
 
+    //TODO support parameters
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.GET)
-    public @ResponseBody String getMessages(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
+    public ResponseEntity getMessages(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
 
-        //Check if user has access to that chat
-        List<Chat> chats = dba.getChats(userId);
-        boolean access = false;
-        for (Chat chat: chats) {
-            if(chat.getId() == chatId){
-                access = true;
-                break;
-            }
-        }
-
-        if(!access){
-            //Return empty array
-            return gson.toJson(new ArrayList<Message>());
+        if(!dba.checkChatMember(chatId, userId)){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         Date now = new Date();
         List<Message> msgs = dba.getChatMessages(chatId, now, 0);
-        return gson.toJson(msgs);
+        return new ResponseEntity<>(gson.toJson(msgs), HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.POST)
-    public @ResponseBody String sendMessage(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestParam("text") String text){
+    public ResponseEntity sendMessage(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestBody SendMessageRequest request){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
         if(userId == -1){
-            return gson.toJson(new BooleanResult(false));
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        //Check chat access
-        List<Chat> chats = dba.getChats(userId);
-        boolean access = false;
-        for (Chat chat: chats) {
-            if(chat.getId() == chatId){
-                access = true;
-                break;
-            }
-        }
-        if(!access){
-            return gson.toJson(new BooleanResult(false));
+        if(!dba.checkChatMember(chatId, userId)){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         //Write message
         Date now = new Date();
         User user = new User(userId);
-        Message msg = new Message(chatId, user, now, text);
+        Message msg = new Message(chatId, user, now, request.getText());
         long msgId = dba.addChatMessage(msg);
 
-        return gson.toJson(new BooleanResult(msgId > 0));
+        return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
+    }
 
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chat/{chatId}"}, method=RequestMethod.GET)
+    public ResponseEntity getChat(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+
+        if(!dba.checkChatMember(chatId, userId)){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        Chat chat = dba.getChat(chatId);
+        chat.setMembers(dba.getChatMembers(chatId));
+        return new ResponseEntity<>(gson.toJson(chat), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chat/{chatId}/member/{memberId}"}, method=RequestMethod.DELETE)
+    public ResponseEntity removeChatMember(@PathVariable(value="chatId") long chatId, @PathVariable(value="memberId") long memberId, @RequestParam("sessionId") String sid){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+
+        Chat chat = dba.getChat(chatId);
+        if (chat.getAdmin() != userId){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        boolean result = dba.removeChatMember(chatId, memberId);
+        return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chat/{chatId}/members"}, method=RequestMethod.POST)
+    public ResponseEntity addChatMember(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestBody AddMemberRequest request){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+
+        Chat chat = dba.getChat(chatId);
+        if (chat.getAdmin() != userId){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        boolean result = dba.addChatMember(chatId, request.getUserId());
+        return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chats"}, method=RequestMethod.POST)
+    public ResponseEntity createChat(@RequestParam("sessionId") String sid, @RequestBody CreateChatRequest request){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+        if (userId == -1){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        long chatId = dba.createChat(request.getName(), userId, request.getMembers());
+        return new ResponseEntity<>(gson.toJson(new BooleanResult(chatId > 0)), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chat/{chatId}"}, method=RequestMethod.DELETE)
+    public ResponseEntity deleteChat(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+
+        Chat chat = dba.getChat(chatId);
+        if (chat.getAdmin() != userId){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        boolean result = dba.deleteChat(chatId);
+        return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/users"}, method=RequestMethod.POST)
+    public ResponseEntity registerUser(@RequestBody LoginRequest request){
+        Gson gson = new Gson();
+        long userId = dba.createUser(new User(request.getUsername(), request.getPassword()));
+        String sid = "";
+        if (userId > 0){
+            sid = generateSessionId();
+            dba.setUserSession(userId, sid);
+        }
+        return new ResponseEntity<>(gson.toJson(new LoginResult(userId > 0, sid)), HttpStatus.OK);
     }
 
 
@@ -156,7 +237,7 @@ public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
         try {
-            dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+            dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&password=mariadb&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
         } catch (SQLException ex){
             ex.printStackTrace();
             return;

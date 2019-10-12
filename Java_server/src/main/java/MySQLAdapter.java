@@ -147,6 +147,29 @@ public class MySQLAdapter implements DatabaseAdapter {
             return false;
         }
     }
+    @Override
+    public boolean checkChatMember(long chatId, long userId) {
+        try{
+            PreparedStatement statement = conn.prepareStatement(
+                    "SELECT * FROM Chatmembers \n"
+                        + "WHERE chatId = ? AND userId = ?;"
+            );
+
+            statement.setLong(1, chatId);
+            statement.setLong(2, userId);
+            boolean result = statement.execute();
+            if (result){
+                ResultSet rs = statement.getResultSet();
+                result = rs.next();
+            }
+
+            statement.close();
+            return result;
+        } catch(SQLException ex) {
+            dumpSQLException(ex);
+            return false;
+        }
+    }
 
     @Override
     public long addChatMessage(Message message) {
@@ -242,6 +265,36 @@ public class MySQLAdapter implements DatabaseAdapter {
             dumpSQLException(ex);
             return false;
         }
+    }
+
+    @Override
+    public Chat getChat(long chatId) {
+        Chat chat = null;
+        try{
+            PreparedStatement statement = conn.prepareStatement(
+                    "SELECT chatId, name, adminId \n"
+                            + "FROM Chats\n"
+                            + "WHERE chatId = ?;"
+            );
+
+            statement.setLong(1, chatId);
+            boolean result = statement.execute();
+            if (result) {
+                ResultSet rs = statement.getResultSet();
+                if (rs.next()){
+                    chat = new Chat(
+                            rs.getLong("chatId"),
+                            rs.getString("name"),
+                            rs.getLong("adminId")
+                    );
+                }
+            }
+
+            statement.close();
+        } catch(SQLException ex) {
+            dumpSQLException(ex);
+        }
+        return chat;
     }
 
     @Override
@@ -388,6 +441,26 @@ public class MySQLAdapter implements DatabaseAdapter {
             generatedKeys.close();
             statement.close();
             return true;
+        } catch(SQLException ex) {
+            dumpSQLException(ex);
+            return false;
+        }
+    }
+
+    public boolean removeUserSession(long userId, String sessionId){
+        try{
+            PreparedStatement statement = conn.prepareStatement(
+                    "DELETE FROM Sessions\n"
+                            + "WHERE userId = ? AND sessionId = ?",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+
+            statement.setLong(1, userId);
+            statement.setString(2, sessionId);
+            int rows = statement.executeUpdate();
+
+            statement.close();
+            return rows > 0;
         } catch(SQLException ex) {
             dumpSQLException(ex);
             return false;
