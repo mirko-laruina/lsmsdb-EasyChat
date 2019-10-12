@@ -18,6 +18,7 @@ class ChatList extends Component {
       showManage: false
     }
     this.selectedChat = -1;
+    this.managedChat = -1;
     this.handleShowCreate = this.handleShowCreate.bind(this);
     this.handleShowManage = this.handleShowManage.bind(this);
   }
