@@ -11,18 +11,36 @@ class ChatMessages extends Component {
       messageList: [],
     };
     this.ref = createRef();
+    this.iid = 0;
   }
 
   componentDidUpdate(prevPops){
     if(this.props.chatId !== prevPops.chatId){
       this.getMessages(this.props.chatId, this.props.sid);
+      this.stopRefresh();
+      this.startRefresh(this.props.chatId, this.props.sid);
     }
     this.ref.current.scrollTop = this.ref.current.scrollHeight;
   }
 
+  stopRefresh(){
+    window.clearInterval(this.iid);
+  }
+
+  startRefresh(chat, sid){
+    var self = this;
+    this.iid = window.setInterval(function() {
+      self.getMessages(chat, sid)
+    }, 500);
+  }
+
+  getNewMessages(chat,sid){
+    //to be implemented
+  }
+
   getMessages(chat, sid){
     var self = this
-    axios.post('http://localhost:8080/api/v1/chat/'+chat+'/messages', null,{ params: {
+    axios.get('http://localhost:8080/api/v1/chat/'+chat+'/messages',{ params: {
       sessionId: sid,
     }})
     .then(function (response) {
@@ -48,7 +66,7 @@ class ChatMessages extends Component {
                   <div key={i}><Card bg="info" className="message">{message.text}<p className="text-right">{message.timestamp}</p></Card>
                   <p className="text-left">{message.sender.username}</p></div>
                 ) : (
-                  <div key={i}><Card bg="success" className="message">{message.text}<p className="text-right">{message.timestamp}</p></Card>
+                  <div key={i}><Card bg="success" className="message"><p className="text-right">{message.text}</p><p className="text-right timestamp">{message.timestamp}</p></Card>
                   <p className="text-right">You</p></div>
                 )
               )}

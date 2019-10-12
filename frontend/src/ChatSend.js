@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Button, InputGroup, FormControl, Form} from 'react-bootstrap'
+import axios from 'axios';
 
 class ChatSend extends Component {
 
@@ -14,6 +15,19 @@ class ChatSend extends Component {
 
     sendMessage(evt){
         evt.preventDefault();
+        axios.post('http://localhost:8080/api/v1/chat/'+this.props.chatId+'/messages', null,{ params: {
+            sessionId: this.props.sid,
+            text: this.state.value,
+        }})
+        .then(function(response){
+            if(!response.data.success){
+                alert('Message not send');
+            }
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+        this.setState({ value: '' })
     }
 
     handleChange(evt){

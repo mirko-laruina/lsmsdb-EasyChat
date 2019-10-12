@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import { ButtonGroup, Button, Modal, InputGroup, FormControl, Form } from "react-bootstrap";
+import { ButtonGroup, Button, InputGroup } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import CreateModal from './CreateModal.js'
 
 class ChatList extends Component {
 
@@ -9,7 +10,7 @@ class ChatList extends Component {
     super();
     this.state = {
       chatList: [],
-      show: false,
+      showCreate: false,
     }
     this.selectedChat = -1;
     this.handleShowCreate = this.handleShowCreate.bind(this)
@@ -47,7 +48,7 @@ class ChatList extends Component {
 
   handleShowCreate(){
     let newState = Object.assign({}, this.state);
-    newState.show = !newState.show;
+    newState.showCreate = !newState.showCreate;
     this.setState(newState);
   }
 
@@ -76,10 +77,9 @@ class ChatList extends Component {
                         </Button>
                 } else {
                   return (
-                    <InputGroup className="border">
+                    <InputGroup className="border" key={chat.chatId}>
                         <Button variant={chat.variant}
                                 className="groupLabel"
-                                key={chat.chatId}
                                 onClick={() => this.changeChat(chat.chatId, i)}>
                                   {chat.name}
                         </Button>
@@ -94,39 +94,7 @@ class ChatList extends Component {
             })
           }
 
-        <Modal show={this.state.show} onHide={this.handleShowCreate}>
-            <Modal.Header closeButton>
-              <Modal.Title>Add chat</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <InputGroup>
-                <FormControl  aria-label="Add"
-                              placeholder="Who do you want to chat to?"></FormControl>
-                <InputGroup.Append>
-                    <Button type="submit"
-                            variant="outline-success">Add</Button>
-                </InputGroup.Append>
-              </InputGroup>
-            </Modal.Body>
-            <Modal.Header>
-              <Modal.Title>Create group</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form>
-                <Form.Group>
-                  <Form.Control  aria-label="Create group"
-                              placeholder="Name of your group"></Form.Control>
-                </Form.Group>
-                <Form.Group>
-                  <Form.Control placeholder="User to add"></Form.Control>
-                </Form.Group>
-                <Form.Group>
-                  <Form.Control placeholder="User to add"></Form.Control>
-                </Form.Group>
-                <Button block onClick={this.handleShowCreate} variant="outline-success">Add</Button>
-              </Form>
-            </Modal.Body>
-          </Modal>
+        <CreateModal handler={this.handleShowCreate} show={this.state.showCreate} />
       </div>
     );
   }

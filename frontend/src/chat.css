@@ -36,7 +36,7 @@
     padding-bottom: 0%;
 }
 
-.message p {
+.message .timestamp {
     font-size: 12px;
 }
 
