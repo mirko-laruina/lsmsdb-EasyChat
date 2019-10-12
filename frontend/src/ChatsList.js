@@ -3,6 +3,10 @@ import { ButtonGroup, Button, InputGroup } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import CreateModal from './CreateModal.js'
+import ManageModal from './ManageModal.js'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTools } from '@fortawesome/free-solid-svg-icons'
+
 
 class ChatList extends Component {
 
@@ -11,9 +15,11 @@ class ChatList extends Component {
     this.state = {
       chatList: [],
       showCreate: false,
+      showManage: false
     }
     this.selectedChat = -1;
-    this.handleShowCreate = this.handleShowCreate.bind(this)
+    this.handleShowCreate = this.handleShowCreate.bind(this);
+    this.handleShowManage = this.handleShowManage.bind(this);
   }
 
   componentDidMount(){
@@ -52,6 +58,12 @@ class ChatList extends Component {
     this.setState(newState);
   }
 
+  handleShowManage(){
+    let newState = Object.assign({}, this.state);
+    newState.showManage = !newState.showManage;
+    this.setState(newState);
+  }
+
   render() {
     return (
       <div className="chatsList">
@@ -84,8 +96,12 @@ class ChatList extends Component {
                                   {chat.name}
                         </Button>
                       <InputGroup.Append className="groupLabelManage">
-                        <Button variant={chat.variant} disabled={!chat.isAdmin}>
-                                  +
+                        <Button variant={chat.variant}
+                                onClick={(evt) => {
+                                  this.managedChat = chat.chatId;
+                                  this.handleShowManage();
+                                }}>
+                                <FontAwesomeIcon icon={faTools} />
                         </Button>
                       </InputGroup.Append>
                     </InputGroup>
@@ -95,6 +111,10 @@ class ChatList extends Component {
           }
 
         <CreateModal handler={this.handleShowCreate} show={this.state.showCreate} />
+        <ManageModal handler={this.handleShowManage}
+                     isAdmin={this.isAdmin}
+                     show={this.state.showManage}
+                     chatId={this.managedChat} />
       </div>
     );
   }
