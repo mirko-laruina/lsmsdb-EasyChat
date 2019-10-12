@@ -10,6 +10,10 @@
     border-radius: 1%;
 }
 
+.addChat {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
 .empty-chat {
     font-size: 20px;
     padding: 20px;
@@ -57,4 +61,8 @@ html {
 .sendContainer {
     margin-top: 15px;
     max-height: 10vh;
+}
+
+.modalAdd {
+    padding-bottom: 20%;
 }

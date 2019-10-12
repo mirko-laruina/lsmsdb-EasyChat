@@ -14,7 +14,6 @@ class ChatSend extends Component {
 
     sendMessage(evt){
         evt.preventDefault();
-        console.log(this.state.value)
     }
 
     handleChange(evt){
@@ -28,7 +27,7 @@ class ChatSend extends Component {
             <div className="sendContainer">
                 <Form onSubmit={this.sendMessage}>
                 {
-                    this.props.chatId == 0 ? null : (
+                    this.props.chatId === 0 ? null : (
                         <InputGroup size="lg">
                             <FormControl    as="textarea"
                                             rows="2"
@@ -36,7 +35,7 @@ class ChatSend extends Component {
                                             placeholder="Write your message!"
                                             value={this.state.value}
                                             onKeyPress={(evt) => {
-                                                    if(evt.which==13){
+                                                    if(evt.which===13){
                                                         evt.preventDefault();
                                                         evt.target.form.dispatchEvent(new Event("submit", {cancelable: true}));
                                                     }
@@ -44,7 +43,7 @@ class ChatSend extends Component {
                                             }
                                             onChange={this.handleChange}/>
                             <InputGroup.Append>
-                                <Button type="submit">Send</Button>
+                                <Button type="submit" variant="primary">Send</Button>
                             </InputGroup.Append>
                         </InputGroup>
                     )}
