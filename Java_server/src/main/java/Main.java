@@ -69,7 +69,7 @@ public class Main {
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.POST)
+    @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.GET)
     public @ResponseBody String getMessages(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
@@ -92,6 +92,38 @@ public class Main {
         Date now = new Date();
         List<Message> msgs = dba.getChatMessages(chatId, now, 0);
         return gson.toJson(msgs);
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.POST)
+    public @ResponseBody String sendMessage(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestParam("text") String text){
+        Gson gson = new Gson();
+        long userId = dba.getUserFromSession(sid);
+        if(userId == -1){
+            return gson.toJson(new BooleanResult(false));
+        }
+
+        //Check chat access
+        List<Chat> chats = dba.getChats(userId);
+        boolean access = false;
+        for (Chat chat: chats) {
+            if(chat.getId() == chatId){
+                access = true;
+                break;
+            }
+        }
+        if(!access){
+            return gson.toJson(new BooleanResult(false));
+        }
+
+        //Write message
+        Date now = new Date();
+        User user = new User(userId);
+        Message msg = new Message(chatId, user, now, text);
+        long msgId = dba.addChatMessage(msg);
+
+        return gson.toJson(new BooleanResult(msgId > 0));
+
     }
 
 
