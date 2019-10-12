@@ -22,7 +22,7 @@ class ChatList extends Component {
 
   getChat(){
     var self = this;
-    axios.post('http://localhost:8080/api/v1/chats', null,{ params: {
+    axios.get('http://localhost:8080/api/v1/chats',{ params: {
       sessionId: this.props.sid,
     }})
     .then(function (response) {

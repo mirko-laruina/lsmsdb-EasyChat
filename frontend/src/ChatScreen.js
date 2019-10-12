@@ -26,7 +26,7 @@ class ChatScreen extends Component {
   }
 
   isLogged(){
-    axios.post('http://localhost:8080/api/v1/auth/check', null,{ params: {
+    axios.get('http://localhost:8080/api/v1/auth/check', { params: {
       sessionId: this.props.sid,
     }})
     .then(function (response) {
