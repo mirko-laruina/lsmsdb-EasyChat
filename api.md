@@ -50,10 +50,14 @@ Returns a list of chats involving the logged-in user.
 ```
 
 ## `GET /chat/<id>/messages?to=<to>&n=<n>`
-Returns a list of `n` messages up to the time specified in `to` (time in ms).
+Returns a list of `n` messages from the time (in ms) in `from` up to the time 
+in `to` (time in ms) in ascending order of sending time. In case all 3 parameters 
+are set, the first `n` messages from `from` are returned unless there are fewer 
+messages than `n`, in which case all messages between `from` and `to` are returned.
 
-`n` and `to` are optional and default to returning all messages (infinite `n`;
-`to` set to now).
+`n`, `to` and `from` are optional and default to returning all messages (infinite `n`;
+`to` set to now, `to` set to Big Bang). A value of 0 in any parameter means the 
+default value as previously explained.
 
 The user must be a member of the chat!
 
