@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -86,7 +87,12 @@ public class Main {
     //TODO support parameters
     @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.GET)
-    public ResponseEntity getMessages(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
+    public ResponseEntity getMessages(@PathVariable(value="chatId") long chatId,
+                                      @RequestParam("sessionId") String sid,
+                                      @RequestParam(name = "from", required = false, defaultValue = "0") String from,
+                                      @RequestParam(name = "to", required = false, defaultValue = "0") String to,
+                                      @RequestParam(name = "n", required = false, defaultValue = "0") String n
+                                      ){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
 
@@ -94,8 +100,26 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Date now = new Date();
-        List<Message> msgs = dba.getChatMessages(chatId, now, 0);
+        Date fromDate = null;
+        Date toDate = null;
+        int nInt = 0;
+
+        try {
+            long fromLong = Long.parseLong(from);
+            if (fromLong != 0)
+                fromDate = new Date(fromLong);
+
+            long toLong = Long.parseLong(to);
+            if (toLong != 0)
+                toDate = new Date(toLong);
+
+            nInt = Integer.parseInt(n);
+        } catch (NumberFormatException e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        List<Message> msgs = dba.getChatMessages(chatId, fromDate, toDate, nInt);
         return new ResponseEntity<>(gson.toJson(msgs), HttpStatus.OK);
     }
 
