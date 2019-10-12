@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,23 +46,37 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public List<Message> getChatMessages(long chatId, Date to, int n) {
+    public List<Message> getChatMessages(long chatId, Date from, Date to, int n) {
         List<Message> messages = new ArrayList<>();
         try{
-            PreparedStatement statement = conn.prepareStatement(
-                    "SELECT M.messageId, M.timestamp, U.userId, U.username, M.text\n"
-                        + "FROM Chats C INNER JOIN Messages M ON C.chatId = M.chatId\n"
-                        + "INNER JOIN Users U on U.userId = M.senderUserId\n"
-                        + "WHERE M.timestamp < ?\n"
-                        + "AND C.chatId = ?\n"
-                        + "ORDER BY M.timestamp DESC"
-                        + (n == 0 ? ";" : "\nLIMIT ?;")
-            );
-
-            statement.setTimestamp(1, new java.sql.Timestamp(to.getTime()));
-            statement.setLong(2, chatId);
+            StringBuilder st = new StringBuilder();
+            st.append("SELECT M.messageId, M.timestamp, U.userId, U.username, M.text\n"
+                    + "FROM Chats C INNER JOIN Messages M ON C.chatId = M.chatId\n"
+                    + "INNER JOIN Users U on U.userId = M.senderUserId\n"
+                    + "WHERE C.chatId = ?");
+            if (from != null)
+                st.append("\nAND M.timestamp > ?");
+            if (to != null)
+                st.append("\nAND M.timestamp < ?");
+            if (from == null)
+                st.append("\nORDER BY M.timestamp DESC");
+            else
+                st.append("\nORDER BY M.timestamp ASC");
             if (n != 0)
-                statement.setInt(3, n);
+                st.append("\nLIMIT ?");
+            st.append(";");
+
+            PreparedStatement statement = conn.prepareStatement(st.toString());
+
+            int i = 1;
+            statement.setLong(i++, chatId);
+            if (from != null)
+                statement.setTimestamp(i++, new java.sql.Timestamp(from.getTime()));
+            if (to != null)
+                statement.setTimestamp(i++, new java.sql.Timestamp(to.getTime()));
+            if (n != 0)
+                statement.setInt(i, n);
+
             statement.execute();
             ResultSet rs = statement.getResultSet();
             while(rs.next()){
@@ -73,6 +88,10 @@ public class MySQLAdapter implements DatabaseAdapter {
                         rs.getString("M.text")
                 ));
             }
+
+            if (from == null)
+                Collections.reverse(messages);
+
             rs.close();
             statement.close();
         } catch(SQLException ex) {

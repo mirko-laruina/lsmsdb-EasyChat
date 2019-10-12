@@ -36,7 +36,7 @@ public class MySQLAdapterTest {
 
     @Test
     public void getChatMessages() {
-        List<Message> messages = db.getChatMessages(CHATID, new Date(), 10);
+        List<Message> messages = db.getChatMessages(CHATID, null, null, 10);
         System.out.println(String.format("Chat %d has %d messages", CHATID, messages.size()));
         for (Message message:messages){
             System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp().toString()));
@@ -69,7 +69,7 @@ public class MySQLAdapterTest {
 
     @Test
     public void addChatMessage() {
-        int oldChatMessages = db.getChatMessages(CHATID, new Date(), 0).size();
+        int oldChatMessages = db.getChatMessages(CHATID, null, null, 0).size();
         assert db.addChatMessage(new Message(
                 CHATID,
                 new User(USERID),
@@ -81,9 +81,9 @@ public class MySQLAdapterTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        int newChatMessages = db.getChatMessages(CHATID, new Date(), 0).size();
+        int newChatMessages = db.getChatMessages(CHATID, null, null, 0).size();
         assertEquals(oldChatMessages + 1, newChatMessages);
-        assertEquals(MESSAGE, db.getChatMessages(CHATID, new Date(), 1).get(0).getText());
+        assertEquals(MESSAGE, db.getChatMessages(CHATID, null, null, 1).get(0).getText());
     }
 
     @Test
