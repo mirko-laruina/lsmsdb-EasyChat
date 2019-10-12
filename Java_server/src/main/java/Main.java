@@ -185,8 +185,8 @@ public class Main {
         if (chat.getAdmin() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        boolean result = dba.addChatMember(chatId, request.getUserId());
+        long membId = dba.getUserId(request.getUsername());
+        boolean result = (membId != -1) && dba.addChatMember(chatId, membId);
         return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
     }
 

@@ -100,6 +100,7 @@ class ChatList extends Component {
                         <Button variant={chat.variant}
                                 onClick={(evt) => {
                                   this.managedChat = chat.chatId;
+                                  this.isAdmin = chat.isAdmin;
                                   this.handleShowManage();
                                 }}>
                                 <FontAwesomeIcon icon={faTools} />

@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Modal, Form, Button} from 'react-bootstrap'
+import {Modal, Form, Button, Alert} from 'react-bootstrap'
 import axios from 'axios'
 
 class ManageModal extends Component{
@@ -8,13 +8,16 @@ class ManageModal extends Component{
         super();
         this.state = {
             members: [],
+            wrongUser: 'hidden',
+            newUser: '',
         }
 
         this.getMembers = this.getMembers.bind(this)
+        this.addToGroup = this.addToGroup.bind(this)
     }
 
     componentDidUpdate(prevPops){
-        if(this.props.chatId !== prevPops.chatId){
+        if(this.props.chatId !== prevPops.chatId || this.props.show !== prevPops.show){
             this.getMembers();
         }
     }
@@ -39,6 +42,42 @@ class ManageModal extends Component{
         })
     }
 
+    handlerNewUser(evt){
+        this.setState({
+            newUser: evt.target.value,
+        })
+    }
+
+    addToGroup(evt){
+        if(this.props.chatId === -1){
+            return
+        }
+        var self = this;
+        evt.preventDefault();
+        console.log(this.state)
+        axios.post('http://localhost:8080/api/v1/chat/'+this.props.chatId+'/members', {
+            username: this.state.newUser,
+        },{ params: {
+            sessionId: this.props.sid,
+        }})
+        .then(function(response){
+            if(response.data.success){
+                self.props.handler();
+                self.setState({
+                    wrongUser: 'hidden',
+                    newUser: '',
+                })
+            } else {
+                self.setState({
+                    wrongUser: '',
+                })
+            }
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+    }
+
     render(){
         return (
             <Modal show={this.props.show} onHide={this.props.handler}>
@@ -55,12 +94,17 @@ class ManageModal extends Component{
             <Modal.Title>Add user</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-            <Form>
+            <Form onSubmit={this.addToGroup}>
                 <Form.Group>
-                <Form.Control placeholder="User to add"></Form.Control>
+                <Alert variant="danger" className={this.state.wrongUser}>
+                    Wrong username
+                </Alert>
+                <Form.Control   value={this.state.newUser}
+                                onChange={(evt) => this.handlerNewUser(evt)}
+                                placeholder="User to add"></Form.Control>
                 </Form.Group>
                 <Button block   disabled={!this.props.isAdmin}
-                                onClick={this.props.handler}
+                                type="submit"
                                 variant={this.props.isAdmin ? 'outline-success' : 'secondary'}>
                                     Add
                 </Button>
