@@ -15,8 +15,13 @@ class ChatSend extends Component {
 
     sendMessage(evt){
         evt.preventDefault();
+        var textToSend = this.state.value.trim();
+        if(textToSend.length < 1){
+            return
+        }
+
         axios.post('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId+'/messages', {
-            text: this.state.value
+            text: textToSend
         },{ params: {
             sessionId: this.props.sid
         }})

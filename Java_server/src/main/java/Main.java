@@ -139,8 +139,13 @@ public class Main {
         //Write message
         Date now = new Date();
         User user = new User(userId);
-        Message msg = new Message(chatId, user, now, request.getText());
-        long msgId = dba.addChatMessage(msg);
+        Message msg = new Message(chatId, user, now, request.getText().trim());
+        long msgId;
+        if(msg.getText().length() > 0) {
+            msgId = dba.addChatMessage(msg);
+        } else {
+            msgId = 0;
+        }
 
         return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
     }
