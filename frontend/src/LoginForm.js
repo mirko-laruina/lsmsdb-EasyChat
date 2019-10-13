@@ -35,7 +35,7 @@ class LoginForm extends Component {
   handleSubmit(evt){
     evt.preventDefault();
     var self = this;
-    axios.post('http://localhost:8080/api/v1/auth/login', {
+    axios.post('http://'+window.location.hostname+':8080/api/v1/auth/login', {
       username: this.state.username,
       password: this.state.password
     })

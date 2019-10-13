@@ -2,6 +2,7 @@ import React, {Component, createRef} from 'react';
 import {ListGroup, Card, Alert} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import { faWindowRestore } from '@fortawesome/free-solid-svg-icons';
 
 class ChatMessages extends Component {
 
@@ -45,7 +46,7 @@ class ChatMessages extends Component {
 
   getMessages(chat, sid, from, to, n){
     var self = this
-    axios.get('http://localhost:8080/api/v1/chat/'+chat+'/messages',{ params: {
+    axios.get('http://'+window.location.hostname+':8080/api/v1/chat/'+chat+'/messages',{ params: {
       sessionId: sid,
       from: from,
       to: to,

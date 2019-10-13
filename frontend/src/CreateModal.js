@@ -27,7 +27,7 @@ class CreateModal extends Component {
     createNewChat(evt){
         evt.preventDefault();
         var self = this;
-        axios.post("http://localhost:8080/api/v1/chats", {
+        axios.post("http://'+window.location.hostname+':8080/api/v1/chats", {
             name: 'null',
             members: [this.state.newChatValue]
         }, { params: {
@@ -50,7 +50,7 @@ class CreateModal extends Component {
     createNewGroup(evt){
         evt.preventDefault();
         var self = this;
-        axios.post("http://localhost:8080/api/v1/chats", {
+        axios.post("http://'+window.location.hostname+':8080/api/v1/chats", {
             name: this.state.newGroupValue,
             members: [this.state.newUser1Value, this.state.newUser2Value]
         }, { params: {

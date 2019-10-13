@@ -21,13 +21,13 @@ public class Main {
 
     static MySQLAdapter dba = null;
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value = "/")
     public String index() {
         return "index";
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
     public @ResponseBody String login(@RequestBody LoginRequest loginRequest) throws Exception {
         //da rivedere il throws exception
@@ -47,14 +47,14 @@ public class Main {
         return gson.toJson(lr);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/check"}, method=RequestMethod.GET)
     public @ResponseBody String isLogged(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
         return gson.toJson(new BooleanResult(dba.getUserFromSession(sid) != -1));
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/logout"}, method=RequestMethod.POST)
     public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
@@ -63,7 +63,7 @@ public class Main {
         return gson.toJson(new BooleanResult(dba.removeUserSession(userId, sid)));
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chats"}, method=RequestMethod.GET)
     public ResponseEntity getUserChats(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
@@ -85,7 +85,7 @@ public class Main {
     }
 
     //TODO support parameters
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.GET)
     public ResponseEntity getMessages(@PathVariable(value="chatId") long chatId,
                                       @RequestParam("sessionId") String sid,
@@ -123,7 +123,7 @@ public class Main {
         return new ResponseEntity<>(gson.toJson(msgs), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.POST)
     public ResponseEntity sendMessage(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestBody SendMessageRequest request){
         Gson gson = new Gson();
@@ -145,7 +145,7 @@ public class Main {
         return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}"}, method=RequestMethod.GET)
     public ResponseEntity getChat(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
         Gson gson = new Gson();
@@ -160,7 +160,7 @@ public class Main {
         return new ResponseEntity<>(gson.toJson(chat), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}/member/{memberId}"}, method=RequestMethod.DELETE)
     public ResponseEntity removeChatMember(@PathVariable(value="chatId") long chatId, @PathVariable(value="memberId") long memberId, @RequestParam("sessionId") String sid){
         Gson gson = new Gson();
@@ -175,7 +175,7 @@ public class Main {
         return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}/members"}, method=RequestMethod.POST)
     public ResponseEntity addChatMember(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestBody AddMemberRequest request){
         Gson gson = new Gson();
@@ -190,7 +190,7 @@ public class Main {
         return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chats"}, method=RequestMethod.POST)
     public ResponseEntity createChat(@RequestParam("sessionId") String sid, @RequestBody CreateChatRequest request){
         Gson gson = new Gson();
@@ -212,7 +212,7 @@ public class Main {
         return new ResponseEntity<>(gson.toJson(new BooleanResult(chatId > 0)), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}"}, method=RequestMethod.DELETE)
     public ResponseEntity deleteChat(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
         Gson gson = new Gson();
@@ -227,7 +227,7 @@ public class Main {
         return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin
     @RequestMapping(value={"/api/v1/users"}, method=RequestMethod.POST)
     public ResponseEntity registerUser(@RequestBody LoginRequest request){
         Gson gson = new Gson();

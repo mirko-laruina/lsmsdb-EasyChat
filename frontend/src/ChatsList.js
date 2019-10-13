@@ -32,7 +32,7 @@ class ChatList extends Component {
 
   getChat(){
     var self = this;
-    axios.get('http://localhost:8080/api/v1/chats',{ params: {
+    axios.get('http://'+window.location.hostname+':8080/api/v1/chats',{ params: {
       sessionId: this.props.sid,
     }})
     .then(function (response) {
@@ -42,7 +42,7 @@ class ChatList extends Component {
               self.state.chatList.forEach((oldChat) => {
                 if(oldChat.chatId === chat.chatId){
                   chat.variant = oldChat.variant
-                  if(chat.variant == "warning"){
+                  if(chat.variant === "warning"){
                     self.selectedChat = i;
                   }
                   return true;
@@ -56,7 +56,6 @@ class ChatList extends Component {
         self.setState({
           chatList: response.data,
         })
-        console.log(self.selectedChat);
     })
     .catch(function (error) {
       console.log(error);

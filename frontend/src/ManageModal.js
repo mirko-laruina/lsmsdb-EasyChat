@@ -27,7 +27,7 @@ class ManageModal extends Component{
             return
         }
         var self = this;
-        axios.get('http://localhost:8080/api/v1/chat/'+this.props.chatId, {params : {
+        axios.get('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId, {params : {
             sessionId: this.props.sid,
         }})
         .then(function(response){
@@ -55,7 +55,7 @@ class ManageModal extends Component{
         var self = this;
         evt.preventDefault();
         console.log(this.state)
-        axios.post('http://localhost:8080/api/v1/chat/'+this.props.chatId+'/members', {
+        axios.post('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId+'/members', {
             username: this.state.newUser,
         },{ params: {
             sessionId: this.props.sid,
