@@ -409,6 +409,9 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     public long getUserFromSession(String sessionId){
+        if(sessionId == null){
+            return -1;
+        }
         try{
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT userId\n"
@@ -486,6 +489,39 @@ public class MySQLAdapter implements DatabaseAdapter {
             dumpSQLException(ex);
             return false;
         }
+    }
+
+    public boolean existsChat(long user, long user2){
+        try{
+            PreparedStatement statement = conn.prepareStatement(
+                    "SELECT M.ChatId\n\n"
+                            + "FROM Chatmembers M INNER JOIN Chatmembers M2\n"
+                            + "ON M.chatId = M2.chatId\n"
+                            + "INNER JOIN Chatmembers M3 ON M3.chatId = M2.chatId\n"
+                            + "WHERE M.userId = ? AND M2.userId = ?\n"
+                            + "GROUP BY M.chatId\n"
+                            + "HAVING COUNT(*) = 2;"
+            );
+
+            statement.setLong(1, user);
+            statement.setLong(2, user2);
+            boolean result = statement.execute();
+            int size = 0;
+            if (result) {
+                ResultSet rs = statement.getResultSet();
+                while(rs.next()){
+                    size++;
+                }
+                rs.close();
+            }
+            System.out.println(size);
+            statement.close();
+            if(size > 0)
+                return true;
+        } catch(SQLException ex) {
+            dumpSQLException(ex);
+        }
+        return false;
     }
 
     private void dumpSQLException(SQLException ex){

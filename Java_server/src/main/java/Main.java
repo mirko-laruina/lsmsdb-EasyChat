@@ -206,10 +206,15 @@ public class Main {
         List<String> members = request.getMembers();
         List<Long> membIds = new ArrayList<Long>();
         for(String memb: members){
-            membIds.add(dba.getUserId(memb));
+            long tmpUserId = dba.getUserId(memb);
+            if(tmpUserId != -1 && tmpUserId != userId)
+                membIds.add(dba.getUserId(memb));
         }
 
-        if((membIds.size() == 1) && (userId == membIds.get(0) )){
+        if(membIds.size() < 1 || (membIds.size() == 1 && dba.existsChat(userId, membIds.get(0)))){
+            System.out.println(userId);
+            System.out.println(membIds.get(0));
+            System.out.println(dba.existsChat(userId, membIds.get(0)));
             return new ResponseEntity<>(gson.toJson(new BooleanResult(false)), HttpStatus.OK);
         }
 
@@ -235,6 +240,7 @@ public class Main {
     @CrossOrigin
     @RequestMapping(value={"/api/v1/users"}, method=RequestMethod.POST)
     public ResponseEntity registerUser(@RequestBody LoginRequest request){
+        System.out.println("Hiiii");
         Gson gson = new Gson();
         long userId = dba.createUser(new User(request.getUsername(), request.getPassword()));
         String sid = "";
