@@ -6,7 +6,8 @@ import CreateModal from './CreateModal.js'
 import ManageModal from './ManageModal.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTools } from '@fortawesome/free-solid-svg-icons'
-
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
 
 class ChatList extends Component {
 
@@ -84,10 +85,19 @@ class ChatList extends Component {
     this.setState(newState);
   }
 
+  handleLogout(){
+    cookies.set('sessionId', '');
+    window.location.reload();
+  }
+
   render() {
     return (
       <div className="chatsList">
-        <ButtonGroup vertical> 
+        <ButtonGroup vertical>
+          <Button className="chatLabel border logout"
+                  variant="outline-danger"
+                  onClick={this.handleLogout}>Logout
+          </Button>
           <Button className="chatLabel border addChat"
                   variant="outline-success"
                   onClick={this.handleShowCreate}>+ Create
