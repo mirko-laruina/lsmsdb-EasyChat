@@ -204,6 +204,10 @@ public class Main {
             membIds.add(dba.getUserId(memb));
         }
 
+        if((membIds.size() == 1) && (userId == membIds.get(0) )){
+            return new ResponseEntity<>(gson.toJson(new BooleanResult(false)), HttpStatus.OK);
+        }
+
         long chatId = dba.createChat(request.getName(), userId, membIds);
         return new ResponseEntity<>(gson.toJson(new BooleanResult(chatId > 0)), HttpStatus.OK);
     }
