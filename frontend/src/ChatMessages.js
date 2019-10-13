@@ -2,7 +2,6 @@ import React, {Component, createRef} from 'react';
 import {ListGroup, Card, Alert} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import { faWindowRestore } from '@fortawesome/free-solid-svg-icons';
 
 class ChatMessages extends Component {
 
@@ -13,6 +12,8 @@ class ChatMessages extends Component {
     };
     this.ref = createRef();
     this.iid = 0;
+    this.lastTimeRequested = -1;
+    this.isWaiting = false;
   }
 
   componentDidUpdate(prevPops){
@@ -45,24 +46,29 @@ class ChatMessages extends Component {
   }
 
   getMessages(chat, sid, from, to, n){
-    var self = this
-    axios.get('http://'+window.location.hostname+':8080/api/v1/chat/'+chat+'/messages',{ params: {
-      sessionId: sid,
-      from: from,
-      to: to,
-      n: n
-    }})
-    .then(function (response) {
-      self.setState({
-        messageList: self.state.messageList.concat(response.data),
+    if(!this.isWaiting || this.lastTimeRequested !== from){
+      this.isWaiting = true;
+      this.lastTimeRequested = from;
+      var self = this
+      axios.get('http://'+window.location.hostname+':8080/api/v1/chat/'+chat+'/messages',{ params: {
+        sessionId: sid,
+        from: from,
+        to: to,
+        n: n
+      }})
+      .then(function (response) {
+        self.setState({
+          messageList: self.state.messageList.concat(response.data),
+        })
+        if(response.data.length > 0){
+          self.ref.current.scrollTop = self.ref.current.scrollHeight;
+        }
+        self.isWaiting = false;
       })
-      if(response.data.length > 0){
-        self.ref.current.scrollTop = self.ref.current.scrollHeight;
-      }
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
   }
 
   render() {
