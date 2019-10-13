@@ -22,6 +22,7 @@ class ChatList extends Component {
     this.managedChat = -1;
     this.handleShowCreate = this.handleShowCreate.bind(this);
     this.handleShowManage = this.handleShowManage.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
   }
 
   componentDidMount(){
@@ -86,8 +87,18 @@ class ChatList extends Component {
   }
 
   handleLogout(){
-    cookies.set('sessionId', '');
-    window.location.reload();
+    axios.post('http://'+window.location.hostname+':8080/api/v1/auth/logout', null, {params: {
+      sessionId: this.props.sid
+    }})
+    .then(function(response){
+      //if success or not, the user should relog
+      //success could be false if sid is expired
+      cookies.set('sessionId', '');
+      window.location.reload();
+    })
+    .catch(function(error){
+      console.log(error);
+    })
   }
 
   render() {
