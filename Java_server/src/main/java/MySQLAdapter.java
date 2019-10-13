@@ -514,7 +514,6 @@ public class MySQLAdapter implements DatabaseAdapter {
                 }
                 rs.close();
             }
-            System.out.println(size);
             statement.close();
             if(size > 0)
                 return true;
