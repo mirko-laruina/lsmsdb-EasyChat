@@ -25,6 +25,9 @@ class ChatList extends Component {
 
   componentDidMount(){
     this.getChat();
+    window.setInterval(()=>{
+      this.getChat();
+    }, 1000)
   }
 
   getChat(){
@@ -33,10 +36,27 @@ class ChatList extends Component {
       sessionId: this.props.sid,
     }})
     .then(function (response) {
-        response.data.forEach((chat) => {chat.variant = "light"})
+        response.data.some((chat, i) => {
+            //we have to find a better way
+            if(self.state.chatList.length > 0){
+              self.state.chatList.forEach((oldChat) => {
+                if(oldChat.chatId === chat.chatId){
+                  chat.variant = oldChat.variant
+                  if(chat.variant == "warning"){
+                    self.selectedChat = i;
+                  }
+                  return true;
+                }
+              })
+            } else {
+              chat.variant = "light"
+            }
+            return false;
+        })
         self.setState({
           chatList: response.data,
         })
+        console.log(self.selectedChat);
     })
     .catch(function (error) {
       console.log(error);

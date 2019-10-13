@@ -24,7 +24,8 @@ class CreateModal extends Component {
         })
     }
 
-    createNewChat(){
+    createNewChat(evt){
+        evt.preventDefault();
         var self = this;
         axios.post("http://localhost:8080/api/v1/chats", {
             name: 'null',
@@ -79,17 +80,18 @@ class CreateModal extends Component {
                 <Alert variant="danger" className={this.state.wrongUser}>
                 No user found
                 </Alert>
-                <InputGroup>
-                    <FormControl  aria-label="Add"
-                                placeholder="Who do you want to chat to?"
-                                value={this.state.newChatValue}
-                                onChange={(evt) => this.handlerChatValue(evt.target.value)}></FormControl>
-                    <InputGroup.Append>
-                        <Button type="submit"
-                                variant="outline-success"
-                                onClick={this.createNewChat}>Add</Button>
-                    </InputGroup.Append>
-                </InputGroup>
+                <Form onSubmit={this.createNewChat}>
+                    <InputGroup>
+                        <FormControl  aria-label="Add"
+                                    placeholder="Who do you want to chat to?"
+                                    value={this.state.newChatValue}
+                                    onChange={(evt) => this.handlerChatValue(evt.target.value)}></FormControl>
+                        <InputGroup.Append>
+                            <Button type="submit"
+                                    variant="outline-success">Add</Button>
+                        </InputGroup.Append>
+                    </InputGroup>
+                </Form>
                 </Modal.Body>
                 <Modal.Header>
                 <Modal.Title>Create group</Modal.Title>
