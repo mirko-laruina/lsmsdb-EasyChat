@@ -1,0 +1,12 @@
+LoginResult.class
+Message.class
+Chat.class
+Main.class
+User.class
+SendMessageRequest.class
+CreateChatRequest.class
+MySQLAdapter.class
+BooleanResult.class
+LoginRequest.class
+AddMemberRequest.class
+DatabaseAdapter.class
