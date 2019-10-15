@@ -12,6 +12,7 @@ public class MySQLAdapterTest {
     private DatabaseAdapter db;
     private final static long USERID = 101;
     private final static long ADD_USERID = 102;
+    private final static long ADD_USERID2 = 103;
     private final static String MESSAGE = "Lorem ipsum dolor sit amet " + new Date().getTime();
     private final static long CHATID = 200;
 
@@ -85,8 +86,8 @@ public class MySQLAdapterTest {
     @Test
     public void createDeleteChat() {
         List<Long> users = new ArrayList<>();
-        users.add(USERID);
         users.add(ADD_USERID);
+        users.add(ADD_USERID2);
         long chatId = db.createChat("Chat", USERID, users);
         assert chatId != -1;
         List<User> members = db.getChatMembers(chatId);
