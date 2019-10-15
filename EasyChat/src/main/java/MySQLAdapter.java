@@ -279,7 +279,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             statement.setLong(1, chatId);
             int rows = statement.executeUpdate();
-
             statement.close();
             return rows != 0;
         } catch(SQLException ex) {

@@ -89,10 +89,10 @@ public class MySQLAdapterTest {
         users.add(ADD_USERID);
         users.add(ADD_USERID2);
         long chatId = db.createChat("Chat", USERID, users);
-        //assert chatId != -1;
+        assert chatId != -1;
         List<User> members = db.getChatMembers(chatId);
-        //assert members.contains(new User(USERID));
-        //assert members.contains(new User(ADD_USERID));
+        assert members.contains(new User(USERID));
+        assert members.contains(new User(ADD_USERID));
         //assert db.deleteChat(chatId);
         //assert db.getChatMembers(chatId).isEmpty();
     }
