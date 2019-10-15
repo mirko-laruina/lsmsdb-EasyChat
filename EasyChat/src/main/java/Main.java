@@ -21,6 +21,8 @@ public class Main {
 
     static MySQLAdapter dba = null;
 
+
+
     @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
     public @ResponseBody String login(@RequestBody LoginRequest loginRequest) throws Exception {
