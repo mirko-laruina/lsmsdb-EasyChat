@@ -1,6 +1,6 @@
 # Task 0: how to run
 ## Development phase
-### Sping
+### Spring
 The source file is compiled and the Spring server started using Maven
 
 	mvn spring-boot:run
@@ -28,7 +28,7 @@ Before pushing a new commit, it is better to pull from origin
 In development phase Spring uses a different server than the webapp, which forces to Cross Origin Resource Sharing (CORS), normally blocked by the browsers.
 In order to allow it we had to set the proxy setting in `package.json` and use the `@CrossOrigin` directive in Java/Spring.
 
-In Production the problem can be solved running the Spring server which automatically serves all the static files in `/static/`, `/public/` and `/resources/` folder.
+In production the problem can be solved running the Spring server which automatically serves all the static files in `/static/`, `/public/` and `/resources/` folder.
 Maven has been set-up to automatically compile the React App into static files and moving them in the appropriate directory.
 A Jar file can be obtained running
 
