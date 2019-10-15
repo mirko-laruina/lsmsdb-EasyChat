@@ -3,10 +3,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,12 +13,13 @@ public class MySQLAdapterTest {
     private final static String CONN_STR = "jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private final static long USERID = 101;
     private final static long ADD_USERID = 102;
+    private final static long ADD_USERID2 = 103;
     private final static String MESSAGE = "Lorem ipsum dolor sit amet " + new Date().getTime();
     private final static long CHATID = 200;
 
     @Before
     public void setUp() throws Exception {
-        db = new MySQLAdapter(CONN_STR);
+        db = new MySQLAdapter(new Settings("server.config").getConnStr());
     }
 
     @Test
@@ -89,8 +87,8 @@ public class MySQLAdapterTest {
     @Test
     public void createDeleteChat() {
         List<Long> users = new ArrayList<>();
-        users.add(USERID);
         users.add(ADD_USERID);
+        users.add(ADD_USERID2);
         long chatId = db.createChat("Chat", USERID, users);
         /*assert chatId != -1;
         List<User> members = db.getChatMembers(chatId);

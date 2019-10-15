@@ -29,7 +29,7 @@ CREATE TABLE `Chatmembers` (
   PRIMARY KEY (`userId`,`chatId`),
   KEY `chatId` (`chatId`),
   CONSTRAINT `Chatmembers_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`),
-  CONSTRAINT `Chatmembers_ibfk_2` FOREIGN KEY (`chatId`) REFERENCES `Chats` (`chatId`)
+  CONSTRAINT `Chatmembers_ibfk_2` FOREIGN KEY (`chatId`) REFERENCES `Chats` (`chatId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -88,7 +88,7 @@ CREATE TABLE `Messages` (
   UNIQUE KEY `messageId` (`messageId`),
   KEY `chatId` (`chatId`),
   KEY `senderUserId` (`senderUserId`),
-  CONSTRAINT `Messages_ibfk_1` FOREIGN KEY (`chatId`) REFERENCES `Chats` (`chatId`),
+  CONSTRAINT `Messages_ibfk_1` FOREIGN KEY (`chatId`) REFERENCES `Chats` (`chatId`) ON DELETE CASCADE,
   CONSTRAINT `Messages_ibfk_2` FOREIGN KEY (`senderUserId`) REFERENCES `Users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5218 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
