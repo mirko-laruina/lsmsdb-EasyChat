@@ -1,16 +1,15 @@
 import com.google.gson.Gson;
-import org.springframework.boot.*;
-import org.springframework.boot.autoconfigure.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.SecureRandom;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
+import java.security.SecureRandom;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -277,10 +276,18 @@ public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
         try {
-            dba = new MySQLAdapter("jdbc:mysql://localhost:3306/Task0?user=root&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+            String propFileName;
+            if (args.length > 0)
+                propFileName = args[1];
+            else
+                propFileName = "server.config";
+            Settings settings = new Settings(propFileName);
+            String connStr = String.format(settings.getConnStr());
+            dba = new MySQLAdapter(connStr);
         } catch (SQLException ex){
             ex.printStackTrace();
-            return;
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 

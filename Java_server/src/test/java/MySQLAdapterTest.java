@@ -3,17 +3,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class MySQLAdapterTest {
     private DatabaseAdapter db;
-    private final static String CONN_STR = "jdbc:mysql://localhost:3306/Task0?user=root&password=mariadb&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private final static long USERID = 101;
     private final static long ADD_USERID = 102;
     private final static String MESSAGE = "Lorem ipsum dolor sit amet " + new Date().getTime();
@@ -21,7 +17,7 @@ public class MySQLAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        db = new MySQLAdapter(CONN_STR);
+        db = new MySQLAdapter(new Settings("server.config").getConnStr());
     }
 
     @Test
