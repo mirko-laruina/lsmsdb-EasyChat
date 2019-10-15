@@ -1,4 +1,4 @@
-Java_server/node_modules
-Java_server/target
-EasyChat/src/app/node_modules
-Java_server/server.config
+EasyChat/src/main/app/node_modules
+EasyChat/src/main/app/node/
+EasyChat/src/main/app/build/
+EasyChat/target
