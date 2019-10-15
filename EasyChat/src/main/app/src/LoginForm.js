@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import { Button, Form, Alert } from "react-bootstrap";
-import {Link, Switch, Route, BrowserRouter as Router} from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -10,12 +9,12 @@ const cookies = new Cookies();
 
 class LoginForm extends Component {
   constructor(){
-    //Controllare se lo stato serve poi
     super();
     this.state = {
       username: '',
       password: '',
       wrongAuth: 'hidden',
+      registerPage: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -40,8 +39,7 @@ class LoginForm extends Component {
     this.setState({
       wrongAuth: 'hidden',
     }) 
-    var path = window.location.href.split('/')[3]
-    if(path !== 'register'){
+    if(!this.state.registerPage){
       postUrl = 'http://'+window.location.hostname+':8080/api/v1/auth/login';
     } else {
       postUrl = 'http://'+window.location.hostname+':8080/api/v1/users';
@@ -73,7 +71,6 @@ class LoginForm extends Component {
   render() {
     return (
       <div className="Login">
-        <Router>
           <Form onSubmit={(evt) => this.handleSubmit(evt, this.props)}>
             <h2>EasyChat</h2>
             <Form.Group controlId="formUsername">
@@ -88,32 +85,28 @@ class LoginForm extends Component {
                             value={this.state.password} onChange={(evt) => this.handlePw(evt.target.value)} />
             </Form.Group>
 
-            <Switch>
-              <Route path="/register">
+            {this.state.registerPage ? (
+                <div>
                 <Alert variant="danger"
                   style={{ marginBottom: '20px'}}
                   className={this.state.wrongAuth ? 'hidden' : ''}>Username already taken</Alert>
-                <Link to="/">
-                  <Button variant="link">Log in</Button>
-                </Link>
+                  <Button variant="link" onClick={(evt) => this.setState({registerPage: false})}>Log in</Button>
                 <Button variant="primary" type="submit">
                   Sign on!
                 </Button>
-              </Route>
-              <Route path="/">
+                </div>
+                ) : (
+                <div>
                 <Alert variant="danger"
                   style={{ marginBottom: '20px'}}
                   className={this.state.wrongAuth ? 'hidden' : ''}>Wrong username or password</Alert>
-                <Link to="/register">
-                  <Button variant="link">Sign on!</Button>
-                </Link>
+                 <Button variant="link" onClick={(evt) => this.setState({registerPage: true})}>Sign on!</Button>
                 <Button variant="primary" type="submit">
                   Log in!
                 </Button>
-              </Route>
-            </Switch>
+                </div>
+                )}
           </Form>
-        </Router>
       </div>
     );
   }
