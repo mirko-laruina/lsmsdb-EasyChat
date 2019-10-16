@@ -1,4 +1,5 @@
-package com.felamape.task0
+package com.felamape.task0;
+
 public class LoginRequest {
     private String username;
     private String password;
