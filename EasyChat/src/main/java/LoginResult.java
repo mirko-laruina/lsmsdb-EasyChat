@@ -1,3 +1,4 @@
+package com.felamape.task0
 public class LoginResult extends BooleanResult {
     String sessionId;
 
