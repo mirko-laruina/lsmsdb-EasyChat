@@ -221,7 +221,7 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin() != userId){
+        if (chat != null && chat.getAdmin() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
