@@ -14,6 +14,7 @@ class ManageModal extends Component{
 
         this.getMembers = this.getMembers.bind(this)
         this.addToGroup = this.addToGroup.bind(this)
+        this.deleteGroup= this.deleteGroup.bind(this)
     }
 
     componentDidUpdate(prevPops){
@@ -78,38 +79,54 @@ class ManageModal extends Component{
         })
     }
 
+    deleteGroup(){
+        alert("hihi");
+    }
+
     render(){
         return (
             <Modal show={this.props.show} onHide={this.props.handler}>
-            <Modal.Header closeButton>
-            <Modal.Title>Users</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-            {   this.state.members.map((member, i) => {
-                return <p key={i}>{member.username}</p>
-                })
-            }
-            </Modal.Body>
-            <Modal.Header>
-            <Modal.Title>Add user</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-            <Form onSubmit={this.addToGroup}>
-                <Form.Group>
-                <Alert variant="danger" className={this.state.wrongUser}>
-                    Wrong username
-                </Alert>
-                <Form.Control   value={this.state.newUser}
-                                onChange={(evt) => this.handlerNewUser(evt)}
-                                placeholder="User to add"></Form.Control>
-                </Form.Group>
-                <Button block   disabled={!this.props.isAdmin}
+                <Modal.Header closeButton>
+                    <Modal.Title>Users</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {   this.state.members.map((member, i) => {
+                        return <p key={i}>{member.username}</p>
+                        })
+                    }
+                </Modal.Body>
+                <Modal.Header>
+                    <Modal.Title>Add user</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={this.addToGroup}>
+                        <Form.Group>
+                            <Alert variant="danger" className={this.state.wrongUser}>
+                                Wrong username
+                            </Alert>
+                            <Form.Control   value={this.state.newUser}
+                                            onChange={(evt) => this.handlerNewUser(evt)}
+                                            placeholder="User to add"></Form.Control>
+                        </Form.Group>
+                        <Button block   disabled={!this.props.isAdmin}
+                                        type="submit"
+                                        variant={this.props.isAdmin ? 'outline-success' : 'secondary'}>
+                                            Add
+                        </Button>
+                    </Form>
+                </Modal.Body>
+                <Modal.Header>
+                    <Modal.Title>Delete group</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={this.deleteGroup}>
+                        <Button block   disabled={!this.props.isAdmin}
                                 type="submit"
-                                variant={this.props.isAdmin ? 'outline-success' : 'secondary'}>
-                                    Add
-                </Button>
-            </Form>
-            </Modal.Body>
+                                variant={this.props.isAdmin ? 'outline-danger' : 'secondary'}>
+                            Delete group
+                        </Button>
+                    </Form>
+                </Modal.Body>
             </Modal>
         )
     }

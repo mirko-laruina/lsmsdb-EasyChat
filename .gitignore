@@ -3,6 +3,7 @@ EasyChat/src/main/app/node/
 EasyChat/src/main/app/build/
 EasyChat/target
 EasyChat/server.config
+.idea
 
 # LaTeX
 *.aux
