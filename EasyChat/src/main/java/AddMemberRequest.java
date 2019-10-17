@@ -1,3 +1,5 @@
+package com.felamape.task0;
+
 public class AddMemberRequest {
     private String username;
 

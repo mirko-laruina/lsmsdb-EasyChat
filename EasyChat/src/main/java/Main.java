@@ -1,3 +1,5 @@
+package com.felamape.task0;
+
 import com.google.gson.Gson;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

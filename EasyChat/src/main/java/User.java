@@ -1,3 +1,5 @@
+package com.felamape.task0;
+
 public class User {
     private long userId;
     private String username;

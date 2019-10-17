@@ -1,3 +1,5 @@
+package com.felamape.task0;
+
 import java.util.List;
 
 public class CreateChatRequest {
