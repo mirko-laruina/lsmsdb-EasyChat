@@ -167,11 +167,17 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin() != userId){
+        if (chat.getAdmin() != userId && userId != memberId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        boolean result = dba.removeChatMember(chatId, memberId);
+        boolean result;
+        if(dba.getChatMembers(chatId).size() <= 3){
+            result = false;
+        } else {
+            result = dba.removeChatMember(chatId, memberId);
+        }
+
         return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
     }
 
