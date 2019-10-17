@@ -53,9 +53,8 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/logout"}, method=RequestMethod.POST)
     public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
-        long userId = dba.getUserFromSession(sid);
 
-        return gson.toJson(new BooleanResult(dba.removeUserSession(userId, sid)));
+        return gson.toJson(new BooleanResult(dba.removeSession(sid)));
     }
 
     @CrossOrigin

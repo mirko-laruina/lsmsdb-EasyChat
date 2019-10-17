@@ -446,42 +446,29 @@ public class MySQLAdapter implements DatabaseAdapter {
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO Sessions(userId, sessionId, expiry)\n"
                             + "VALUES (?,?,CURRENT_TIMESTAMP + INTERVAL 5 DAY)\n"
-                            + "ON DUPLICATE KEY UPDATE\n"
-                            + "sessionId = ? ,"
-                            + "expiry = (CURRENT_TIMESTAMP + INTERVAL 5 DAY)",
-                    Statement.RETURN_GENERATED_KEYS
             );
 
             statement.setLong(1, userId);
             statement.setString(2, sessionId);
-            statement.setString(3, sessionId);
             int rows = statement.executeUpdate();
 
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-
-            if (!generatedKeys.next()){
-                statement.close();
-                return false;
-            }
-            generatedKeys.close();
             statement.close();
-            return true;
+            return rows > 0;
         } catch(SQLException ex) {
             dumpSQLException(ex);
             return false;
         }
     }
 
-    public boolean removeUserSession(long userId, String sessionId){
+    public boolean removeSession(String sessionId){
         try{
             PreparedStatement statement = conn.prepareStatement(
                     "DELETE FROM Sessions\n"
-                            + "WHERE userId = ? AND sessionId = ?",
+                            + "WHERE sessionId = ?",
                     Statement.RETURN_GENERATED_KEYS
             );
 
-            statement.setLong(1, userId);
-            statement.setString(2, sessionId);
+            statement.setString(1, sessionId);
             int rows = statement.executeUpdate();
 
             statement.close();

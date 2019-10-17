@@ -134,7 +134,7 @@ CREATE TABLE `Sessions` (
   `userId` int(11) NOT NULL,
   `sessionId` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `expiry` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`userId`),
+  PRIMARY KEY (`sessionId`),
   CONSTRAINT `Sessions_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
