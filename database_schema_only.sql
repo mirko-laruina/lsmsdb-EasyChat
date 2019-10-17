@@ -25,7 +25,6 @@ DROP TABLE IF EXISTS `Chatmembers`;
 CREATE TABLE `Chatmembers` (
   `userId` int(11) NOT NULL,
   `chatId` int(11) NOT NULL,
-  `lastSeenTimestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`userId`,`chatId`),
   KEY `chatId` (`chatId`),
   CONSTRAINT `Chatmembers_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`),
