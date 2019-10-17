@@ -20,4 +20,6 @@ public interface DatabaseAdapter {
     long getUserFromSession(String sessionId);
     boolean setUserSession(long userId, String sessionId);
     boolean removeSession(String sessionId);
+
+    void close();
 }

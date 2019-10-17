@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -269,7 +270,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(Main.class, args);
         try {
             String propFileName;
             if (args.length > 0)
@@ -281,9 +281,18 @@ public class Main {
             dba = new MySQLAdapter(connStr);
         } catch (SQLException ex){
             ex.printStackTrace();
+            return;
         } catch (IOException e){
             e.printStackTrace();
+            return;
         }
+
+        SpringApplication.run(Main.class, args);
+    }
+
+    @PreDestroy
+    public void destroy(){
+        dba.close();
     }
 
 }

@@ -516,4 +516,11 @@ public class MySQLAdapter implements DatabaseAdapter {
         System.out.println("SQLState: " + ex.getSQLState());
         System.out.println("VendorError: " + ex.getErrorCode());
     }
+
+    @Override
+    public void close() {
+        try {
+            conn.close();
+        } catch (Exception e) { }
+    }
 }
