@@ -1,4 +1,4 @@
-package com.felamape.task0;
+package com.frelamape.task0;
 
 import org.junit.Before;
 import org.junit.Test;
