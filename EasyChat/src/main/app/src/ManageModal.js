@@ -79,8 +79,21 @@ class ManageModal extends Component{
         })
     }
 
-    deleteGroup(){
-        alert("hihi");
+    deleteGroup(evt){
+        if(this.props.chatId === -1){
+            return
+        }
+        evt.preventDefault();
+
+        //no then body: if it is chat admin it has success,
+        //otherwise no action should be made (the call was not possibile)
+        axios.delete('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId, { params: {
+            sessionId: this.props.sid,
+        }})
+        .catch(function(error) {
+            console.log(error);
+        })
+        window.location.reload();
     }
 
     render(){
