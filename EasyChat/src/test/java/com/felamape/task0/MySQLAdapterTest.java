@@ -1,4 +1,5 @@
-import com.felamape.task0.*;
+package com.felamape.task0;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
