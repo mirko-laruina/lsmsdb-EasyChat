@@ -123,7 +123,7 @@ class CreateModal extends Component {
                                             newUser2Value: evt.target.value
                                     })}}></Form.Control>
                     </Form.Group>
-                    <Button block type="submit" variant="outline-success">Add</Button>
+                    <Button block type="submit" variant="outline-success">Create group</Button>
                 </Form>
                 </Modal.Body>
             </Modal>
