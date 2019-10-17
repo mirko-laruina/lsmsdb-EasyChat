@@ -1,4 +1,4 @@
-package com.felamape.task0;
+package com.frelamape.task0;
 
 import com.google.gson.Gson;
 import org.springframework.boot.SpringApplication;

@@ -1,6 +1,5 @@
-package com.felamape.task0;
+package com.frelamape.task0;
 
-import java.lang.reflect.Member;
 import java.util.List;
 
 public class Chat {
