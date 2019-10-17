@@ -95,8 +95,8 @@ public class MySQLAdapterTest {
         List<User> members = db.getChatMembers(chatId);
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
-        //assert db.deleteChat(chatId);
-        //assert db.getChatMembers(chatId).isEmpty();
+        assert db.deleteChat(chatId);
+        assert db.getChatMembers(chatId).isEmpty();
     }
 
     @Test
