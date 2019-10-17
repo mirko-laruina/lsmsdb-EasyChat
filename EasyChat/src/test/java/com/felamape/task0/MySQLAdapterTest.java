@@ -75,11 +75,6 @@ public class MySQLAdapterTest {
                 new Date(),
                 MESSAGE
         )) != -1;
-        try {   //TODO I should not need to sleep...
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         int newChatMessages = db.getChatMessages(CHATID, null, null, 0).size();
         assertEquals(oldChatMessages + 1, newChatMessages);
         assertEquals(MESSAGE, db.getChatMessages(CHATID, null, null, 1).get(0).getText());
