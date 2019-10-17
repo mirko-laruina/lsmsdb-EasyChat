@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {Modal, FormControl, Form, Alert, Button, InputGroup} from 'react-bootstrap'
 import axios from "axios"
+const API_URL = 'http://'+window.location.hostname+':8080/api/v1/'
 
 class CreateModal extends Component {
     constructor(){
@@ -27,7 +28,7 @@ class CreateModal extends Component {
     createNewChat(evt){
         evt.preventDefault();
         var self = this;
-        axios.post("http://"+window.location.hostname+":8080/api/v1/chats", {
+        axios.post(API_URL + "chats", {
             name: 'null',
             members: [this.state.newChatValue]
         }, { params: {
@@ -50,7 +51,7 @@ class CreateModal extends Component {
     createNewGroup(evt){
         evt.preventDefault();
         var self = this;
-        axios.post("http://"+window.location.hostname+":8080/api/v1/chats", {
+        axios.post(API_URL + "chats", {
             name: this.state.newGroupValue,
             members: [this.state.newUser1Value, this.state.newUser2Value]
         }, { params: {

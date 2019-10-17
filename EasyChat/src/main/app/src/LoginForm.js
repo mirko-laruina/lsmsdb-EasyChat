@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './login.css';
 
 const cookies = new Cookies();
+const API_URL = 'http://'+window.location.hostname+':8080/api/v1/'
 
 class LoginForm extends Component {
   constructor(){
@@ -38,11 +39,12 @@ class LoginForm extends Component {
     var postUrl;
     this.setState({
       wrongAuth: 'hidden',
-    }) 
+    })
+    postUrl = API_URL
     if(!this.state.registerPage){
-      postUrl = 'http://'+window.location.hostname+':8080/api/v1/auth/login';
+      postUrl += 'auth/login';
     } else {
-      postUrl = 'http://'+window.location.hostname+':8080/api/v1/users';
+      postUrl += 'users';
     }
 
     axios.post(postUrl, {

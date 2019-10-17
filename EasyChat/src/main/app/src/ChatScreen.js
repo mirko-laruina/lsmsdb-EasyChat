@@ -8,6 +8,7 @@ import {Container, Row, Col} from 'react-bootstrap';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
+const API_URL = 'http://'+window.location.hostname+':8080/api/v1/'
 
 class ChatScreen extends Component {
 
@@ -26,7 +27,7 @@ class ChatScreen extends Component {
   }
 
   isLogged(){
-    axios.get('http://'+window.location.hostname+':8080/api/v1/auth/check', { params: {
+    axios.get(API_URL + 'auth/check', { params: {
       sessionId: this.props.sid,
     }})
     .then(function (response) {

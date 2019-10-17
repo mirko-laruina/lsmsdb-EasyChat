@@ -2,6 +2,7 @@ import React, {Component, createRef} from 'react';
 import {ListGroup, Card, Alert} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+const API_URL = 'http://'+window.location.hostname+':8080/api/v1/'
 
 class ChatMessages extends Component {
 
@@ -50,7 +51,7 @@ class ChatMessages extends Component {
       this.isWaiting = true;
       this.lastTimeRequested = from;
       var self = this
-      axios.get('http://'+window.location.hostname+':8080/api/v1/chat/'+chat+'/messages',{ params: {
+      axios.get(API_URL+'chat/'+chat+'/messages',{ params: {
         sessionId: sid,
         from: from,
         to: to,

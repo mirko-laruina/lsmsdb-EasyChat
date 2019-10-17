@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTools } from '@fortawesome/free-solid-svg-icons'
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
+const API_URL = 'http://'+window.location.hostname+':8080/api/v1/'
 
 class ChatList extends Component {
 
@@ -34,7 +35,7 @@ class ChatList extends Component {
 
   getChat(){
     var self = this;
-    axios.get('http://'+window.location.hostname+':8080/api/v1/chats',{ params: {
+    axios.get(API_URL+'chats',{ params: {
       sessionId: this.props.sid,
     }})
     .then(function (response) {
@@ -87,7 +88,7 @@ class ChatList extends Component {
   }
 
   handleLogout(){
-    axios.post('http://'+window.location.hostname+':8080/api/v1/auth/logout', null, {params: {
+    axios.post(API_URL + 'auth/logout', null, {params: {
       sessionId: this.props.sid
     }})
     .then(function(response){

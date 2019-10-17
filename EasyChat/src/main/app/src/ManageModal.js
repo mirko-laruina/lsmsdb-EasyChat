@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 
+const API_URL = 'http://'+window.location.hostname+':8080/api/v1/'
+
 class ManageModal extends Component{
 
     constructor(){
@@ -31,7 +33,7 @@ class ManageModal extends Component{
             return
         }
         var self = this;
-        axios.get('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId, {params : {
+        axios.get(API_URL + 'chat/' + this.props.chatId, {params : {
             sessionId: this.props.sid,
         }})
         .then(function(response){
@@ -59,7 +61,7 @@ class ManageModal extends Component{
         var self = this;
         evt.preventDefault();
         console.log(this.state)
-        axios.post('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId+'/members', {
+        axios.post(API_URL+'chat/'+this.props.chatId+'/members', {
             username: this.state.newUser,
         },{ params: {
             sessionId: this.props.sid,
@@ -90,7 +92,7 @@ class ManageModal extends Component{
 
         //no then body: if it is chat admin it has success,
         //otherwise no action should be made (the call was not possibile)
-        axios.delete('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId, { params: {
+        axios.delete(API_URL+'chat/'+this.props.chatId, { params: {
             sessionId: this.props.sid,
         }})
         .catch(function(error) {
@@ -102,8 +104,7 @@ class ManageModal extends Component{
     removeUser(memberId){
         //no then body: if it is chat admin it has success,
         //otherwise no action should be made (the call was not possibile)
-        axios.delete('http://'+window.location.hostname+':8080/api/v1/chat/'
-                        +this.props.chatId + "/member/" + memberId, { params: {
+        axios.delete( API_URL+'chat/'+this.props.chatId + "/member/" + memberId, { params: {
             sessionId: this.props.sid,
         }})
         .catch(function(error) {

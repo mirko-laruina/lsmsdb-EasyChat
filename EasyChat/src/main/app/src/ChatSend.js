@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Button, InputGroup, FormControl, Form} from 'react-bootstrap'
 import axios from 'axios';
+const API_URL = 'http://'+window.location.hostname+':8080/api/v1/'
 
 class ChatSend extends Component {
 
@@ -20,7 +21,7 @@ class ChatSend extends Component {
             return
         }
 
-        axios.post('http://'+window.location.hostname+':8080/api/v1/chat/'+this.props.chatId+'/messages', {
+        axios.post(API_URL + 'chat/'+this.props.chatId+'/messages', {
             text: textToSend
         },{ params: {
             sessionId: this.props.sid
