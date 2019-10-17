@@ -157,7 +157,8 @@ class ChatList extends Component {
                      handler={this.handleShowManage}
                      isAdmin={this.isAdmin}
                      show={this.state.showManage}
-                     chatId={this.managedChat} />
+                     chatId={this.managedChat}
+                     username={this.props.username} />
       </div>
     );
   }

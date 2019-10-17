@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 import {Modal, Form, Button, Alert} from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 
 class ManageModal extends Component{
@@ -14,7 +16,8 @@ class ManageModal extends Component{
 
         this.getMembers = this.getMembers.bind(this)
         this.addToGroup = this.addToGroup.bind(this)
-        this.deleteGroup= this.deleteGroup.bind(this)
+        this.deleteGroup = this.deleteGroup.bind(this)
+        this.removeUser = this.removeUser.bind(this)
     }
 
     componentDidUpdate(prevPops){
@@ -96,6 +99,18 @@ class ManageModal extends Component{
         window.location.reload();
     }
 
+    removeUser(memberId){
+        //no then body: if it is chat admin it has success,
+        //otherwise no action should be made (the call was not possibile)
+        axios.delete('http://'+window.location.hostname+':8080/api/v1/chat/'
+                        +this.props.chatId + "/member/" + memberId, { params: {
+            sessionId: this.props.sid,
+        }})
+        .catch(function(error) {
+            console.log(error);
+        })
+        window.location.reload();    }
+
     render(){
         return (
             <Modal show={this.props.show} onHide={this.props.handler}>
@@ -104,7 +119,23 @@ class ManageModal extends Component{
                 </Modal.Header>
                 <Modal.Body>
                     {   this.state.members.map((member, i) => {
-                        return <p key={i}>{member.username}</p>
+                        return (
+                            <p key={i}>
+                                {member.username}
+                                {   ((this.props.isAdmin && member.username != this.props.username)
+                                    || (!this.props.isAdmin && member.username == this.props.username))
+                                    &&
+                                    <Button variant={this.state.members.length > 3 ?
+                                                'outline-danger' : 'secondary'}
+                                            disabled={this.state.members.length <= 3}
+                                            className="float-right"
+                                            onClick={() => this.removeUser(member.userId)}>
+                                        <FontAwesomeIcon icon={faTrashAlt} />
+                                    </Button> 
+
+                                }
+                            </p>
+                            )
                         })
                     }
                 </Modal.Body>
