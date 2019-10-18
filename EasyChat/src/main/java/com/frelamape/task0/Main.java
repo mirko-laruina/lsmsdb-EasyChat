@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PreDestroy;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -276,10 +277,10 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        String propFileName = null;
         try {
-            String propFileName;
             if (args.length > 0)
-                propFileName = args[1];
+                propFileName = args[0];
             else
                 propFileName = "server.config";
             Settings settings = new Settings(propFileName);
@@ -287,6 +288,10 @@ public class Main {
             dba = new MySQLAdapter(connStr);
         } catch (SQLException ex){
             ex.printStackTrace();
+            return;
+        } catch (FileNotFoundException e){
+            if (propFileName != null)
+                System.err.println(String.format("File not found: %s", propFileName));
             return;
         } catch (IOException e){
             e.printStackTrace();
