@@ -5,7 +5,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -38,7 +42,7 @@ public class MySQLAdapterTest {
         List<Message> messages = db.getChatMessages(CHATID, null, null, 10);
         System.out.println(String.format("Chat %d has %d messages", CHATID, messages.size()));
         for (Message message:messages){
-            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp().toString()));
+            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp()));
         }
 
         assert messages.size() == 10;
@@ -72,7 +76,7 @@ public class MySQLAdapterTest {
         assert db.addChatMessage(new Message(
                 CHATID,
                 new User(USERID),
-                new Date(),
+                Instant.now(),
                 MESSAGE
         )) != -1;
         int newChatMessages = db.getChatMessages(CHATID, null, null, 0).size();

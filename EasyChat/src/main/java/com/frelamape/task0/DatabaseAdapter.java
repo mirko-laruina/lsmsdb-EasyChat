@@ -1,11 +1,11 @@
 package com.frelamape.task0;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public interface DatabaseAdapter {
     List<Chat> getChats(long userId);
-    List<Message> getChatMessages(long chatId, Date from, Date to, int n);
+    List<Message> getChatMessages(long chatId, Instant from, Instant to, int n);
     List<User> getChatMembers(long chatId);
     boolean addChatMember(long chatId, long userId);
     boolean removeChatMember(long chatId, long userId);
