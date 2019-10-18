@@ -52,11 +52,11 @@ class LoginForm extends Component {
       password: this.state.password
     })
     .then(function (response) {
-        if(response['data']['success']){
+        if(response.data.success){
           self.setState({
             wrongAuth: 'hidden',
           })
-          cookies.set('sessionId', response['data']['sessionId']);
+          cookies.set('sessionId', response.data.sessionId);
           cookies.set('username', self.state.username);
           window.location.reload();
         } else {
