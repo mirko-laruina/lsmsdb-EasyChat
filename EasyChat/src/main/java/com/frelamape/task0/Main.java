@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -96,18 +97,18 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Date fromDate = null;
-        Date toDate = null;
+        Instant fromInstant = null;
+        Instant toInstant = null;
         int nInt = 0;
 
         try {
             long fromLong = Long.parseLong(from);
             if (fromLong != 0)
-                fromDate = new Date(fromLong);
+                fromInstant = Instant.ofEpochMilli(fromLong);
 
             long toLong = Long.parseLong(to);
             if (toLong != 0)
-                toDate = new Date(toLong);
+                toInstant = Instant.ofEpochMilli(toLong);
 
             nInt = Integer.parseInt(n);
         } catch (NumberFormatException e){
@@ -115,7 +116,7 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        List<Message> msgs = dba.getChatMessages(chatId, fromDate, toDate, nInt);
+        List<Message> msgs = dba.getChatMessages(chatId, fromInstant, toInstant, nInt);
         return new ResponseEntity<>(gson.toJson(msgs), HttpStatus.OK);
     }
 
@@ -133,9 +134,8 @@ public class Main {
         }
 
         //Write message
-        Date now = new Date();
         User user = new User(userId);
-        Message msg = new Message(chatId, user, now, request.getText().trim());
+        Message msg = new Message(chatId, user, Instant.now(), request.getText().trim());
         long msgId;
         if(msg.getText().length() > 0) {
             msgId = dba.addChatMessage(msg);

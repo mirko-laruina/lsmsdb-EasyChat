@@ -1,9 +1,9 @@
 package com.frelamape.task0;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class MySQLAdapter implements DatabaseAdapter {
@@ -49,7 +49,7 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public List<Message> getChatMessages(long chatId, Date from, Date to, int n) {
+    public List<Message> getChatMessages(long chatId, Instant from, Instant to, int n) {
         List<Message> messages = new ArrayList<>();
         try{
             StringBuilder st = new StringBuilder();
@@ -74,9 +74,9 @@ public class MySQLAdapter implements DatabaseAdapter {
             int i = 1;
             statement.setLong(i++, chatId);
             if (from != null)
-                statement.setTimestamp(i++, new java.sql.Timestamp(from.getTime()));
+                statement.setTimestamp(i++, Timestamp.from(from));
             if (to != null)
-                statement.setTimestamp(i++, new java.sql.Timestamp(to.getTime()));
+                statement.setTimestamp(i++, Timestamp.from(to));
             if (n != 0)
                 statement.setInt(i, n);
 
@@ -87,7 +87,7 @@ public class MySQLAdapter implements DatabaseAdapter {
                         rs.getLong("M.messageId"),
                         chatId,
                         new User(rs.getLong("U.userId"), rs.getString("U.username")),
-                        rs.getTimestamp("M.timestamp"),
+                        rs.getTimestamp("M.timestamp").toInstant(),
                         rs.getString("M.text")
                 ));
             }
@@ -203,7 +203,7 @@ public class MySQLAdapter implements DatabaseAdapter {
             );
 
             statement.setLong(1, message.getChatId());
-            statement.setTimestamp(2, new Timestamp(message.getTimestamp().getTime()));
+            statement.setTimestamp(2, Timestamp.from(message.getTimestampInstant()));
             statement.setLong(3, message.getSender().getUserId());
             statement.setString(4, message.getText());
             int rows = statement.executeUpdate();
