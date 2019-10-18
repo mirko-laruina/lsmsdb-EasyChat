@@ -22,7 +22,7 @@ import java.util.List;
 @EnableAutoConfiguration
 public class Main {
 
-    static MySQLAdapter dba = null;
+    static DatabaseAdapter dba = null;
 
     @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
