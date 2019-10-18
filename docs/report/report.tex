@@ -107,23 +107,48 @@ generation. However, that was sufficient for the first functional tests of the
 application.
 
 \subsection{Java backend}
-Lo sviluppo e' continuando con il set-up delle dipendenze Java (Spring Boot, JDBC, Junit e Google Gson), poi sono state scritte le prime funzioni che utilizzavano il database e, allo stesso tempo, fornivano delle API accessibili tramite una richiesta HTTP di tipo appropriato. Non avendo a disposizione un frontend con cui effettuare le prove di funzionamento, e' stato utilizzato `curl` scegliendo manualmente il tipo di richiesta e i dati da inviare.
-Il lavoro si e' poi diviso tra lo sviluppo della webapp React e la scrittura del Database Adapter e delle API.
+The Java backend provides simple REST APIs for managing the chat application. 
+In order to do so, it uses the \emph{Spring} framework\footnote{More information
+at \url{https://spring.io/}}.
+The list of the APIs and their description can be found in the 
+\texttt{docs/api.md} file. The APIs return a JSON document, generated using
+\emph{Google GSON}\footnote{More information at 
+\url{https://github.com/google/gson}}, which is interpreted and shown to the user
+by the ReactJS frontend.
+These APIs are implemented using a simple database abstraction layer which provides corresponding APIs to the database. This is implemented in Java 
+using a generic \emph{DatabaseAdapter} interface that, in this case, 
+is implemented by the \emph{MySQLAdapter} class, which makes use of JDBC.
 
-Un problema che si e' posto dopo l'inizio dello sviluppo fronted riguardava il mantenimento della sessione. Si e' scelto di utilizzare un token, sessionId, generato da funzioni crittograficamente sicure e in maniera completamente pseudo-randomica (non viene utilizzato username, userId o altri dati per la generazione del token). Il sessionId, dalla validita' di 5 giorni, viene generato e inviato all'utente una volta che questo completa, con successo, il login. Le richieste effettuate dall'utente loggato conterranno tutte il sessionId come uno dei parametri. Lato server, la tabella "Sessions" mantiene l'associazione (userId, sessionId). All'arrivo di ogni richiesta effettuabile solo da utente registrato, il sessionId viene letto, viene cercato nel database e una specifica funzione ritorna lo userId che viene poi utilizzato per effettuare la relativa richiesta.
-
-
-Dal lato sicurezza, al momento le password nel database sono in chiaro, sia perche' sono state generate in questo modo nei dummy data, sia per comodita' di sviluppo (utilizzando un account generato automaticamente, altrimenti, con la password hashed, non sarebbe stato possibile utilizzarlo). In produzione, si dovrebbe introdurre una funzione di hashing, come ad esempio puo' esserla SHA-256. Il tipo relativo alla password nel database e' un VARCHAR(64) esattamente per questo motivo.
+The database APIs have been tested using some test units through \emph{JUnit}
+\footnote{More information at \url{https://junit.org/junit4/}} before being 
+integrated with the ReactJS frontend,
 
 \subsection{ReactJS frontend}
-Per quanto riguarda il frontend, si e' fatto di uso di librerie molto comuni, evitando di entrare troppo nel dettaglio.
-La struttura della pagina e' stata ottenuta tramite l'utilizzo della libreria Bootstrap.
+The fronted has been developed using the \emph{ReactJS} framework\footnote{More
+information at \url{https://reactjs.org/}}. An overview of the main functions 
+is available in the user guide (\texttt{docs/user\_guide/user\_guide.pdf}).
 
-L'evento time-based riguarda l'aggiornamento delle chat e dei messaggi.
-Ogni secondo viene richiesto al server l'invio di tutte le chat di cui l'utente fa parte, ordinate per ultima attivita', in modo tale che risulti come prima chat quella con un messaggio inviato piu' di recente oppure creata da poco.
-Ogni 500ms viene inviata una richiesta al server per controllare l'esistenza di nuovi messaggi. Poiche' la mole dei messaggi e', in un contesto reale, innumerevole volte piu' grande del numero delle chat, la richiesta comporta un carico non indifferente sul server. Per questo motivo, la funzione di controllo messaggi permette di specificare un timestamp da cui partire e/o un numero massimo di messaggi da ricevere.
-Una piccola considerazione: il carico sul server resta comunque elevato e delle modifiche per alleggerirlo sono possibili, per questo motivo riteniamo che ci sia ancora molto margine di miglioramento sotto questo aspetto.
+Regarding the implementation, the most notable thing is the timer-based event
+that updates the UI. In particular, the client makes a request to the server
+every second for updating the list of chats and every half second for updating 
+the list of messages in the current chat.
 
+\subsection{Limitations}
+\paragraph{Passwords}
+For the sake of simplicity, password hashing has not been implemented into the 
+application. However, this could be simply integrated with a future update.
 
+\paragraph{Polling}
+In the current implementation, the server is polled every second for updating 
+the list of chats and every half second for updating the list of messages. This 
+is indeed a great load on the server in the case of many clients. 
+This problem has been alleviated by requesting only a subset of the chat 
+messages, based on the timestamp on the latest received message.
+However, 
+a more appropriate way to handle it would be having a kind of notification API
+that can be ``long polled''\footnote{A ``long poll'' is when the client 
+makes a request to the server and the server does not respond until new 
+information is available, at the cost of timing out the connection, at which 
+point a new request is made.} by the client.
 
 \end{document}
