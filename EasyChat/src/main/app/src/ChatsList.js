@@ -95,6 +95,7 @@ class ChatList extends Component {
       //if success or not, the user should relog
       //success could be false if sid is expired
       cookies.set('sessionId', '');
+      cookies.set('username', '');
       window.location.reload();
     })
     .catch(function(error){
