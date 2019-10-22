@@ -123,8 +123,8 @@ class ManageModal extends Component{
                         return (
                             <p key={i}>
                                 {member.username}
-                                {   ((this.props.isAdmin && member.username != this.props.username)
-                                    || (!this.props.isAdmin && member.username == this.props.username))
+                                {   ((this.props.isAdmin && member.username !== this.props.username)
+                                    || (!this.props.isAdmin && member.username === this.props.username))
                                     &&
                                     <Button variant={this.state.members.length > 3 ?
                                                 'outline-danger' : 'secondary'}
