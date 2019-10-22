@@ -3,6 +3,7 @@ import { Button, Form, Alert } from "react-bootstrap";
 import Cookies from 'universal-cookie';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {Container, Row, Col} from 'react-bootstrap';
 import './login.css';
 
 const cookies = new Cookies();
@@ -72,44 +73,48 @@ class LoginForm extends Component {
 
   render() {
     return (
-      <div className="Login">
-          <Form onSubmit={(evt) => this.handleSubmit(evt, this.props)}>
-            <h2>EasyChat</h2>
-            <Form.Group controlId="formUsername">
-              <Form.Label>Username</Form.Label>
-              <Form.Control type="text"placeholder="Enter username"
-                            value={this.state.username} onChange={(evt) => this.handleUser(evt.target.value)}/>
-            </Form.Group>
+      <Container>
+        <Row className="justify-content-md-center">
+            <Col xs lg="4" className="Login">
+                  <Form onSubmit={(evt) => this.handleSubmit(evt, this.props)}>
+                    <h2>EasyChat</h2>
+                    <Form.Group controlId="formUsername">
+                      <Form.Label>Username</Form.Label>
+                      <Form.Control type="text"placeholder="Enter username"
+                                    value={this.state.username} onChange={(evt) => this.handleUser(evt.target.value)}/>
+                    </Form.Group>
 
-            <Form.Group controlId="formPassword">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Password"
-                            value={this.state.password} onChange={(evt) => this.handlePw(evt.target.value)} />
-            </Form.Group>
+                    <Form.Group controlId="formPassword">
+                      <Form.Label>Password</Form.Label>
+                      <Form.Control type="password" placeholder="Password"
+                                    value={this.state.password} onChange={(evt) => this.handlePw(evt.target.value)} />
+                    </Form.Group>
 
-            {this.state.registerPage ? (
-                <div>
-                <Alert variant="danger"
-                  style={{ marginBottom: '20px'}}
-                  className={this.state.wrongAuth ? 'hidden' : ''}>Username already taken</Alert>
-                  <Button variant="link" onClick={(evt) => this.setState({registerPage: false})}>Log in</Button>
-                <Button variant="primary" type="submit">
-                  Sign on!
-                </Button>
-                </div>
-                ) : (
-                <div>
-                <Alert variant="danger"
-                  style={{ marginBottom: '20px'}}
-                  className={this.state.wrongAuth ? 'hidden' : ''}>Wrong username or password</Alert>
-                 <Button variant="link" onClick={(evt) => this.setState({registerPage: true})}>Sign on!</Button>
-                <Button variant="primary" type="submit">
-                  Log in!
-                </Button>
-                </div>
-                )}
-          </Form>
-      </div>
+                    {this.state.registerPage ? (
+                        <div>
+                        <Alert variant="danger"
+                          style={{ marginBottom: '20px'}}
+                          className={this.state.wrongAuth ? 'hidden' : ''}>Username already taken</Alert>
+                          <Button variant="link" onClick={(evt) => this.setState({registerPage: false})}>Log in</Button>
+                        <Button variant="primary" type="submit">
+                          Sign on!
+                        </Button>
+                        </div>
+                        ) : (
+                        <div>
+                        <Alert variant="danger"
+                          style={{ marginBottom: '20px'}}
+                          className={this.state.wrongAuth ? 'hidden' : ''}>Wrong username or password</Alert>
+                         <Button variant="link" onClick={(evt) => this.setState({registerPage: true})}>Sign on!</Button>
+                        <Button variant="primary" type="submit">
+                          Log in!
+                        </Button>
+                        </div>
+                        )}
+                  </Form>
+                   </Col>
+         </Row>
+      </Container>
     );
   }
 }
