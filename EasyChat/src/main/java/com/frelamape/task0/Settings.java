@@ -79,7 +79,7 @@ public class Settings {
             builder.append("&password=");
             builder.append(dbPassword);
         }
-        builder.append("&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+        builder.append("&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true");
         return builder.toString();
     }
 }
