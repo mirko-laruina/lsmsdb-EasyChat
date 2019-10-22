@@ -72,6 +72,10 @@ class ChatMessages extends Component {
     }
   }
 
+  UTC2LocalizedString(utc){
+    return new Date(utc).toLocaleString();
+  }
+
   render() {
     return (
       <div className="chatMessages" ref={this.ref}>
@@ -82,10 +86,10 @@ class ChatMessages extends Component {
             <ListGroup  className="messageList">
               {this.state.messageList.map((message, i) =>
                 this.props.username !== message.sender.username ? (
-                  <div key={i}><Card bg="info" className="message">{message.text}<p className="text-right timestamp">{message.timestamp}</p></Card>
+                  <div key={i}><Card bg="info" className="message">{message.text}<p className="text-right timestamp">{this.UTC2LocalizedString(message.timestamp)}</p></Card>
                   <p className="text-left">{message.sender.username}</p></div>
                 ) : (
-                  <div key={i}><Card bg="success" className="message"><p className="text-right">{message.text}</p><p className="text-right timestamp">{message.timestamp}</p></Card>
+                  <div key={i}><Card bg="success" className="message"><p className="text-right">{message.text}</p><p className="text-right timestamp">{this.UTC2LocalizedString(message.timestamp)}</p></Card>
                   <p className="text-right">You</p></div>
                 )
               )}
