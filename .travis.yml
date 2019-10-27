@@ -1,7 +1,7 @@
 language: java
 
-services:
-  - mysql
+addons:
+  mariadb: '10.4'
 
 before_script: 
   - cd EasyChat
