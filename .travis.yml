@@ -5,4 +5,4 @@ addons:
 
 before_script: 
   - cd EasyChat
-  - mysql -u root -e "CREATE DATABASE Task0; USE Task0; source ../database.sql;"
+  - sudo mysql -e "CREATE DATABASE Task0; USE Task0; source ../database.sql;"
