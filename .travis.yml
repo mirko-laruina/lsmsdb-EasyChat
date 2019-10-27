@@ -1,5 +1,8 @@
 language: java
-services: mysql
+
+services:
+  - mysql
+
 before_script: 
-	- cd EasyChat
-	- mysql -e "CREATE DATABASE Task0; USE Task0; source ../database.sql"
+  - cd EasyChat
+  - mysql -u root -e "CREATE DATABASE Task0; USE Task0; source ../database.sql"
