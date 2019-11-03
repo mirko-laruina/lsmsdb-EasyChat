@@ -41,12 +41,6 @@ the server and shown to the user.
 Anonymous user, registered user, group admin and a time-based event.
 
 \subsection{Functional specifications}
-\begin{figure}[]
-    \centering
-    \includegraphics[width=\textwidth]{figs/use_case_diagram}
-    \caption{Use-case diagram}
-    \label{fig:usecase}
-\end{figure}
 
 An \textbf{anonymous user} must be able to register in order to become a 
 \emph{registered user}.
@@ -76,6 +70,33 @@ The proposed software architecture is a classic three-layer architecture:
     \item user web app (ReactJS)
 \end{enumerate}
 
+\clearpage
+\section{Analysis}
+\subsection{Use-case diagram}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{figs/use_case_diagram}
+    \caption{Use-case diagram}
+    \label{fig:usecase}
+\end{figure}
+Figure~\ref{fig:usecase} shows the use-case diagram for the project. Please note 
+that the \texttt{Add user} and \texttt{Remove member} 
+operations are only allowed to the \texttt{Chat admin}.
+
+\subsection{Class diagram}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{figs/class_diagram}
+    \caption{Class diagram for the identified entities.}
+    \label{fig:class_diagram}
+\end{figure}
+
+Figure~\ref{fig:class_diagram} shows the class diagram derived from the specifications. 
+It can be seen that we chose to keep it as simple as possible by not making  
+any distinction between \emph{private chats} and \emph{group chats}, 
+creating a single \emph{Chat} entity.
+
+\clearpage
 \section{Implementation}
 
 \subsection{Database}
@@ -86,11 +107,7 @@ The proposed software architecture is a classic three-layer architecture:
     \label{fig:er}
 \end{figure}
 
-When implementing the database, we chose to keep it as simple as possible. 
-That is why we did not make any distinction between \emph{private chats} and 
-\emph{group chats}, creating a single \emph{Chat} entity.
-
-Figure~\ref{fig:er} shows the ER diagram of the database. Every \emph{User} 
+Figure~\ref{fig:er} shows the ER diagram of the SQL database. Every \emph{User} 
 is identified a \emph{userId} and has got a unique \emph{username} and a 
 \emph{password}. The user can be a member of many \emph{Chats} and can 
 be the administrator of many \emph{Chats}. On the other hand, a \emph{Chat} 
@@ -115,7 +132,8 @@ The list of the APIs and their description can be found in the
 \emph{Google GSON}\footnote{More information at 
 \url{https://github.com/google/gson}}, which is interpreted and shown to the user
 by the ReactJS frontend.
-These APIs are implemented using a simple database abstraction layer which provides corresponding APIs to the database. This is implemented in Java 
+These APIs are implemented using a simple database abstraction layer which provides 
+corresponding APIs to the database. This is implemented in Java 
 using a generic \emph{DatabaseAdapter} interface that, in this case, 
 is implemented by the \emph{MySQLAdapter} class, which makes use of JDBC.
 
@@ -141,7 +159,8 @@ application. However, this could be simply integrated with a future update.
 \paragraph{Polling}
 In the current implementation, the server is polled every second for updating 
 the list of chats and every half second for updating the list of messages. This 
-is indeed a great load on the server in the case of many clients. 
+is indeed a great load on the server in case there are many clients connected 
+at the same moment. 
 This problem has been alleviated by requesting only a subset of the chat 
 messages, based on the timestamp on the latest received message.
 However, 
