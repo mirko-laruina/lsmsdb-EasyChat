@@ -1,22 +1,44 @@
 package com.frelamape.task0;
 
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "Chats")
 public class Chat {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long chatId;
-    private String name;
-    private List<Message> messages;
-    private List<User> members;
-    private long adminId;
-    //just a quick solution, this has to be reviewed
-    public boolean isAdmin;
 
-    public Chat(int id, String name, List<Message> messages, List<User> members, long adminId) {
+    @Column(name = "name")
+    private String name;
+
+    @OneToMany
+    @JoinColumn(name = "chatId")
+    private List<Message> messages = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "Chatmembers",
+            joinColumns = @JoinColumn(name = "chatId"),
+            inverseJoinColumns = @JoinColumn(name = "userId")
+    )
+    private List<User> members = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "adminId")
+    private User admin;
+
+    public Chat() {
+    }
+
+    public Chat(int id, String name, List<Message> messages, List<User> members, User admin) {
         this.chatId = id;
         this.name = name;
         this.messages = messages;
         this.members = members;
-        this.adminId = adminId;
+        this.admin = admin;
     }
 
     public Chat(long id, String name) {
@@ -24,10 +46,14 @@ public class Chat {
         this.name = name;
     }
 
-    public Chat(long id, String name, long adminId) {
+    public Chat(long id) {
+        this.chatId = id;
+    }
+
+    public Chat(long id, String name, User admin) {
         this.chatId = id;
         this.name = name;
-        this.adminId = adminId;
+        this.admin = admin;
     }
 
     public long getId() {
@@ -58,11 +84,11 @@ public class Chat {
         this.members = members;
     }
 
-    public long getAdmin() {
-        return adminId;
+    public User getAdmin() {
+        return admin;
     }
 
-    public void setAdmin(long adminId) {
-        this.adminId = adminId;
+    public void setAdmin(User admin) {
+        this.admin = admin;
     }
 }

@@ -1,30 +1,52 @@
 package com.frelamape.task0;
 
+import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.Instant;
 
-public class Message {
+@Entity
+@Table(name = "Messages")
+public class Message implements Comparable<Message> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long messageId;
-    private long chatId;
+
+    @ManyToOne
+    @JoinColumn(name = "chatId")
+    private Chat chat;
+
+    @ManyToOne
+    @JoinColumn(name = "senderUserId")
     private User sender;
-    private transient Instant timestampInstant;
-    private String timestamp;
+
+    @Column(name = "timestamp")
+    private Timestamp sqlTimestamp;
+
+    @Transient
+    private transient Instant instantTimestamp;
+
+    @Transient
+    private String stringTimestamp;
+
+    @Column(name = "text")
     private String text;
 
-    public Message(long chatId, User sender, Instant timestamp, String text) {
-        this.chatId = chatId;
-        this.sender = sender;
-        this.timestampInstant = timestamp;
-        this.text = text;
-        this.timestamp = timestamp.toString();
+    public Message() {
     }
 
-    public Message(long id, long chatId, User sender, Instant timestamp, String text) {
-        this.messageId = id;
-        this.chatId = chatId;
+    public Message(Chat chat, User sender, Instant stringTimestamp, String text) {
+        this.chat = chat;
         this.sender = sender;
-        this.timestampInstant = timestamp;
+        setInstantTimestamp(stringTimestamp);
         this.text = text;
-        this.timestamp = timestamp.toString();
+    }
+
+    public Message(long id, Chat chat, User sender, Instant stringTimestamp, String text) {
+        this.messageId = id;
+        this.chat = chat;
+        this.sender = sender;
+        setInstantTimestamp(stringTimestamp);
+        this.text = text;
     }
 
     public long getMessageId() {
@@ -35,28 +57,38 @@ public class Message {
         this.messageId = messageId;
     }
 
-    public long getChatId() {
-        return chatId;
+    public Chat getChatId() {
+        return chat;
     }
 
-    public void setChatId(long chatId) {
-        this.chatId = chatId;
+    public void setChatId(Chat chat) {
+        this.chat = chat;
     }
 
-    public Instant getTimestampInstant() {
-        return timestampInstant;
+    public Instant getInstantTimestamp() {
+        if (instantTimestamp == null && sqlTimestamp != null)
+            instantTimestamp = sqlTimestamp.toInstant();
+        return instantTimestamp;
     }
 
-    public void setTimestampInstant(Instant timestampInstant) {
-        this.timestampInstant = timestampInstant;
+    public void setInstantTimestamp(Instant instantTimestamp) {
+        this.instantTimestamp = instantTimestamp;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public Timestamp getSqlTimestamp() {
+        if (sqlTimestamp == null && instantTimestamp != null)
+            sqlTimestamp = Timestamp.from(instantTimestamp);
+        return sqlTimestamp;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setSqlTimestamp(Timestamp sqlTimestamp) {
+        this.sqlTimestamp = sqlTimestamp;
+    }
+
+    public String getStringTimestamp() {
+        if (stringTimestamp == null && getInstantTimestamp() != null)
+            stringTimestamp = getInstantTimestamp().toString();
+        return stringTimestamp;
     }
 
     public String getText() {
@@ -73,5 +105,10 @@ public class Message {
 
     public void setSender(User sender) {
         this.sender = sender;
+    }
+
+    @Override
+    public int compareTo(Message message) {
+        return this.getInstantTimestamp().compareTo(message.getInstantTimestamp());
     }
 }

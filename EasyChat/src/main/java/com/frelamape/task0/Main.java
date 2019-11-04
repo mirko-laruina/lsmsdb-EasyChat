@@ -70,14 +70,14 @@ public class Main {
         }
 
         List<Chat> chats= dba.getChats(userId);
-        for(Chat chat: chats){
-            chat.setMembers(dba.getChatMembers(chat.getId()));
-            if(chat.getAdmin() == userId){
-                chat.isAdmin = true;
-            } else {
-                chat.isAdmin = false;
-            }
-        }
+//        for(Chat chat: chats){
+//            chat.setMembers(dba.getChatMembers(chat.getId()));
+//            if(chat.getAdmin().getUserId() == userId){
+//                chat.isAdmin = true;
+//            } else {
+//                chat.isAdmin = false;
+//            }
+//        }
         return new ResponseEntity<>(gson.toJson(chats), HttpStatus.OK);
     }
 
@@ -133,17 +133,18 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        //Write message
-        User user = new User(userId);
-        Message msg = new Message(chatId, user, Instant.now(), request.getText().trim());
-        long msgId;
-        if(msg.getText().length() > 0) {
-            msgId = dba.addChatMessage(msg);
-        } else {
-            msgId = 0;
-        }
+//        //Write message
+//        User user = new User(userId);
+//        Message msg = new Message(chatId, user, Instant.now(), request.getText().trim());
+//        long msgId;
+//        if(msg.getText().length() > 0) {
+//            msgId = dba.addChatMessage(msg);
+//        } else {
+//            msgId = 0;
+//        }
 
-        return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
+//        return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
+        return null; //TODO: remove
     }
 
     @CrossOrigin
@@ -168,7 +169,7 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin() != userId && userId != memberId){
+        if (chat.getAdmin().getUserId() != userId && userId != memberId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -189,7 +190,7 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin() != userId){
+        if (chat.getAdmin().getUserId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         long membId = dba.getUserId(request.getUsername());
@@ -228,7 +229,7 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat != null && chat.getAdmin() != userId){
+        if (chat != null && chat.getAdmin().getUserId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -278,25 +279,7 @@ public class Main {
 
     public static void main(String[] args) {
         String propFileName = null;
-        try {
-            if (args.length > 0)
-                propFileName = args[0];
-            else
-                propFileName = "server.config";
-            Settings settings = new Settings(propFileName);
-            String connStr = String.format(settings.getConnStr());
-            dba = new MySQLAdapter(connStr);
-        } catch (SQLException ex){
-            ex.printStackTrace();
-            return;
-        } catch (FileNotFoundException e){
-            if (propFileName != null)
-                System.err.println(String.format("File not found: %s", propFileName));
-            return;
-        } catch (IOException e){
-            e.printStackTrace();
-            return;
-        }
+        dba = new JPAAdapter();
 
         SpringApplication.run(Main.class, args);
     }

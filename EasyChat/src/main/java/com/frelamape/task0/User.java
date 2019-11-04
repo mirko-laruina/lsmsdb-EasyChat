@@ -1,9 +1,26 @@
 package com.frelamape.task0;
 
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "Users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
+
+    @ManyToMany(mappedBy = "members")
+    private List<Chat> chats;
+
+    @Column(name = "username")
     private String username;
+
+    @Column(name = "password")
     private String password;
+
+    public User() {
+    }
 
     public User(long userId) {
         this.userId = userId;
@@ -47,6 +64,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
     }
 
     @Override

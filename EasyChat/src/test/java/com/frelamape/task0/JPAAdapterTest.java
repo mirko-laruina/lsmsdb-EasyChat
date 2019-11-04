@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class MySQLAdapterTest {
+public class JPAAdapterTest {
     private DatabaseAdapter db;
     private final static long USERID = 101;
     private final static long ADD_USERID = 102;
@@ -24,7 +24,7 @@ public class MySQLAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        db = new MySQLAdapter(new Settings("server.config").getConnStr());
+        db = new JPAAdapter();
     }
 
     @Test
@@ -42,7 +42,7 @@ public class MySQLAdapterTest {
         List<Message> messages = db.getChatMessages(CHATID, null, null, 10);
         System.out.println(String.format("Chat %d has %d messages", CHATID, messages.size()));
         for (Message message:messages){
-            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp()));
+            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getStringTimestamp()));
         }
 
         assert messages.size() == 10;
@@ -64,6 +64,7 @@ public class MySQLAdapterTest {
         int oldChatMembers = db.getChatMembers(CHATID).size();
         assert db.addChatMember(CHATID, ADD_USERID);
         int newChatMembers = db.getChatMembers(CHATID).size();
+        assert db.checkChatMember(CHATID, ADD_USERID);
         assertEquals(oldChatMembers + 1, newChatMembers);
         assert db.removeChatMember(CHATID, ADD_USERID);
         int newNewChatMembers = db.getChatMembers(CHATID).size();
@@ -74,7 +75,7 @@ public class MySQLAdapterTest {
     public void addChatMessage() {
         int oldChatMessages = db.getChatMessages(CHATID, null, null, 0).size();
         assert db.addChatMessage(new Message(
-                CHATID,
+                new Chat(CHATID),
                 new User(USERID),
                 Instant.now(),
                 MESSAGE
@@ -95,7 +96,7 @@ public class MySQLAdapterTest {
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
         assert db.deleteChat(chatId);
-        assert db.getChatMembers(chatId).isEmpty();
+        assert db.getChatMembers(chatId) == null;
     }
 
     @Test
