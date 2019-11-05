@@ -261,15 +261,12 @@ public class JPAAdapter implements DatabaseAdapter {
     public User getUser(String username){
         try{
             entityManager = entityManagerFactory.createEntityManager();
-            entityManager.getTransaction().begin();
             Query query = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username");
             query.setParameter("username", username);
             List<User> resultList = query.getResultList();
-            entityManager.getTransaction().commit();
             if (!resultList.isEmpty())
                 return resultList.get(0);
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
             entityManager.close();
