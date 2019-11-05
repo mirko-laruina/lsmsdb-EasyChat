@@ -48,7 +48,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     //TODO: filter from DB instead of programmatically
     @Override
-    public List<Message> getChatMessages(long chatId, Instant from, Instant to, int n) {
+    public GetMessagesResponse getChatMessages(long chatId, Instant from, Instant to, int n) {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
@@ -72,11 +72,9 @@ public class JPAAdapter implements DatabaseAdapter {
                 if (from != null)
                     Collections.reverse(selected);
 
-                for(Message msg: selected){
-                    msg.setChatId(null);
-                    msg.getSender().setChats(null);
-                }
-                return selected;
+
+                GetMessagesResponse gmr = new GetMessagesResponse(selected);
+                return gmr;
             }
         } catch (Exception ex){
             ex.printStackTrace();
@@ -166,7 +164,6 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             User user = entityManager.find(User.class, userId);
-            entityManager.getTransaction().commit();
             if (chat != null && user != null){
                 return chat.getMembers().contains(user);
             }
@@ -174,6 +171,7 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
+            entityManager.getTransaction().commit();
             entityManager.close();
         }
         return false;
@@ -377,6 +375,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public boolean existsChat(long user, long user2) {
+        
         return false;
     }
 

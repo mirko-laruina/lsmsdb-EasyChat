@@ -71,18 +71,7 @@ public class Main {
         }
 
         GetUserChatsResponse gucr = dba.getChats(userId);
-
         return new ResponseEntity<>(gson.toJson(gucr.getChats()), HttpStatus.OK);
-//        for(Chat chat: chats){
-//            chat.setMembers(dba.getChatMembers(chat.getId()));
-//            if(chat.getAdmin().getUserId() == userId){
-//                chat.isAdmin = true;
-//            } else {
-//                chat.isAdmin = false;
-//            }
-//        }
-        //return null;
-        //return new ResponseEntity<>(gson.toJson(chats), HttpStatus.OK);
     }
 
     //TODO support parameters
@@ -100,7 +89,6 @@ public class Main {
         if(!dba.checkChatMember(chatId, userId)){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
         Instant fromInstant = null;
         Instant toInstant = null;
         int nInt = 0;
@@ -113,15 +101,14 @@ public class Main {
             long toLong = Long.parseLong(to);
             if (toLong != 0)
                 toInstant = Instant.ofEpochMilli(toLong);
-
             nInt = Integer.parseInt(n);
         } catch (NumberFormatException e){
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        List<Message> msgs = dba.getChatMessages(chatId, fromInstant, toInstant, nInt);
-        return new ResponseEntity<>(gson.toJson(msgs), HttpStatus.OK);
+        GetMessagesResponse msgs = dba.getChatMessages(chatId, fromInstant, toInstant, nInt);
+        return new ResponseEntity<>(gson.toJson(msgs.getMessages()), HttpStatus.OK);
     }
 
     @CrossOrigin

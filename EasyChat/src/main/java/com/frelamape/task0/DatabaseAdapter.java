@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface DatabaseAdapter {
     GetUserChatsResponse getChats(long userId);
-    List<Message> getChatMessages(long chatId, Instant from, Instant to, int n);
+    GetMessagesResponse getChatMessages(long chatId, Instant from, Instant to, int n);
     List<User> getChatMembers(long chatId);
     boolean addChatMember(long chatId, long userId);
     boolean removeChatMember(long chatId, long userId);

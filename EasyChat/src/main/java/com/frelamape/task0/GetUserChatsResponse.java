@@ -6,7 +6,7 @@ import java.util.List;
 class UserChat {
    private long chatId;
    private boolean isAdmin;
-   private List<UserChatMember> members;
+   private List<UserInfo> members;
    private String name;
 
    public long getChatId(){
@@ -21,10 +21,10 @@ class UserChat {
    public void setIsAdmin(boolean isAdmin) {
        this.isAdmin = isAdmin;
    }
-   public List<UserChatMember> getMembers(){
+   public List<UserInfo> getMembers(){
        return this.members;
    }
-   public void setMembers(List<UserChatMember> members) {
+   public void setMembers(List<UserInfo> members) {
        this.members = members;
    }
    public String getName(){
@@ -33,29 +33,6 @@ class UserChat {
    public void setName(String name){
        this.name = name;
    }
-}
-
-class UserChatMember {
-    private long userId;
-    private String username;
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-    public long getUserId() {
-        return this.userId;
-    }
-    public void setUsername(String username){
-        this.username = username;
-    }
-    public String getUsername(){
-        return this.username;
-    }
-
-    public UserChatMember(long userId, String username){
-        this.userId = userId;
-        this.username = username;
-    }
 }
 
 public class GetUserChatsResponse {
@@ -76,9 +53,9 @@ public class GetUserChatsResponse {
         }
 
         List<User> members = chat.getMembers();
-        List<UserChatMember> membersId = new ArrayList<>();
+        List<UserInfo> membersId = new ArrayList<>();
         for(User member: members){
-            membersId.add(new UserChatMember(member.getUserId(), member.getUsername()));
+            membersId.add(new UserInfo(member.getUserId(), member.getUsername()));
         }
         uc.setMembers(membersId);
         chats.add(uc);
