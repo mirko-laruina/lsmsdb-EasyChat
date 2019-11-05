@@ -1,5 +1,7 @@
 package com.frelamape.task0;
 
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.util.List;
 

@@ -374,8 +374,28 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean existsChat(long user, long user2) {
-        
+    public boolean existsChat(long userId1, long userId2) {
+        EntityManager entityManager = null;
+        try {
+            entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
+            User user1 = entityManager.find(User.class, userId1);
+            User user2 = entityManager.find(User.class, userId2);
+
+            for(Chat chat: user1.getChats()){
+                for(Chat chat2: user2.getChats()){
+                    if(chat.getId() == chat2.getId()){
+                        if(chat.getMembers().size() < 3){
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex){
+            ex.printStackTrace();
+        } finally {
+            entityManager.close();
+        }
         return false;
     }
 
