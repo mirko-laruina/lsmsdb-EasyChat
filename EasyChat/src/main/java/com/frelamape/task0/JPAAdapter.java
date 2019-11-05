@@ -2,6 +2,7 @@ package com.frelamape.task0;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.proxy.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -14,7 +15,6 @@ import java.util.List;
 
 public class JPAAdapter implements DatabaseAdapter {
     private EntityManagerFactory entityManagerFactory;
-    private EntityManager entityManager;
     private int connectionId;
 
     public JPAAdapter(){
@@ -24,11 +24,14 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public List<Chat> getChats(long userId) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             User user = entityManager.find(User.class, userId);
             if (user != null){
-                return user.getChats();
+                List<Chat> chats = user.getChats();
+                return chats;
             }
         } catch (Exception ex){
             ex.printStackTrace();
@@ -41,8 +44,10 @@ public class JPAAdapter implements DatabaseAdapter {
     //TODO: filter from DB instead of programmatically
     @Override
     public List<Message> getChatMessages(long chatId, Instant from, Instant to, int n) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             if (chat != null){
                 List<Message> all = chat.getMessages();
@@ -61,11 +66,17 @@ public class JPAAdapter implements DatabaseAdapter {
                 }
                 if (from != null)
                     Collections.reverse(selected);
+
+                for(Message msg: selected){
+                    msg.setChatId(null);
+                    msg.getSender().setChats(null);
+                }
                 return selected;
             }
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
+            entityManager.getTransaction().commit();
             entityManager.close();
         }
         return null;
@@ -73,15 +84,22 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public List<User> getChatMembers(long chatId) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             if (chat != null){
-                return chat.getMembers();
+                List<User> members = chat.getMembers();
+                for(User member:members){
+                    member.setChats(null);
+                }
+                return members;
             }
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
+            entityManager.getTransaction().commit();
             entityManager.close();
         }
         return null;
@@ -89,6 +107,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public boolean addChatMember(long chatId, long userId) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -112,6 +131,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public boolean removeChatMember(long chatId, long userId) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -135,6 +155,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public boolean checkChatMember(long chatId, long userId) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -155,6 +176,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public long addChatMessage(Message message) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -172,6 +194,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public long createChat(String name, long adminId, List<Long> userIds) {
+        EntityManager entityManager = null;
         try {
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -211,6 +234,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public boolean deleteChat(long chatId) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -229,6 +253,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public Chat getChat(long chatId) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             Chat chat = entityManager.find(Chat.class, chatId);
@@ -243,6 +268,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public long createUser(User user) {
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -259,6 +285,7 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     public User getUser(String username){
+        EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             Query query = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username");
@@ -276,7 +303,6 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public String getUserDBPassword(String username) {
-
         User user = getUser(username);
         if (user != null)
             return user.getPassword();
@@ -295,17 +321,53 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public long getUserFromSession(String sessionId) {
-        return 0;
+        EntityManager entityManager = null;
+        try {
+            entityManager = entityManagerFactory.createEntityManager();
+            UserSession session = entityManager.find(UserSession.class, sessionId);
+            if(session!=null)
+                return session.getUserId();
+        } catch (Exception ex){
+            ex.printStackTrace();
+        } finally {
+            entityManager.close();
+        }
+        return -1;
     }
 
     @Override
-    public boolean setUserSession(long userId, String sessionId) {
+    public boolean setUserSession(UserSession sess) {
+        EntityManager entityManager = null;
+        try {
+            entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
+            entityManager.persist(sess);
+            entityManager.getTransaction().commit();
+        } catch (Exception ex){
+            entityManager.getTransaction().rollback();
+            ex.printStackTrace();
+        } finally {
+            entityManager.close();
+        }
         return false;
     }
 
     @Override
     public boolean removeSession(String sessionId) {
-        return false;
+        EntityManager entityManager = null;
+        try {
+            entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
+            UserSession session = entityManager.getReference(UserSession.class, sessionId);
+            entityManager.remove(session);
+            entityManager.getTransaction().commit();
+            return true;
+        } catch (Exception ex){
+            ex.printStackTrace();
+            return false;
+        } finally {
+            entityManager.close();
+        }
     }
 
     @Override

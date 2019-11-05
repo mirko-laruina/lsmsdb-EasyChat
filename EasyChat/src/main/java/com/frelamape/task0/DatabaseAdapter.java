@@ -16,9 +16,10 @@ public interface DatabaseAdapter {
     Chat getChat(long chatId);
     long createUser(User user);
     String getUserDBPassword(String username);
+    User getUser(String username);
     long getUserId(String username);
     long getUserFromSession(String sessionId);
-    boolean setUserSession(long userId, String sessionId);
+    boolean setUserSession(UserSession user);
     boolean removeSession(String sessionId);
     boolean existsChat(long user, long user2);
 
