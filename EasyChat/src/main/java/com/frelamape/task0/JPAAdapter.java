@@ -23,19 +23,24 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public List<Chat> getChats(long userId) {
+    public GetUserChatsResponse getChats(long userId) {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
             User user = entityManager.find(User.class, userId);
+            GetUserChatsResponse gucr = new GetUserChatsResponse(userId);
             if (user != null){
                 List<Chat> chats = user.getChats();
-                return chats;
+                for(Chat chat: chats){
+                    gucr.add(chat);
+                }
             }
+            return gucr;
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
+            entityManager.getTransaction().commit();
             entityManager.close();
         }
         return null;

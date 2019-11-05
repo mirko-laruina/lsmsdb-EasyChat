@@ -70,23 +70,9 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        List<Chat> chats = dba.getChats(userId);
-        for(Chat chat:chats){
-            System.out.println("Here" + chat.getId());
-        }
+        GetUserChatsResponse gucr = dba.getChats(userId);
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        JsonSerializer<Chat> serializer = new JsonSerializer<Chat>() {
-            @Override
-            public JsonElement serialize(Chat src, Type type, JsonSerializationContext jsonSerializationContext) {
-                JsonObject jsonChat = new JsonObject();
-                jsonChat.addProperty("chatId",  src.getId());
-                return jsonChat;
-            }
-        };
-        gsonBuilder.registerTypeAdapter(Chat.class, serializer);
-        Gson customGson = gsonBuilder.create();
-        return new ResponseEntity<>(customGson.toJson(chats), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(gucr.getChats()), HttpStatus.OK);
 //        for(Chat chat: chats){
 //            chat.setMembers(dba.getChatMembers(chat.getId()));
 //            if(chat.getAdmin().getUserId() == userId){

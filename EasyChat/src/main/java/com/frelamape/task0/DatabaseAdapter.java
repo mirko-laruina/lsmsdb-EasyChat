@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 public interface DatabaseAdapter {
-    List<Chat> getChats(long userId);
+    GetUserChatsResponse getChats(long userId);
     List<Message> getChatMessages(long chatId, Instant from, Instant to, int n);
     List<User> getChatMembers(long chatId);
     boolean addChatMember(long chatId, long userId);
