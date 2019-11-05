@@ -1,6 +1,6 @@
 package com.frelamape.task0;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PreDestroy;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -37,9 +38,10 @@ public class Main {
         boolean success = (dbPw != null && dbPw.equals(loginRequest.getPassword()));
         String sid = "";
         if(success){
-            sid = generateSessionId();
-            long userId = dba.getUserId(loginRequest.getUsername());
-            dba.setUserSession(userId, sid);
+            User user = dba.getUser(loginRequest.getUsername());
+            UserSession session = new UserSession(user);
+            dba.setUserSession(session);
+            sid = session.getSessionId();
         }
         LoginResult lr = new LoginResult(success, sid);
         return gson.toJson(lr);
@@ -56,7 +58,6 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/logout"}, method=RequestMethod.POST)
     public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
-
         return gson.toJson(new BooleanResult(dba.removeSession(sid)));
     }
 
@@ -69,7 +70,23 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        List<Chat> chats= dba.getChats(userId);
+        List<Chat> chats = dba.getChats(userId);
+        for(Chat chat:chats){
+            System.out.println("Here" + chat.getId());
+        }
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        JsonSerializer<Chat> serializer = new JsonSerializer<Chat>() {
+            @Override
+            public JsonElement serialize(Chat src, Type type, JsonSerializationContext jsonSerializationContext) {
+                JsonObject jsonChat = new JsonObject();
+                jsonChat.addProperty("chatId",  src.getId());
+                return jsonChat;
+            }
+        };
+        gsonBuilder.registerTypeAdapter(Chat.class, serializer);
+        Gson customGson = gsonBuilder.create();
+        return new ResponseEntity<>(customGson.toJson(chats), HttpStatus.OK);
 //        for(Chat chat: chats){
 //            chat.setMembers(dba.getChatMembers(chat.getId()));
 //            if(chat.getAdmin().getUserId() == userId){
@@ -78,7 +95,8 @@ public class Main {
 //                chat.isAdmin = false;
 //            }
 //        }
-        return new ResponseEntity<>(gson.toJson(chats), HttpStatus.OK);
+        //return null;
+        //return new ResponseEntity<>(gson.toJson(chats), HttpStatus.OK);
     }
 
     //TODO support parameters
@@ -133,18 +151,19 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-//        //Write message
-//        User user = new User(userId);
-//        Message msg = new Message(chatId, user, Instant.now(), request.getText().trim());
-//        long msgId;
-//        if(msg.getText().length() > 0) {
-//            msgId = dba.addChatMessage(msg);
-//        } else {
-//            msgId = 0;
-//        }
+        //Write message
+        User user = new User(userId);
+        Chat chat = new Chat(chatId);
+        Message msg = new Message(chat, user, Instant.now(), request.getText().trim());
+        long msgId;
+        if(msg.getText().length() > 0) {
+            msgId = dba.addChatMessage(msg);
+        } else {
+            msgId = 0;
+        }
 
-//        return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
-        return null; //TODO: remove
+        return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
+        //return null; //TODO: remove
     }
 
     @CrossOrigin
@@ -244,37 +263,10 @@ public class Main {
         long userId = dba.createUser(new User(request.getUsername(), request.getPassword()));
         String sid = "";
         if (userId > 0){
-            sid = generateSessionId();
-            dba.setUserSession(userId, sid);
+            UserSession session = new UserSession(userId);
+            dba.setUserSession(session);
         }
         return new ResponseEntity<>(gson.toJson(new LoginResult(userId > 0, sid)), HttpStatus.OK);
-    }
-
-
-    public String generateSessionId(){
-        SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[64];
-        random.nextBytes(bytes);
-
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] msgDigest = digest.digest(bytes);
-            return bytesToHex(msgDigest);
-        } catch (NoSuchAlgorithmException ex) {
-            return "";
-        }
-    }
-
-    //from https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
-    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 
     public static void main(String[] args) {
