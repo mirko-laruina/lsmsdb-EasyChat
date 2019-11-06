@@ -8,12 +8,14 @@ public class SerializableChat {
     public boolean isAdmin;
     public List<SerializableUser> members;
     public String name;
+    public String lastActivity;
 
-    public SerializableChat(long chatId, boolean isAdmin, List<SerializableUser> members, String name) {
+    public SerializableChat(long chatId, boolean isAdmin, List<SerializableUser> members, String name, String lastActivity) {
         this.chatId = chatId;
         this.isAdmin = isAdmin;
         this.members = members;
         this.name = name;
+        this.lastActivity = lastActivity;
     }
 
     public SerializableChat(Chat chat){
@@ -24,5 +26,6 @@ public class SerializableChat {
             members.add(new SerializableUser(member.getUserId(), member.getUsername(), null));
         }
         this.name = chat.getName();
+        this.lastActivity = chat.getStringLastActivity();
     }
 }

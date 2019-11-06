@@ -20,6 +20,4 @@ public class GetChatMessagesResponse extends BasicResponse {
             add(message);
         }
     }
-
-
 }

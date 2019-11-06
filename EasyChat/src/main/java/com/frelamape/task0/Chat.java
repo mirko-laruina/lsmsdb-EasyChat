@@ -1,6 +1,7 @@
 package com.frelamape.task0;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public class Chat {
     @ManyToOne
     @JoinColumn(name = "adminId")
     private User admin;
+
+    @Column(name = "lastActivity")
+    private Timestamp lastActivity;
 
     public Chat() {
     }
@@ -90,5 +94,17 @@ public class Chat {
 
     public void setAdmin(User admin) {
         this.admin = admin;
+    }
+
+    public String getStringLastActivity(){
+        return this.lastActivity.toInstant().toString();
+    }
+
+    public void setLastActivity(Timestamp lastActivity) {
+        this.lastActivity = lastActivity;
+    }
+
+    public Timestamp getLastActivity(){
+        return this.lastActivity;
     }
 }
