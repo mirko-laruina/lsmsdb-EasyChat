@@ -71,10 +71,6 @@ public class JPAAdapter implements DatabaseAdapter {
                 if (from == null)
                     Collections.reverse(selected);
 
-                for(Message msg: selected){
-                    msg.setChatId(null);
-                    msg.getSender().setChats(null);
-                }
                 return selected;
             }
         } catch (Exception ex){
