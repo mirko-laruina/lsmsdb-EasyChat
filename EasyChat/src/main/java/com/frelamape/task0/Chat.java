@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Chats")
-public class Chat {
+public class Chat implements Comparable<Chat> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long chatId;
@@ -106,5 +106,10 @@ public class Chat {
 
     public Timestamp getLastActivity(){
         return this.lastActivity;
+    }
+
+    @Override
+    public int compareTo(Chat chat) {
+        return chat.getLastActivity().compareTo(this.getLastActivity());
     }
 }

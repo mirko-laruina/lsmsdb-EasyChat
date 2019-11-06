@@ -32,7 +32,9 @@ public class JPAAdapter implements DatabaseAdapter {
             for (Chat chat:user.getChats()){
                 Hibernate.initialize(chat.getMembers());
             }
-            return user.getChats();
+            List<Chat> chats = user.getChats();
+            Collections.sort(chats);
+            return chats;
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {

@@ -27,6 +27,4 @@ public class GetUserChatsResponse extends BasicResponse{
     public List<SerializableChat> getChats(){
         return this.chats;
     }
-
-
 }
