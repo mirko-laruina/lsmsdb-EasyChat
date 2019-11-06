@@ -161,9 +161,10 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+        //TODO: not very elegant
         Chat chat = dba.getChat(chatId);
         chat.setMembers(dba.getChatMembers(chatId));
-        return new ResponseEntity<>(gson.toJson(chat), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new GetChatResponse(chat)), HttpStatus.OK);
     }
 
     @CrossOrigin
