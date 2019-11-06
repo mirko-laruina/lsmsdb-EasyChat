@@ -13,7 +13,7 @@ public interface DatabaseAdapter {
     long addChatMessage(Message message);
     long createChat(String name, long adminId, List<Long> userIds);
     boolean deleteChat(long chatId);
-    Chat getChat(long chatId);
+    GetUserChatsResponse getChat(long chatId, long userId);
     long createUser(User user);
     String getUserDBPassword(String username);
     User getUser(String username);

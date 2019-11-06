@@ -149,9 +149,9 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Chat chat = dba.getChat(chatId);
-        chat.setMembers(dba.getChatMembers(chatId));
-        return new ResponseEntity<>(gson.toJson(chat), HttpStatus.OK);
+        GetUserChatsResponse gucr = dba.getChat(chatId, userId);
+        //chat.setMembers(dba.getChatMembers(chatId));
+        return new ResponseEntity<>(gson.toJson(gucr.getChats().get(0)), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -160,8 +160,8 @@ public class Main {
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
 
-        Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin().getUserId() != userId && userId != memberId){
+        GetUserChatsResponse gucr = dba.getChat(chatId, userId);
+        if (!gucr.getChats().get(0).getIsAdmin() && userId != memberId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -181,8 +181,8 @@ public class Main {
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
 
-        Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin().getUserId() != userId){
+        GetUserChatsResponse gucr = dba.getChat(chatId, userId);
+        if (!gucr.getChats().get(0).getIsAdmin()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         long membId = dba.getUserId(request.getUsername());
@@ -220,8 +220,9 @@ public class Main {
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
 
-        Chat chat = dba.getChat(chatId);
-        if (chat != null && chat.getAdmin().getUserId() != userId){
+        GetUserChatsResponse gucr = dba.getChat(chatId, userId);
+        gucr.getChats().get(0);
+        if (gucr.getChats().get(0) != null && !gucr.getChats().get(0).getIsAdmin()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 

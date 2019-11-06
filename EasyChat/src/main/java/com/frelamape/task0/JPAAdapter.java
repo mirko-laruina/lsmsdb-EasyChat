@@ -255,12 +255,16 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public Chat getChat(long chatId) {
+    public GetUserChatsResponse getChat(long chatId, long userId) {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
-            return chat;
+            GetUserChatsResponse gucr = new GetUserChatsResponse(userId);
+            gucr.add(chat);
+            entityManager.getTransaction().commit();
+            return gucr;
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
