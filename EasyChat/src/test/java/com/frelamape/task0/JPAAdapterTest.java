@@ -110,7 +110,7 @@ public class JPAAdapterTest {
         List<User> members = db.getChatMembers(chatId);
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
-        assert db.existsChat(ADD_USERID, ADD_USERID2);
+        assert db.existsChat(ADD_USERID, USERID);
         assert db.deleteChat(chatId);
         assert db.getChatMembers(chatId) == null;
     }
