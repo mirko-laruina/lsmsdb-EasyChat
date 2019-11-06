@@ -8,16 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PreDestroy;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -73,19 +65,8 @@ public class Main {
         GetUserChatsResponse gucr = dba.getChats(userId);
 
         return new ResponseEntity<>(gson.toJson(gucr.getChats()), HttpStatus.OK);
-//        for(Chat chat: chats){
-//            chat.setMembers(dba.getChatMembers(chat.getId()));
-//            if(chat.getAdmin().getUserId() == userId){
-//                chat.isAdmin = true;
-//            } else {
-//                chat.isAdmin = false;
-//            }
-//        }
-        //return null;
-        //return new ResponseEntity<>(gson.toJson(chats), HttpStatus.OK);
     }
 
-    //TODO support parameters
     @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.GET)
     public ResponseEntity getMessages(@PathVariable(value="chatId") long chatId,
