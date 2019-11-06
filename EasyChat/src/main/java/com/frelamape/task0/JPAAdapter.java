@@ -1,6 +1,7 @@
 package com.frelamape.task0;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.proxy.*;
 
@@ -92,11 +93,8 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager = entityManagerFactory.createEntityManager();
             Chat chat = entityManager.find(Chat.class, chatId);
             if (chat != null){
-                List<User> members = chat.getMembers();
-                for(User member:members){
-                    member.setChats(null);
-                }
-                return members;
+                Hibernate.initialize(chat.getMembers());
+                return chat.getMembers();
             }
         } catch (Exception ex){
             ex.printStackTrace();
