@@ -27,7 +27,6 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
-            entityManager.getTransaction().begin();
             User user = entityManager.find(User.class, userId);
             GetUserChatsResponse gucr = new GetUserChatsResponse(userId);
             if (user != null){
@@ -52,7 +51,6 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
-            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             if (chat != null){
                 List<Message> all = chat.getMessages();
@@ -92,7 +90,6 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
-            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             if (chat != null){
                 List<User> members = chat.getMembers();
@@ -163,15 +160,12 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
-            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             User user = entityManager.find(User.class, userId);
-            entityManager.getTransaction().commit();
             if (chat != null && user != null){
                 return chat.getMembers().contains(user);
             }
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
             entityManager.close();
