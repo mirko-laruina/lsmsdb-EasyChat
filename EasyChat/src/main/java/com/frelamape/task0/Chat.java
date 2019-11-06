@@ -15,8 +15,7 @@ public class Chat implements Comparable<Chat> {
     @Column(name = "name")
     private String name;
 
-    @OneToMany
-    @JoinColumn(name = "chatId")
+    @OneToMany(mappedBy = "chat", cascade = { CascadeType.ALL } )
     private List<Message> messages = new ArrayList<>();
 
     @ManyToMany

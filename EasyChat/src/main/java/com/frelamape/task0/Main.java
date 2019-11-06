@@ -219,7 +219,6 @@ public class Main {
         if (chat != null && chat.getAdmin().getUserId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
         boolean result = dba.deleteChat(chatId);
         return new ResponseEntity<>(gson.toJson(new BasicResponse(result)), HttpStatus.OK);
     }

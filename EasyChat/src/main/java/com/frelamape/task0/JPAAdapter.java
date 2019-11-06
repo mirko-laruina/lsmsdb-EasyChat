@@ -246,7 +246,8 @@ public class JPAAdapter implements DatabaseAdapter {
                 if (entityManager.getTransaction().isActive())
                     entityManager.getTransaction().rollback();
                 entityManager.close();
-            }        }
+            }
+        }
         return false;
     }
 
