@@ -97,6 +97,8 @@ public class Chat implements Comparable<Chat> {
     }
 
     public String getStringLastActivity(){
+        if(this.lastActivity == null)
+            return "0";
         return this.lastActivity.toInstant().toString();
     }
 
@@ -110,6 +112,12 @@ public class Chat implements Comparable<Chat> {
 
     @Override
     public int compareTo(Chat chat) {
+        if(chat.getLastActivity() == null){
+            return -1;
+        }
+        if(this.getLastActivity() == null){
+            return 1;
+        }
         return chat.getLastActivity().compareTo(this.getLastActivity());
     }
 }

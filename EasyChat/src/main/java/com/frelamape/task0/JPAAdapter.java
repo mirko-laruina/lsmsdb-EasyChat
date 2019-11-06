@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -212,6 +213,7 @@ public class JPAAdapter implements DatabaseAdapter {
                     return -1;
                 }
             }
+            chat.setLastActivity(new Timestamp(System.currentTimeMillis()));
             entityManager.persist(chat);
             entityManager.getTransaction().commit();
             return chat.getId();
