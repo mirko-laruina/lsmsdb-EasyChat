@@ -62,7 +62,7 @@ class ChatMessages extends Component {
         self.setState({
           messageList: self.state.messageList.concat(response.data.messages),
         })
-        if(response.data.length > 0){
+        if(response.data.messages.length > 0){
           self.ref.current.scrollTop = self.ref.current.scrollHeight;
         }
         self.isWaiting = false;
