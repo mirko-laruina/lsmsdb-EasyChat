@@ -39,7 +39,7 @@ class ManageModal extends Component{
         .then(function(response){
             if(response.data){
                 self.setState({
-                    members: response.data.members
+                    members: response.data.chat.members
                 })
             }
         })
