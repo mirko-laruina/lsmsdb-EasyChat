@@ -68,7 +68,7 @@ public class JPAAdapter implements DatabaseAdapter {
                         }
                     }
                 }
-                if (from != null)
+                if (from == null)
                     Collections.reverse(selected);
 
                 for(Message msg: selected){
