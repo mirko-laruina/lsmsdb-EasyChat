@@ -40,8 +40,8 @@ public class JPAAdapter implements DatabaseAdapter {
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            entityManager.getTransaction().commit();
-            entityManager.close();
+            if (entityManager != null)
+                entityManager.close();
         }
         return null;
     }
@@ -80,8 +80,8 @@ public class JPAAdapter implements DatabaseAdapter {
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            entityManager.getTransaction().commit();
-            entityManager.close();
+            if (entityManager != null)
+                entityManager.close();
         }
         return null;
     }
@@ -99,8 +99,8 @@ public class JPAAdapter implements DatabaseAdapter {
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            entityManager.getTransaction().commit();
-            entityManager.close();
+            if (entityManager != null)
+                entityManager.close();
         }
         return null;
     }
@@ -113,18 +113,19 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().begin();
             Chat chat = entityManager.getReference(Chat.class, chatId);
             User user = entityManager.getReference(User.class, userId);
-            boolean ret = false;
             if (chat != null && user != null){
                 chat.getMembers().add(user);
-                ret = true;
+                entityManager.getTransaction().commit();
+                return true;
             }
-            entityManager.getTransaction().commit();
-            return ret;
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }
         }
         return false;
     }
@@ -137,18 +138,19 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().begin();
             Chat chat = entityManager.getReference(Chat.class, chatId);
             User user = entityManager.getReference(User.class, userId);
-            boolean ret = false;
             if (chat != null && user != null){
                 chat.getMembers().remove(user);
-                ret = true;
+                entityManager.getTransaction().commit();
+                return true;
             }
-            entityManager.getTransaction().commit();
-            return ret;
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }
         }
         return false;
     }
@@ -166,7 +168,8 @@ public class JPAAdapter implements DatabaseAdapter {
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null)
+                entityManager.close();
         }
         return false;
     }
@@ -181,10 +184,13 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().commit();
             return message.getMessageId();
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }
         }
         return -1;
     }
@@ -202,7 +208,6 @@ public class JPAAdapter implements DatabaseAdapter {
                 chat.setAdmin(admin);
                 chat.getMembers().add(admin);
             } else {
-                entityManager.getTransaction().setRollbackOnly();
                 return -1;
             }
             for (Long userId:userIds){
@@ -210,7 +215,6 @@ public class JPAAdapter implements DatabaseAdapter {
                 if (member != null){
                     chat.getMembers().add(member);
                 } else {
-                    entityManager.getTransaction().setRollbackOnly();
                     return -1;
                 }
             }
@@ -218,13 +222,13 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().commit();
             return chat.getId();
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
-            if(entityManager.getTransaction().getRollbackOnly()){
-                entityManager.getTransaction().rollback();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
             }
-            entityManager.close();
         }
         return -1;
     }
@@ -240,11 +244,13 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().commit();
             return true;
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
-            entityManager.close();
-        }
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }        }
         return false;
     }
 
@@ -258,7 +264,9 @@ public class JPAAdapter implements DatabaseAdapter {
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                entityManager.close();
+            }
         }
         return null;
     }
@@ -273,10 +281,13 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().commit();
             return user.getUserId();
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }        
         }
         return -1;
     }
@@ -293,7 +304,9 @@ public class JPAAdapter implements DatabaseAdapter {
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                entityManager.close();
+            }
         }
         return null;
     }
@@ -340,11 +353,15 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().begin();
             entityManager.persist(sess);
             entityManager.getTransaction().commit();
+            return true;
         } catch (Exception ex){
-            entityManager.getTransaction().rollback();
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }        
         }
         return false;
     }
@@ -361,10 +378,14 @@ public class JPAAdapter implements DatabaseAdapter {
             return true;
         } catch (Exception ex){
             ex.printStackTrace();
-            return false;
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }
         }
+        return false;
     }
 
     @Override
