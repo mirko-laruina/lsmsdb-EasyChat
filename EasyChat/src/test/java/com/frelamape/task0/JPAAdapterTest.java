@@ -31,12 +31,12 @@ public class JPAAdapterTest {
 
     @Test
     public void getChats() {
-        GetUserChatsResponse response = db.getChats(USERID);
-        System.out.println(String.format("User %d has %d chats", USERID, response.getChats().size()));
-        for (SerializableChat chat:response.getChats()){
-            System.out.println(String.format("%d: %s", chat.chatId, chat.name));
+        List<Chat> chats = db.getChats(USERID);
+        System.out.println(String.format("User %d has %d chats", USERID, chats.size()));
+        for (Chat chat:chats){
+            System.out.println(String.format("%d: %s", chat.getId(), chat.getName()));
         }
-        assert response.getChats().size() > 0;
+        assert chats.size() > 0;
     }
 
     @Test

@@ -62,7 +62,8 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        GetUserChatsResponse gucr = dba.getChats(userId);
+        GetUserChatsResponse gucr = new GetUserChatsResponse(userId);
+        gucr.addAll(dba.getChats(userId));
 
         return new ResponseEntity<>(gson.toJson(gucr.getChats()), HttpStatus.OK);
     }

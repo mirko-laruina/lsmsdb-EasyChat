@@ -18,6 +18,12 @@ public class GetUserChatsResponse extends BasicResponse{
         chats.add(uc);
     }
 
+    public void addAll(List<Chat> chats) {
+        for (Chat chat:chats){
+            add(chat);
+        }
+    }
+
     public List<SerializableChat> getChats(){
         return this.chats;
     }
