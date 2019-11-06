@@ -32,7 +32,7 @@ public class Main {
         //da rivedere il throws exception
         Gson gson =  new Gson();
         if(loginRequest.getUsername().equals("") || loginRequest.getPassword().equals("")){
-            return gson.toJson(new LoginResult(false, ""));
+            return gson.toJson(new LoginResponse(false, ""));
         }
         String dbPw = dba.getUserDBPassword(loginRequest.getUsername());
         boolean success = (dbPw != null && dbPw.equals(loginRequest.getPassword()));
@@ -43,7 +43,7 @@ public class Main {
             dba.setUserSession(session);
             sid = session.getSessionId();
         }
-        LoginResult lr = new LoginResult(success, sid);
+        LoginResponse lr = new LoginResponse(success, sid);
         return gson.toJson(lr);
     }
 
@@ -51,14 +51,14 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/check"}, method=RequestMethod.GET)
     public @ResponseBody String isLogged(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
-        return gson.toJson(new BooleanResult(dba.getUserFromSession(sid) != -1));
+        return gson.toJson(new BasicResponse(dba.getUserFromSession(sid) != -1));
     }
 
     @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/logout"}, method=RequestMethod.POST)
     public @ResponseBody String logout(@RequestParam("sessionId") String sid){
         Gson gson = new Gson();
-        return gson.toJson(new BooleanResult(dba.removeSession(sid)));
+        return gson.toJson(new BasicResponse(dba.removeSession(sid)));
     }
 
     @CrossOrigin
@@ -148,8 +148,7 @@ public class Main {
             msgId = 0;
         }
 
-        return new ResponseEntity<>(gson.toJson(new BooleanResult(msgId > 0)), HttpStatus.OK);
-        //return null; //TODO: remove
+        return new ResponseEntity<>(gson.toJson(new BasicResponse(msgId > 0)), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -185,7 +184,7 @@ public class Main {
             result = dba.removeChatMember(chatId, memberId);
         }
 
-        return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new BasicResponse(result)), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -200,7 +199,7 @@ public class Main {
         }
         long membId = dba.getUserId(request.getUsername());
         boolean result = (membId != -1) && dba.addChatMember(chatId, membId);
-        return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new BasicResponse(result)), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -220,11 +219,11 @@ public class Main {
         }
 
         if(membIds.size() < 1 || (membIds.size() == 1 && dba.existsChat(userId, membIds.get(0)))){
-            return new ResponseEntity<>(gson.toJson(new BooleanResult(false)), HttpStatus.OK);
+            return new ResponseEntity<>(gson.toJson(new BasicResponse(false)), HttpStatus.OK);
         }
 
         long chatId = dba.createChat(request.getName(), userId, membIds);
-        return new ResponseEntity<>(gson.toJson(new BooleanResult(chatId > 0)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new BasicResponse(chatId > 0)), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -239,7 +238,7 @@ public class Main {
         }
 
         boolean result = dba.deleteChat(chatId);
-        return new ResponseEntity<>(gson.toJson(new BooleanResult(result)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new BasicResponse(result)), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -252,7 +251,7 @@ public class Main {
             UserSession session = new UserSession(userId);
             dba.setUserSession(session);
         }
-        return new ResponseEntity<>(gson.toJson(new LoginResult(userId > 0, sid)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new LoginResponse(userId > 0, sid)), HttpStatus.OK);
     }
 
     public static void main(String[] args) {
