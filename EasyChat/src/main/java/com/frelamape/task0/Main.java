@@ -121,7 +121,7 @@ public class Main {
         }
 
         List<Message> msgs = dba.getChatMessages(chatId, fromInstant, toInstant, nInt);
-        return new ResponseEntity<>(gson.toJson(msgs), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse(msgs)), HttpStatus.OK);
     }
 
     @CrossOrigin
