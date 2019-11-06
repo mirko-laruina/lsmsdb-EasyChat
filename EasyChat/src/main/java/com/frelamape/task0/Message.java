@@ -23,7 +23,7 @@ public class Message implements Comparable<Message> {
     private Timestamp sqlTimestamp;
 
     @Transient
-    private transient Instant instantTimestamp;
+    private Instant instantTimestamp;
 
     @Transient
     private String stringTimestamp;
