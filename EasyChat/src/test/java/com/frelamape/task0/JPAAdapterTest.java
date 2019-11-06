@@ -14,6 +14,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
+@Ignore
 public class JPAAdapterTest {
     private DatabaseAdapter db;
     private final static long USERID = 101;
@@ -29,13 +30,12 @@ public class JPAAdapterTest {
 
     @Test
     public void getChats() {
-        /*List<Chat> chats = db.getChats(USERID);
-        System.out.println(String.format("User %d has %d chats", USERID, chats.size()));
-        for (Chat chat:chats){
-            System.out.println(String.format("%d: %s", chat.getId(), chat.getName()));
+        GetUserChatsResponse response = db.getChats(USERID);
+        System.out.println(String.format("User %d has %d chats", USERID, response.getChats().size()));
+        for (SerializableChat chat:response.getChats()){
+            System.out.println(String.format("%d: %s", chat.chatId, chat.name));
         }
-        assert chats.size() > 0;*/
-        assert true;
+        assert response.getChats().size() > 0;
     }
 
     @Test
@@ -87,7 +87,7 @@ public class JPAAdapterTest {
     }
 
     @Test
-    public void createDeleteChat() {
+    public void createDeleteGroupChat() {
         List<Long> users = new ArrayList<>();
         users.add(ADD_USERID);
         users.add(ADD_USERID2);
@@ -101,6 +101,20 @@ public class JPAAdapterTest {
     }
 
     @Test
+    public void createDeletePrivateChat() {
+        List<Long> users = new ArrayList<>();
+        users.add(ADD_USERID);
+        long chatId = db.createChat("Chat", USERID, users);
+        assert chatId != -1;
+        List<User> members = db.getChatMembers(chatId);
+        assert members.contains(new User(USERID));
+        assert members.contains(new User(ADD_USERID));
+        assert db.existsChat(ADD_USERID, ADD_USERID2);
+        assert db.deleteChat(chatId);
+        assert db.getChatMembers(chatId) == null;
+    }
+
+    @Test
     public void createUserAndGetPassword() {
         String username = UUID.randomUUID().toString();
         long userId = db.createUser(new User(username, "password"));
@@ -109,4 +123,12 @@ public class JPAAdapterTest {
         assert password.equals("password");
     }
 
+    @Test
+    public void setGetRemoveSession() {
+        UserSession session = new UserSession(USERID);
+        assert db.setUserSession(session);
+        assertEquals(USERID, db.getUserFromSession(session.getSessionId()));
+        assert db.removeSession(session.getSessionId());
+        assertEquals(-1, db.getUserFromSession(session.getSessionId()));
+    }
 }
