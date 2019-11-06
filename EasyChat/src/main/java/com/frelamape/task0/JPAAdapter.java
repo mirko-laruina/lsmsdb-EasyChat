@@ -390,6 +390,26 @@ public class JPAAdapter implements DatabaseAdapter {
 
     @Override
     public boolean existsChat(long user, long user2) {
+        EntityManager entityManager = null;
+        try{
+            entityManager = entityManagerFactory.createEntityManager();
+            Query query = entityManager.createNativeQuery("SELECT M.chatId\n\n"
+                    + "FROM Chatmembers M INNER JOIN Chatmembers M2\n"
+                    + "ON M.chatId = M2.chatId\n"
+                    + "INNER JOIN Chatmembers M3 ON M3.chatId = M2.chatId\n"
+                    + "WHERE M.userId = :user1 AND M2.userId = :user2\n"
+                    + "GROUP BY M.chatId\n"
+                    + "HAVING COUNT(*) = 2");
+            query.setParameter("user1", user);
+            query.setParameter("user2", user2);
+            List resultList = query.getResultList();
+            return !resultList.isEmpty();
+        } catch (Exception ex){
+            ex.printStackTrace();
+        } finally {
+            if (entityManager != null)
+                entityManager.close();
+        }
         return false;
     }
 
