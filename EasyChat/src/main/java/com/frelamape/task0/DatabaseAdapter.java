@@ -123,13 +123,13 @@ public interface DatabaseAdapter {
     boolean removeSession(String sessionId);
 
     /**
-     * Returns true if there exists a private chat between user and user2.
+     * Returns true if there exists a private chat between user1 and user2.
      *
      * NB: a private chat is a chat with only two members.
      *
      * @return {@code true} if it exists, {@code false} otherwise or in case of errors.
      */
-    boolean existsChat(long user, long user2);
+    boolean existsChat(long user1, long user2);
 
     void close();
 }
