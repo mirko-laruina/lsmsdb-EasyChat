@@ -311,24 +311,6 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public String getUserDBPassword(String username) {
-        User user = getUser(username);
-        if (user != null)
-            return user.getPassword();
-        else
-            return null;
-    }
-
-    @Override
-    public long getUserId(String username) {
-        User user = getUser(username);
-        if (user != null)
-            return user.getUserId();
-        else
-            return -1;
-    }
-
-    @Override
     public long getUserFromSession(String sessionId) {
         EntityManager entityManager = null;
         try {

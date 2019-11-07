@@ -28,7 +28,7 @@ public class Main {
         if(loginRequest.getUsername().equals("") || loginRequest.getPassword().equals("")){
             return gson.toJson(new LoginResponse(false, ""));
         }
-        String dbPw = dba.getUserDBPassword(loginRequest.getUsername());
+        String dbPw = dba.getUser(loginRequest.getUsername()).getPassword();
         boolean success = (dbPw != null && dbPw.equals(loginRequest.getPassword()));
         String sid = "";
         if(success){
@@ -182,7 +182,7 @@ public class Main {
         if (chat.getAdmin().getUserId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        long membId = dba.getUserId(request.getUsername());
+        long membId = dba.getUser(request.getUsername()).getUserId();
         boolean result = (membId != -1) && dba.addChatMember(chatId, membId);
         return new ResponseEntity<>(gson.toJson(new BasicResponse(result)), HttpStatus.OK);
     }
@@ -198,9 +198,9 @@ public class Main {
         List<String> members = request.getMembers();
         List<Long> membIds = new ArrayList<Long>();
         for(String memb: members){
-            long tmpUserId = dba.getUserId(memb);
+            long tmpUserId = dba.getUser(memb).getUserId();
             if(tmpUserId != -1 && tmpUserId != userId)
-                membIds.add(dba.getUserId(memb));
+                membIds.add(dba.getUser(memb).getUserId());
         }
 
         if(membIds.size() < 1 || (membIds.size() == 1 && dba.existsChat(userId, membIds.get(0)))){

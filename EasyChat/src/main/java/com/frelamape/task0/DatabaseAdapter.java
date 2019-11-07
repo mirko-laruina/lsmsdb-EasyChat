@@ -92,25 +92,11 @@ public interface DatabaseAdapter {
     long createUser(User user);
 
     /**
-     * Returns the password for the user identified by the given username, as stored in the database.
-     *
-     * @return the stored password in case of success, null otherwise.
-     */
-    String getUserDBPassword(String username);
-
-    /**
      * Returns user identified by the given username.
      *
      * @return the user in case of success, null otherwise.
      */
     User getUser(String username);
-
-    /**
-     * Returns userId of the user identified by the given username.
-     *
-     * @return the id of the user in case of success, -1 otherwise.
-     */
-    long getUserId(String username);
 
     /**
      * Returns userId of the user who owns the session identified by the given sessionId.

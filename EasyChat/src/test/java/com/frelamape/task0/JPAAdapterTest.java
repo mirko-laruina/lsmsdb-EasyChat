@@ -120,7 +120,7 @@ public class JPAAdapterTest {
         String username = UUID.randomUUID().toString();
         long userId = db.createUser(new User(username, "password"));
         assert userId != -1;
-        String password = db.getUserDBPassword(username);
+        String password = db.getUser(username).getPassword();
         assert password.equals("password");
     }
 
