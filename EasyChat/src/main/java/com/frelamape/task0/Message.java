@@ -25,9 +25,6 @@ public class Message implements Comparable<Message> {
     @Transient
     private Instant instantTimestamp;
 
-    @Transient
-    private String stringTimestamp;
-
     @Column(name = "text")
     private String text;
 
@@ -86,9 +83,7 @@ public class Message implements Comparable<Message> {
     }
 
     public String getStringTimestamp() {
-        if (stringTimestamp == null && getInstantTimestamp() != null)
-            stringTimestamp = getInstantTimestamp().toString();
-        return stringTimestamp;
+        return getInstantTimestamp().toString();
     }
 
     public String getText() {
