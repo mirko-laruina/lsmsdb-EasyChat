@@ -22,8 +22,7 @@ public class Main {
 
     @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
-    public @ResponseBody String login(@RequestBody LoginRequest loginRequest) throws Exception {
-        //da rivedere il throws exception
+    public @ResponseBody String login(@RequestBody LoginRequest loginRequest) {
         Gson gson =  new Gson();
         if(loginRequest.getUsername().equals("") || loginRequest.getPassword().equals("")){
             return gson.toJson(new LoginResponse(false, ""));

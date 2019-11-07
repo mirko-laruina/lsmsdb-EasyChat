@@ -315,19 +315,27 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try {
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             UserSession session = entityManager.find(UserSession.class, sessionId);
             if(session!=null){
-                if (session.getExpiryInstant().isBefore(Instant.now())){
+                if (session.getExpiry() == null){
+                    return -1;
+                } else if (session.getExpiryInstant().isBefore(Instant.now())){
                     removeSession(sessionId);
                     return -1;
                 } else{
                     return session.getUserId();
                 }
             }
+            entityManager.getTransaction().commit();
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            entityManager.close();
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
+                entityManager.close();
+            }
         }
         return -1;
     }
@@ -339,7 +347,7 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
             Instant expiry = Instant.now();
-            expiry.plus(Main.SESSION_DURATION_DAYS, ChronoUnit.DAYS);
+            expiry = expiry.plus(Main.SESSION_DURATION_DAYS, ChronoUnit.DAYS);
             sess.setExpiryInstant(expiry);
             entityManager.persist(sess);
             entityManager.getTransaction().commit();
@@ -363,7 +371,9 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
             UserSession session = entityManager.getReference(UserSession.class, sessionId);
-            entityManager.remove(session);
+            if(session!=null) {
+                entityManager.remove(session);
+            }
             entityManager.getTransaction().commit();
             return true;
         } catch (Exception ex){
