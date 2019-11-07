@@ -1,16 +1,15 @@
 package com.frelamape.task0;
 
-import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.proxy.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -175,6 +174,9 @@ public class JPAAdapter implements DatabaseAdapter {
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
+            Chat chat = entityManager.getReference(Chat.class, message.getChat().getId());
+            chat.setLastActivity(Timestamp.from(Instant.now()));
+            entityManager.merge(chat);
             entityManager.persist(message);
             entityManager.getTransaction().commit();
             return message.getMessageId();
@@ -213,7 +215,7 @@ public class JPAAdapter implements DatabaseAdapter {
                     return -1;
                 }
             }
-            chat.setLastActivity(new Timestamp(System.currentTimeMillis()));
+            chat.setLastActivity(Timestamp.from(Instant.now()));
             entityManager.persist(chat);
             entityManager.getTransaction().commit();
             return chat.getId();
