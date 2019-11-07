@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/mirko-laruina/lsmsdb-EasyChat.svg?branch=master)](https://travis-ci.org/mirko-laruina/lsmsdb-EasyChat)
 # Large Scale and Multi Structured Databases - Task 0
 ## Development phase
 ### Spring
