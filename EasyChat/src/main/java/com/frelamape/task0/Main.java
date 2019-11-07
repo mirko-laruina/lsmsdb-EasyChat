@@ -16,6 +16,8 @@ import java.util.List;
 @EnableAutoConfiguration
 public class Main {
 
+    public static final int SESSION_DURATION_DAYS = 5;
+
     static DatabaseAdapter dba = null;
 
     @CrossOrigin

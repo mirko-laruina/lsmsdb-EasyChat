@@ -4,6 +4,8 @@ import javax.persistence.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "Sessions")
@@ -13,6 +15,12 @@ public class UserSession {
 
     @Column(name="userId")
     private long userId;
+
+    @Column(name="expiry")
+    private Timestamp expiry;
+
+    @Transient
+    private Instant expiryInstant;
 
     private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
 
@@ -43,6 +51,26 @@ public class UserSession {
 
     public void setSessionId(String sid){
         this.sessionId = sid;
+    }
+
+    public Timestamp getExpiry() {
+        if (expiry == null && expiryInstant != null)
+            expiry = Timestamp.from(expiryInstant);
+        return expiry;
+    }
+
+    public void setExpiry(Timestamp expiry) {
+        this.expiry = expiry;
+    }
+
+    public Instant getExpiryInstant() {
+        if (expiryInstant == null && expiry != null)
+            expiryInstant = expiry.toInstant();
+        return expiryInstant;
+    }
+
+    public void setExpiryInstant(Instant expiryInstant) {
+        this.expiryInstant = expiryInstant;
     }
 
     private String generateSessionId(){

@@ -332,8 +332,14 @@ public class JPAAdapter implements DatabaseAdapter {
         try {
             entityManager = entityManagerFactory.createEntityManager();
             UserSession session = entityManager.find(UserSession.class, sessionId);
-            if(session!=null)
-                return session.getUserId();
+            if(session!=null){
+                if (session.getExpiryInstant().isBefore(Instant.now())){
+                    removeSession(sessionId);
+                    return -1;
+                } else{
+                    return session.getUserId();
+                }
+            }
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
@@ -348,6 +354,9 @@ public class JPAAdapter implements DatabaseAdapter {
         try {
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
+            Instant expiry = Instant.now();
+            expiry.plus(Main.SESSION_DURATION_DAYS, ChronoUnit.DAYS);
+            sess.setExpiryInstant(expiry);
             entityManager.persist(sess);
             entityManager.getTransaction().commit();
             return true;
