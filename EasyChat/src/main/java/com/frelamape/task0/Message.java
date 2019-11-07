@@ -54,11 +54,11 @@ public class Message implements Comparable<Message> {
         this.messageId = messageId;
     }
 
-    public Chat getChatId() {
+    public Chat getChat() {
         return chat;
     }
 
-    public void setChatId(Chat chat) {
+    public void setChat(Chat chat) {
         this.chat = chat;
     }
 
