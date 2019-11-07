@@ -197,9 +197,12 @@ public class Main {
         List<String> members = request.getMembers();
         List<Long> membIds = new ArrayList<Long>();
         for(String memb: members){
-            long tmpUserId = dba.getUser(memb).getUserId();
-            if(tmpUserId != -1 && tmpUserId != userId)
-                membIds.add(dba.getUser(memb).getUserId());
+            User tmpUser = dba.getUser(memb);
+            if(tmpUser != null) {
+                long tmpUserId = tmpUser.getUserId();
+                if (tmpUserId != -1 && tmpUserId != userId)
+                    membIds.add(tmpUserId);
+            }
         }
 
         if(membIds.size() < 1 || (membIds.size() == 1 && dba.existsChat(userId, membIds.get(0)))){

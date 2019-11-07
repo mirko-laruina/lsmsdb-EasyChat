@@ -370,7 +370,7 @@ public class JPAAdapter implements DatabaseAdapter {
         try {
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
-            UserSession session = entityManager.getReference(UserSession.class, sessionId);
+            UserSession session = entityManager.find(UserSession.class, sessionId);
             if(session!=null) {
                 entityManager.remove(session);
             }
