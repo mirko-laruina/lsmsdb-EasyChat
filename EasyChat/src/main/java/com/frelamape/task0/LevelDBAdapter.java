@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.fusesource.leveldbjni.JniDBFactory.*;
@@ -36,6 +37,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
             Chat chat = getChat(Long.parseLong(chatString));
             chats.add(chat);
         }
+        Collections.sort(chats);
         return chats;
     }
 
