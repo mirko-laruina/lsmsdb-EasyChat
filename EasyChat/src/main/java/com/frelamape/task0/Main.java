@@ -236,7 +236,8 @@ public class Main {
 
     public static void main(String[] args) {
         try{
-            dba = new LevelDBAdapter();
+            //TODO: parametrize filename
+            dba = new LevelDBAdapter("levelDBStore");
         } catch (IOException e){
             e.printStackTrace();
         }

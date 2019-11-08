@@ -17,9 +17,9 @@ import static org.fusesource.leveldbjni.JniDBFactory.*;
 public class LevelDBAdapter implements DatabaseAdapter {
     private DB levelDBStore;
 
-    public LevelDBAdapter() throws IOException {
+    public LevelDBAdapter(String filename) throws IOException {
         Options options = new Options();
-        levelDBStore = factory.open(new File("levelDBStore"), options);
+        levelDBStore = factory.open(new File(filename), options);
     }
 
     @Override
