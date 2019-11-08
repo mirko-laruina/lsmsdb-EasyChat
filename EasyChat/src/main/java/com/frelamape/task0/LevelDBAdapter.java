@@ -63,12 +63,18 @@ public class LevelDBAdapter implements DatabaseAdapter {
         }
 
         byte[] val;
-        for (int j=0; (val = levelDBStore.get(bytes((String.format("chat:%d:message:%d:text", chatId, i))))) != null && (n<=0 || j<n); i+=direction, j++){
+        for (int j=0;
+                (n<=0 || j<n) && (from < 0 || i >= from) && (to < 0 || i < to)
+                && (val = levelDBStore.get(bytes((String.format("chat:%d:message:%d:text", chatId, i))))) != null;
+                i+=direction, j++){
             String text = asString(val);
             String timestamp = asString(levelDBStore.get(bytes(String.format("chat:%d:message:%d:timestamp", chatId, i))));
             long sender = bytesToLong(levelDBStore.get(bytes(String.format("chat:%d:message:%d:sender", chatId, i))));
 
-            messages.add(new Message(i, getUser(sender), Instant.parse(timestamp), text));
+            User senderUser =  getUser(sender);
+            senderUser.setPassword(null);
+
+            messages.add(new Message(i, senderUser, Instant.parse(timestamp), text));
         }
         return messages;
     }
