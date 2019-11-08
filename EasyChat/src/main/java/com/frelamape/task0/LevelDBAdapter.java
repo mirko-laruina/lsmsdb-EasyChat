@@ -97,37 +97,70 @@ public class LevelDBAdapter implements DatabaseAdapter {
     @Override
     public boolean addChatMember(long chatId, long userId) {
         byte[] keyBytes = bytes(String.format("chat:%d:members", chatId));
+        WriteBatch batch = levelDBStore.createWriteBatch();
+
         String memberListString = asString(levelDBStore.get(keyBytes));
         if (memberListString == null)
             return false;
 
         String[] memberStrings = memberListString.split(",");
         List<String> memberStringList = new ArrayList<>(Arrays.asList(memberStrings));
-        if (!memberStringList.contains(Long.toString(userId))){
-            memberStringList.add(Long.toString(userId));
-            memberListString = String.join(",", memberStringList);
-            levelDBStore.put(keyBytes, bytes(memberListString));
-            return true;
-        } else
+        if (memberStringList.contains(Long.toString(userId)))
             return false;
+
+        memberStringList.add(Long.toString(userId));
+        memberListString = String.join(",", memberStringList);
+        batch.put(keyBytes, bytes(memberListString));
+
+        String chatListString = asString(levelDBStore.get(bytes(String.format("user:%d:chats", userId))));
+        if (chatListString == null)
+            chatListString = "";
+
+        List<String> chats = new ArrayList<>(Arrays.asList(chatListString.split(",")));
+        if (chats.contains(Long.toString(chatId))){
+            return false;
+        }
+        chats.add(Long.toString(chatId));
+        chatListString = String.join(",", chats);
+        batch.put(bytes(String.format("user:%d:chats", userId)), bytes(chatListString));
+
+        levelDBStore.write(batch);
+
+        return true;
     }
 
     @Override
     public boolean removeChatMember(long chatId, long userId) {
         byte[] keyBytes = bytes(String.format("chat:%d:members", chatId));
+        WriteBatch batch = levelDBStore.createWriteBatch();
+
         String memberListString = asString(levelDBStore.get(keyBytes));
         if (memberListString == null)
             return false;
 
         String[] memberStrings = memberListString.split(",");
         List<String> memberStringList = new ArrayList<>(Arrays.asList(memberStrings));
-        if (memberStringList.contains(Long.toString(userId))){
-            memberStringList.remove(Long.toString(userId));
-            memberListString = String.join(",", memberStringList);
-            levelDBStore.put(keyBytes, bytes(memberListString));
-            return true;
-        } else
+        if (!memberStringList.contains(Long.toString(userId)))
             return false;
+
+        memberStringList.remove(Long.toString(userId));
+        memberListString = String.join(",", memberStringList);
+        batch.put(keyBytes, bytes(memberListString));
+
+        String chatListString = asString(levelDBStore.get(bytes(String.format("user:%d:chats", userId))));
+        if (chatListString == null)
+            chatListString = "";
+
+        List<String> chats = new ArrayList<>(Arrays.asList(chatListString.split(",")));
+        if (!chats.contains(Long.toString(chatId))){
+            return false;
+        }
+        chats.remove(Long.toString(chatId));
+        chatListString = String.join(",", chats);
+        batch.put(bytes(String.format("user:%d:chats", userId)), bytes(chatListString));
+
+        levelDBStore.write(batch);
+        return true;
     }
 
     @Override
