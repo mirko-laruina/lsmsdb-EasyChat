@@ -7,7 +7,7 @@ public class Message implements Comparable<Message>, Serializable {
     private long messageId;
     private User sender;
     private transient Instant timestampInstant;
-//    private String timestamp; //TODO: check
+    private String timestamp;
     private String text;
 
     public Message() {
@@ -15,14 +15,14 @@ public class Message implements Comparable<Message>, Serializable {
 
     public Message(User sender, Instant timestampInstant, String text) {
         this.sender = sender;
-        this.timestampInstant = timestampInstant;
+        setTimestampInstant(timestampInstant);
         this.text = text;
     }
 
     public Message(long id, User sender, Instant timestampInstant, String text) {
         this.messageId = id;
         this.sender = sender;
-        this.timestampInstant = timestampInstant;
+        setTimestampInstant(timestampInstant);
         this.text = text;
     }
 
@@ -39,11 +39,16 @@ public class Message implements Comparable<Message>, Serializable {
     }
 
     public String getTimestamp() {
-        return timestampInstant.toString();
+        return timestamp;
     }
 
-    public void setTimestamp(Instant timestampInstant) {
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setTimestampInstant(Instant timestampInstant) {
         this.timestampInstant = timestampInstant;
+        this.timestamp = timestampInstant.toString();
     }
 
     public String getText() {
