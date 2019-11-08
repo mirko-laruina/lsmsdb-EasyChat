@@ -1,9 +1,8 @@
 package com.frelamape.task0;
 
-import java.io.Serializable;
 import java.time.Instant;
 
-public class Message implements Comparable<Message>, Serializable {
+public class Message implements Comparable<Message> {
     private long messageId;
     private User sender;
     private transient Instant timestampInstant;

@@ -1,10 +1,9 @@
 package com.frelamape.task0;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
-public class Chat implements Comparable<Chat>, Serializable {
+public class Chat implements Comparable<Chat> {
     private long chatId;
     private String name;
     private long adminId;

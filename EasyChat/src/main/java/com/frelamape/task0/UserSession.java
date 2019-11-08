@@ -1,9 +1,8 @@
 package com.frelamape.task0;
 
-import java.io.Serializable;
 import java.time.Instant;
 
-public class UserSession implements Serializable {
+public class UserSession {
     private String sessionId;
     private long userId;
     private transient Instant expiry;

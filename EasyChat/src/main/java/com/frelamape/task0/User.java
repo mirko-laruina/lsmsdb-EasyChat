@@ -1,8 +1,6 @@
 package com.frelamape.task0;
 
-import java.io.Serializable;
-
-public class User implements Serializable {
+public class User {
     private long userId;
     private String username;
     private String password;
