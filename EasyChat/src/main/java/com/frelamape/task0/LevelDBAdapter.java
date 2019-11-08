@@ -89,6 +89,8 @@ public class LevelDBAdapter implements DatabaseAdapter {
 
                 messages.add(new Message(i, senderUser, Instant.parse(timestamp), text));
             }
+            if (direction == -1)
+                Collections.reverse(messages);
             return messages;
         } catch (DBException|DateTimeParseException e){
             e.printStackTrace();
