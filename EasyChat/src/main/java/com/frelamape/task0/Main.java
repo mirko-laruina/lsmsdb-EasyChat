@@ -230,6 +230,7 @@ public class Main {
         if (userId > 0){
             UserSession session = new UserSession(userId);
             dba.setUserSession(session);
+            sid = session.getSessionId();
         }
         return new ResponseEntity<>(gson.toJson(new LoginResponse(userId > 0, sid)), HttpStatus.OK);
     }
