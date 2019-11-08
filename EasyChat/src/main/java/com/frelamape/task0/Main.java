@@ -25,7 +25,7 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
     public @ResponseBody String login(@RequestBody LoginRequest loginRequest) {
         Gson gson =  new Gson();
-        LoginResponse lr = new LoginResponse(false, null);;
+        LoginResponse lr = new LoginResponse(false, null);
 
         if(loginRequest.getUsername().equals("") || loginRequest.getPassword().equals("")){
             return gson.toJson(new LoginResponse(false, ""));
