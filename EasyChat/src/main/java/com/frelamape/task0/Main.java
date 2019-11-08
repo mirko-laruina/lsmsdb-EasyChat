@@ -235,7 +235,7 @@ public class Main {
         }
 
         long chatId = dba.createChat(request.getName(), userId, membIds);
-        return new ResponseEntity<>(gson.toJson(new BasicResponse(chatId > 0)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new BasicResponse(chatId >= 0)), HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -266,12 +266,12 @@ public class Main {
         long userId = dba.createUser(new User(request.getUsername(), request.getPassword()));
 
         String sid = "";
-        if (userId > 0){
+        if (userId >= 0){
             UserSession session = new UserSession(userId);
             dba.setUserSession(session);
             sid = session.getSessionId();
         }
-        return new ResponseEntity<>(gson.toJson(new LoginResponse(userId > 0, sid)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new LoginResponse(userId >= 0, sid)), HttpStatus.OK);
     }
 
     public static void main(String[] args) {

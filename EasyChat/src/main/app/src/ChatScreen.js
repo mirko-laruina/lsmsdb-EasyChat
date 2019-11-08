@@ -15,7 +15,7 @@ class ChatScreen extends Component {
   constructor(){
     super()
     this.state = {
-      chatId: 0,
+      chatId: -1,
     }
 
     this.username = cookies.get('username');
