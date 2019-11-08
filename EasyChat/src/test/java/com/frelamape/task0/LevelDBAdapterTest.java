@@ -1,38 +1,45 @@
 package com.frelamape.task0;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.io.File;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-@Ignore
 public class LevelDBAdapterTest {
-    private DatabaseAdapter db;
-    private final static long USERID = 0;
-    private final static long ADD_USERID = 3;
-    private final static long ADD_USERID2 = 2;
+    private static DatabaseAdapter db;
+    private static long USERID;
+    private static long ADD_USERID;
+    private static long ADD_USERID2;
+    private static long ADD_USERID3;
     private final static String MESSAGE = "Lorem ipsum dolor sit amet " + new Date().getTime();
-    private final static long CHATID = 22;
+    private static long CHATID ;
 
-    @Before
-    public void setUp() throws Exception {
-        db = new LevelDBAdapter();
+    private final static String FILENAME = "/tmp/levelDBStore";
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        db = new LevelDBAdapter(FILENAME);
+        USERID = db.createUser(new User("carmela.dach", "omnis"));
+        ADD_USERID = db.createUser(new User("darren31", "boh"));
+        ADD_USERID2 = db.createUser(new User("stone53", "boh"));
+        ADD_USERID3 = db.createUser(new User("graham.naomi", "boh"));
+        CHATID = db.createChat("Chat", USERID, new ArrayList<>(Arrays.asList(ADD_USERID3, ADD_USERID2)));
+        db.createChat("Chat", 0L, new ArrayList<>(Arrays.asList(USERID, ADD_USERID2)));
+        db.addChatMessage(CHATID, new Message(new User(USERID), Instant.now(), "ciao"));
+        db.addChatMessage(CHATID, new Message(new User(ADD_USERID), Instant.now(), "ciao"));
+        db.addChatMessage(CHATID, new Message(new User(ADD_USERID2), Instant.now(), "ciao"));
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterClass
+    public static void tearDown() throws Exception {
         db.close();
+        new File(FILENAME).delete();
     }
 
     @Test
