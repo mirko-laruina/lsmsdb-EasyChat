@@ -80,8 +80,11 @@ public class LevelDBAdapterTest {
         assert db.addChatMember(CHATID, ADD_USERID);
         int newChatMembers = db.getChatMembers(CHATID).size();
         assert db.checkChatMember(CHATID, ADD_USERID);
+        assert db.getChats(ADD_USERID).contains(new Chat(CHATID, "Chat"));
         assertEquals(oldChatMembers + 1, newChatMembers);
         assert db.removeChatMember(CHATID, ADD_USERID);
+        assert !db.checkChatMember(CHATID, ADD_USERID);
+        assert !db.getChats(ADD_USERID).contains(new Chat(CHATID, "Chat"));
         int newNewChatMembers = db.getChatMembers(CHATID).size();
         assertEquals(oldChatMembers, newNewChatMembers);
     }
