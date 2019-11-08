@@ -25,7 +25,7 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
     public @ResponseBody String login(@RequestBody LoginRequest loginRequest) {
         Gson gson =  new Gson();
-        LoginResponse lr;
+        LoginResponse lr = new LoginResponse(false, null);;
 
         if(loginRequest.getUsername().equals("") || loginRequest.getPassword().equals("")){
             return gson.toJson(new LoginResponse(false, ""));
@@ -38,14 +38,11 @@ public class Main {
             String sid = "";
             if (success) {
                 UserSession session = new UserSession(user);
-                dba.setUserSession(session);
-                sid = session.getSessionId();
-                lr = new LoginResponse(success, sid);
-            } else{
-                lr = new LoginResponse(false, null);
+                if (dba.setUserSession(session)){
+                    sid = session.getSessionId();
+                    lr = new LoginResponse(success, sid);
+                }
             }
-        } else {
-            lr = new LoginResponse(false, null);
         }
         return gson.toJson(lr);
     }
@@ -74,6 +71,10 @@ public class Main {
         }
 
         List<Chat> chats = dba.getChats(userId);
+        if (chats == null){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         for (Chat chat:chats){
             chat.setMembers(dba.getChatMembers(chat.getId()));
         }
@@ -95,7 +96,7 @@ public class Main {
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
 
-        if(!dba.checkChatMember(chatId, userId)){
+        if(userId == -1 || !dba.checkChatMember(chatId, userId)){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -121,11 +122,8 @@ public class Main {
     public ResponseEntity sendMessage(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestBody SendMessageRequest request){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
-        if(userId == -1){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
 
-        if(!dba.checkChatMember(chatId, userId)){
+        if(userId == -1 || !dba.checkChatMember(chatId, userId)){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -136,7 +134,7 @@ public class Main {
         if(msg.getText().length() > 0) {
             msgId = dba.addChatMessage(chatId, msg);
         } else {
-            msgId = 0;
+            msgId = -1;
         }
 
         return new ResponseEntity<>(gson.toJson(new BasicResponse(msgId >= 0)), HttpStatus.OK);
@@ -148,12 +146,16 @@ public class Main {
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
 
-        if(!dba.checkChatMember(chatId, userId)){
+        if(userId == -1 || !dba.checkChatMember(chatId, userId)){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         //TODO: not very elegant
         Chat chat = dba.getChat(chatId);
+        if (chat == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         chat.setMembers(dba.getChatMembers(chatId));
         return new ResponseEntity<>(gson.toJson(new GetChatResponse(chat)), HttpStatus.OK);
     }
@@ -162,9 +164,16 @@ public class Main {
     @RequestMapping(value={"/api/v1/chat/{chatId}/member/{memberId}"}, method=RequestMethod.DELETE)
     public ResponseEntity removeChatMember(@PathVariable(value="chatId") long chatId, @PathVariable(value="memberId") long memberId, @RequestParam("sessionId") String sid){
         Gson gson = new Gson();
+
         long userId = dba.getUserFromSession(sid);
+        if (userId == -1){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         Chat chat = dba.getChat(chatId);
+        if (chat == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
         if (chat.getAdminId() != userId && userId != memberId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -184,8 +193,12 @@ public class Main {
     public ResponseEntity addChatMember(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid, @RequestBody AddMemberRequest request){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
+        if (userId == -1)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         Chat chat = dba.getChat(chatId);
+        if (chat == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         if (chat.getAdminId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -198,10 +211,12 @@ public class Main {
     @RequestMapping(value={"/api/v1/chats"}, method=RequestMethod.POST)
     public ResponseEntity createChat(@RequestParam("sessionId") String sid, @RequestBody CreateChatRequest request){
         Gson gson = new Gson();
+
         long userId = dba.getUserFromSession(sid);
         if (userId == -1){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+
         List<String> members = request.getMembers();
         List<Long> membIds = new ArrayList<Long>();
         for(String memb: members){
@@ -210,6 +225,8 @@ public class Main {
                 long tmpUserId = tmpUser.getUserId();
                 if (tmpUserId != -1 && tmpUserId != userId)
                     membIds.add(tmpUserId);
+            } else{
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         }
 
@@ -225,10 +242,16 @@ public class Main {
     @RequestMapping(value={"/api/v1/chat/{chatId}"}, method=RequestMethod.DELETE)
     public ResponseEntity deleteChat(@PathVariable(value="chatId") long chatId, @RequestParam("sessionId") String sid){
         Gson gson = new Gson();
+
         long userId = dba.getUserFromSession(sid);
+        if (userId == -1)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         Chat chat = dba.getChat(chatId);
-        if (chat != null && chat.getAdminId() != userId){
+        if (chat == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (chat.getAdminId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         boolean result = dba.deleteChat(chatId);
@@ -239,7 +262,9 @@ public class Main {
     @RequestMapping(value={"/api/v1/users"}, method=RequestMethod.POST)
     public ResponseEntity registerUser(@RequestBody LoginRequest request){
         Gson gson = new Gson();
+
         long userId = dba.createUser(new User(request.getUsername(), request.getPassword()));
+
         String sid = "";
         if (userId > 0){
             UserSession session = new UserSession(userId);
