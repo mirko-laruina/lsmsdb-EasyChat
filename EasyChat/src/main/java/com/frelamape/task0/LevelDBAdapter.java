@@ -192,6 +192,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
         batch.put(bytes(String.format("chat:%d:message:%d:text", chatId, nextId)), bytes(message.getText()));
         batch.put(bytes(String.format("chat:%d:message:%d:timestamp", chatId, nextId)), bytes(message.getTimestamp()));
         batch.put(bytes(String.format("chat:%d:message:%d:sender", chatId, nextId)), longToBytes(message.getSender().getUserId()));
+        batch.put(bytes(String.format("chat:%d:lastActivity", chatId)), bytes(Instant.now().toString()));
         levelDBStore.write(batch);
         try{
             batch.close();
