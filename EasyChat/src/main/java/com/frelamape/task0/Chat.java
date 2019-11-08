@@ -8,7 +8,6 @@ public class Chat implements Comparable<Chat>, Serializable {
     private long chatId;
     private String name;
     private long adminId;
-//    private String lastActivity;
     private transient Instant lastActivityInstant;
     private boolean isAdmin;
     private List<User> members;
