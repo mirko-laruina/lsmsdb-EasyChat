@@ -1,5 +1,6 @@
 package com.frelamape.task0;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,18 +16,23 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-@Ignore
-public class JPAAdapterTest {
+//@Ignore
+public class LevelDBAdapterTest {
     private DatabaseAdapter db;
-    private final static long USERID = 101;
-    private final static long ADD_USERID = 102;
-    private final static long ADD_USERID2 = 103;
+    private final static long USERID = 0;
+    private final static long ADD_USERID = 3;
+    private final static long ADD_USERID2 = 2;
     private final static String MESSAGE = "Lorem ipsum dolor sit amet " + new Date().getTime();
-    private final static long CHATID = 200;
+    private final static long CHATID = 22;
 
     @Before
     public void setUp() throws Exception {
-        db = new JPAAdapter();
+        db = new LevelDBAdapter();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        db.close();
     }
 
     @Test
@@ -41,13 +47,13 @@ public class JPAAdapterTest {
 
     @Test
     public void getChatMessages() {
-        List<Message> messages = db.getChatMessages(CHATID, null, null, 10);
+        List<Message> messages = db.getChatMessages(CHATID, -1, -1, 10);
         System.out.println(String.format("Chat %d has %d messages", CHATID, messages.size()));
         for (Message message:messages){
-            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getStringTimestamp()));
+            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp()));
         }
 
-        assert messages.size() == 10;
+        assert messages.size() > 0;
     }
 
     @Test
@@ -75,16 +81,15 @@ public class JPAAdapterTest {
 
     @Test
     public void addChatMessage() {
-        int oldChatMessages = db.getChatMessages(CHATID, null, null, 0).size();
-        assert db.addChatMessage(new Message(
-                new Chat(CHATID),
+        int oldChatMessages = db.getChatMessages(CHATID, -1, -1, 0).size();
+        assert db.addChatMessage(CHATID, new Message(
                 new User(USERID),
                 Instant.now(),
                 MESSAGE
         )) != -1;
-        int newChatMessages = db.getChatMessages(CHATID, null, null, 0).size();
+        int newChatMessages = db.getChatMessages(CHATID, -1, -1, 0).size();
         assertEquals(oldChatMessages + 1, newChatMessages);
-        assertEquals(MESSAGE, db.getChatMessages(CHATID, null, null, 1).get(0).getText());
+        assertEquals(MESSAGE, db.getChatMessages(CHATID, -1, -1, 1).get(0).getText());
     }
 
     @Test
@@ -97,6 +102,9 @@ public class JPAAdapterTest {
         List<User> members = db.getChatMembers(chatId);
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
+        assert db.getChats(USERID).contains(new Chat(chatId, "Chat"));
+        assert db.getChats(ADD_USERID).contains(new Chat(chatId, "Chat"));
+        assert db.getChats(ADD_USERID2).contains(new Chat(chatId, "Chat"));
         assert db.deleteChat(chatId);
         assert db.getChatMembers(chatId) == null;
     }
@@ -110,7 +118,7 @@ public class JPAAdapterTest {
         List<User> members = db.getChatMembers(chatId);
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
-        assert db.existsChat(ADD_USERID, USERID);
+//        assert db.existsChat(ADD_USERID, USERID);
         assert db.deleteChat(chatId);
         assert db.getChatMembers(chatId) == null;
     }
@@ -122,6 +130,7 @@ public class JPAAdapterTest {
         assert userId != -1;
         String password = db.getUser(username).getPassword();
         assert password.equals("password");
+        System.out.println(String.format("%d %s %s", userId, username, password));
     }
 
     @Test

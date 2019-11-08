@@ -22,7 +22,7 @@ public interface DatabaseAdapter {
      *          to n or {@code to}. If from is null, messages are counted from {@code to} up to n or {@code from}.
      * @return the list of messages or null in case of error.
      */
-    List<Message> getChatMessages(long chatId, Instant from, Instant to, int n);
+    List<Message> getChatMessages(long chatId, long from, long to, int n);
 
     /**
      * Returns the list of members for the chat identified by the given chatId.
@@ -59,7 +59,7 @@ public interface DatabaseAdapter {
      *
      * @return the id of the added message.
      */
-    long addChatMessage(Message message);
+    long addChatMessage(long chatId, Message message);
 
     /**
      * Creates a new chat with the given name, admin and members.
@@ -97,6 +97,13 @@ public interface DatabaseAdapter {
      * @return the user in case of success, null otherwise.
      */
     User getUser(String username);
+
+    /**
+     * Returns user identified by the given userId.
+     *
+     * @return the user in case of success, null otherwise.
+     */
+    User getUser(long userId);
 
     /**
      * Returns userId of the user who owns the session identified by the given sessionId.
