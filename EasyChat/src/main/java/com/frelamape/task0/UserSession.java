@@ -13,11 +13,12 @@ public class UserSession implements Serializable {
     }
 
     public UserSession  (User user){
-        this.userId = user.getUserId();
+        this(user.getUserId());
     }
 
     public UserSession (long userId){
         this.userId = userId;
+        this.sessionId = SessionGenerator.generateSessionId();
     }
 
     public long getUserId(){
