@@ -83,9 +83,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
                 if (timestamp == null || sender == null)
                     return null;
 
-                User senderUser = getUser(sender);
-                //TODO: Workaround
-                senderUser.setPassword(null);
+                User senderUser = getUserWithoutPassword(sender);
 
                 messages.add(new Message(i, senderUser, Instant.parse(timestamp), text));
             }
@@ -111,7 +109,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
                 if (memberString.equals(""))
                     continue;
 
-                User user = getUser(Long.parseLong(memberString));
+                User user = getUserWithoutPassword(Long.parseLong(memberString));
                 members.add(user);
             }
             return members;
@@ -448,6 +446,19 @@ public class LevelDBAdapter implements DatabaseAdapter {
             String password = asString(levelDBStore.get(bytes(String.format("user:%d:password", userId))));
             if (username != null && password != null)
                 return new User(userId, username, password);
+            else
+                return null;
+        } catch (DBException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private User getUserWithoutPassword(long userId) {
+        try{
+            String username = asString(levelDBStore.get(bytes(String.format("user:%d:username", userId))));
+            if (username != null)
+                return new User(userId, username, null);
             else
                 return null;
         } catch (DBException e){
