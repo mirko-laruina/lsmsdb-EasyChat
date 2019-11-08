@@ -125,7 +125,7 @@ public class Main {
             msgId = 0;
         }
 
-        return new ResponseEntity<>(gson.toJson(new BasicResponse(msgId > 0)), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(new BasicResponse(msgId >= 0)), HttpStatus.OK);
     }
 
     @CrossOrigin
