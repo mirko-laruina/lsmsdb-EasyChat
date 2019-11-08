@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.frelamape.task0.Main.SESSION_DURATION_DAYS;
 import static org.fusesource.leveldbjni.JniDBFactory.*;
 
 public class LevelDBAdapter implements DatabaseAdapter {
@@ -485,7 +486,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
         try{
             batch = levelDBStore.createWriteBatch();
             batch.put(bytes(String.format("session:%s:userId", user.getSessionId())), longToBytes(user.getUserId()));
-            Instant expiry = Instant.now().plus(5, ChronoUnit.DAYS);
+            Instant expiry = Instant.now().plus(SESSION_DURATION_DAYS, ChronoUnit.DAYS);
             batch.put(bytes(String.format("session:%s:expiry", user.getSessionId())), bytes(expiry.toString()));
             levelDBStore.write(batch);
             return true;
