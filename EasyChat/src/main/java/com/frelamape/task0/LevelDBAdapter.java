@@ -1,17 +1,16 @@
 package com.frelamape.task0;
 
 import org.iq80.leveldb.DB;
-import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.WriteBatch;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.fusesource.leveldbjni.JniDBFactory.*;
 
@@ -299,21 +298,52 @@ public class LevelDBAdapter implements DatabaseAdapter {
 
     @Override
     public long getUserFromSession(String sessionId) {
-        return 0;
+        Long userId = bytesToLong(levelDBStore.get(bytes(String.format("session:%s:userId", sessionId))));
+        if (userId == null)
+            return -1;
+
+        String expiryString = asString(levelDBStore.get(bytes(String.format("session:%s:expiry", sessionId))));
+        Instant expiry;
+        if (expiryString == null){
+            expiry = null;
+        } else{
+            expiry = Instant.parse(expiryString);
+        }
+
+        if (expiry == null || expiry.isBefore(Instant.now())){
+            removeSession(sessionId);
+            return -1;
+        }
+        return userId;
     }
 
     @Override
     public boolean setUserSession(UserSession user) {
-        return false;
+        WriteBatch batch = levelDBStore.createWriteBatch();
+        batch.put(bytes(String.format("session:%s:userId", user.getSessionId())), longToBytes(user.getUserId()));
+        Instant expiry = Instant.now().plus(5, ChronoUnit.DAYS);
+        batch.put(bytes(String.format("session:%s:expiry", user.getSessionId())), bytes(expiry.toString()));
+        levelDBStore.write(batch);
+        return true;
     }
 
     @Override
     public boolean removeSession(String sessionId) {
-        return false;
+        WriteBatch batch = levelDBStore.createWriteBatch();
+        batch.delete(bytes(String.format("session:%s:userId", sessionId)));
+        batch.delete(bytes(String.format("session:%s:expiry", sessionId)));
+        levelDBStore.write(batch);
+        return true;
     }
 
     @Override
     public boolean existsChat(long user1, long user2) {
+        List<Chat> chats = getChats(user1);
+        for (Chat chat:chats){
+            List<User> members = getChatMembers(chat.getId());
+            if (members.size() == 2 && members.contains(new User(user2)))
+                return true;
+        }
         return false;
     }
 
@@ -329,7 +359,10 @@ public class LevelDBAdapter implements DatabaseAdapter {
     /**
      * @see <a href="https://stackoverflow.com/a/29132118">https://stackoverflow.com/a/29132118</a>
      */
-    public static long bytesToLong(byte[] b) {
+    public static Long bytesToLong(byte[] b) {
+        if (b == null)
+            return null;
+
         long result = 0;
         for (int i = 0; i < 8; i++) {
             result <<= 8;

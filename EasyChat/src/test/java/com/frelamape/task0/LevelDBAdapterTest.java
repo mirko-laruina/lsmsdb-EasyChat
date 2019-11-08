@@ -16,7 +16,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-//@Ignore
+@Ignore
 public class LevelDBAdapterTest {
     private DatabaseAdapter db;
     private final static long USERID = 0;
@@ -118,7 +118,7 @@ public class LevelDBAdapterTest {
         List<User> members = db.getChatMembers(chatId);
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
-//        assert db.existsChat(ADD_USERID, USERID);
+        assert db.existsChat(ADD_USERID, USERID);
         assert db.deleteChat(chatId);
         assert db.getChatMembers(chatId) == null;
     }
