@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetUserChatsResponse extends BasicResponse{
-    private List<SerializableChat> chats = new ArrayList<>();
+    private List<Chat> chats = new ArrayList<>();
     private long userId;
 
     public GetUserChatsResponse(long userId){
@@ -13,9 +13,8 @@ public class GetUserChatsResponse extends BasicResponse{
     }
 
     public void add(Chat chat){
-        SerializableChat uc = new SerializableChat(chat);
-        uc.isAdmin = chat.getAdmin().getUserId() == this.userId;
-        chats.add(uc);
+        chat.setAdmin(chat.getAdminId() == this.userId);
+        chats.add(chat);
     }
 
     public void addAll(List<Chat> chats) {
@@ -24,7 +23,7 @@ public class GetUserChatsResponse extends BasicResponse{
         }
     }
 
-    public List<SerializableChat> getChats(){
+    public List<Chat> getChats(){
         return this.chats;
     }
 }

@@ -1,47 +1,19 @@
 package com.frelamape.task0;
 
-import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.time.Instant;
 import java.util.List;
 
-@Entity
-@Table(name = "Chats")
-public class Chat implements Comparable<Chat> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Chat implements Comparable<Chat>, Serializable {
     private long chatId;
-
-    @Column(name = "name")
     private String name;
-
-    @OneToMany(mappedBy = "chat", cascade = { CascadeType.ALL } )
-    private List<Message> messages = new ArrayList<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "Chatmembers",
-            joinColumns = @JoinColumn(name = "chatId"),
-            inverseJoinColumns = @JoinColumn(name = "userId")
-    )
-    private List<User> members = new ArrayList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "adminId")
-    private User admin;
-
-    @Column(name = "lastActivity")
-    private Timestamp lastActivity;
+    private long adminId;
+//    private String lastActivity;
+    private transient Instant lastActivityInstant;
+    private boolean isAdmin;
+    private List<User> members;
 
     public Chat() {
-    }
-
-    public Chat(int id, String name, List<Message> messages, List<User> members, User admin) {
-        this.chatId = id;
-        this.name = name;
-        this.messages = messages;
-        this.members = members;
-        this.admin = admin;
     }
 
     public Chat(long id, String name) {
@@ -51,12 +23,6 @@ public class Chat implements Comparable<Chat> {
 
     public Chat(long id) {
         this.chatId = id;
-    }
-
-    public Chat(long id, String name, User admin) {
-        this.chatId = id;
-        this.name = name;
-        this.admin = admin;
     }
 
     public long getId() {
@@ -71,12 +37,32 @@ public class Chat implements Comparable<Chat> {
         this.name = name;
     }
 
-    public List<Message> getMessages() {
-        return messages;
+    public long getAdminId() {
+        return adminId;
     }
 
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
+    public void setAdminId(long adminId) {
+        this.adminId = adminId;
+    }
+
+    public Instant getLastActivityInstant() {
+        return lastActivityInstant;
+    }
+
+    public void setLastActivityInstant(Instant lastActivityInstant) {
+        this.lastActivityInstant = lastActivityInstant;
+    }
+
+    public String getLastActivity(){
+        return lastActivityInstant.toString();
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 
     public List<User> getMembers() {
@@ -87,36 +73,23 @@ public class Chat implements Comparable<Chat> {
         this.members = members;
     }
 
-    public User getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(User admin) {
-        this.admin = admin;
-    }
-
-    public String getStringLastActivity(){
-        if(this.lastActivity == null)
-            return "0";
-        return this.lastActivity.toInstant().toString();
-    }
-
-    public void setLastActivity(Timestamp lastActivity) {
-        this.lastActivity = lastActivity;
-    }
-
-    public Timestamp getLastActivity(){
-        return this.lastActivity;
+    @Override
+    public int compareTo(Chat chat) {
+        if(chat.getLastActivityInstant() == null){
+            return -1;
+        }
+        if(this.getLastActivityInstant() == null){
+            return 1;
+        }
+        return chat.getLastActivityInstant().compareTo(this.getLastActivityInstant());
     }
 
     @Override
-    public int compareTo(Chat chat) {
-        if(chat.getLastActivity() == null){
-            return -1;
+    public boolean equals(Object obj) {
+        if (obj instanceof Chat){
+            return this.getId() == ((Chat)obj).getId();
+        } else {
+            return false;
         }
-        if(this.getLastActivity() == null){
-            return 1;
-        }
-        return chat.getLastActivity().compareTo(this.getLastActivity());
     }
 }

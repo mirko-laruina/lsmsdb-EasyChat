@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PreDestroy;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,8 +74,8 @@ public class Main {
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.GET)
     public ResponseEntity getMessages(@PathVariable(value="chatId") long chatId,
                                       @RequestParam("sessionId") String sid,
-                                      @RequestParam(name = "from", required = false, defaultValue = "0") String from,
-                                      @RequestParam(name = "to", required = false, defaultValue = "0") String to,
+                                      @RequestParam(name = "from", required = false, defaultValue = "-1") String from,
+                                      @RequestParam(name = "to", required = false, defaultValue = "-1") String to,
                                       @RequestParam(name = "n", required = false, defaultValue = "0") String n
                                       ){
         Gson gson = new Gson();
@@ -84,26 +85,20 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Instant fromInstant = null;
-        Instant toInstant = null;
+        long fromLong = -1;
+        long toLong = -1;
         int nInt = 0;
 
         try {
-            long fromLong = Long.parseLong(from);
-            if (fromLong != 0)
-                fromInstant = Instant.ofEpochMilli(fromLong);
-
-            long toLong = Long.parseLong(to);
-            if (toLong != 0)
-                toInstant = Instant.ofEpochMilli(toLong);
-
+            fromLong = Long.parseLong(from);
+            toLong = Long.parseLong(to);
             nInt = Integer.parseInt(n);
         } catch (NumberFormatException e){
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        List<Message> msgs = dba.getChatMessages(chatId, fromInstant, toInstant, nInt);
+        List<Message> msgs = dba.getChatMessages(chatId, fromLong, toLong, nInt);
         return new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse(msgs)), HttpStatus.OK);
     }
 
@@ -122,11 +117,10 @@ public class Main {
 
         //Write message
         User user = new User(userId);
-        Chat chat = new Chat(chatId);
-        Message msg = new Message(chat, user, Instant.now(), request.getText().trim());
+        Message msg = new Message(user, Instant.now(), request.getText().trim());
         long msgId;
         if(msg.getText().length() > 0) {
-            msgId = dba.addChatMessage(msg);
+            msgId = dba.addChatMessage(chatId, msg);
         } else {
             msgId = 0;
         }
@@ -157,7 +151,7 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin().getUserId() != userId && userId != memberId){
+        if (chat.getAdminId() != userId && userId != memberId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -178,7 +172,7 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat.getAdmin().getUserId() != userId){
+        if (chat.getAdminId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         long membId = dba.getUser(request.getUsername()).getUserId();
@@ -220,7 +214,7 @@ public class Main {
         long userId = dba.getUserFromSession(sid);
 
         Chat chat = dba.getChat(chatId);
-        if (chat != null && chat.getAdmin().getUserId() != userId){
+        if (chat != null && chat.getAdminId() != userId){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         boolean result = dba.deleteChat(chatId);
@@ -241,9 +235,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        String propFileName = null;
-        dba = new JPAAdapter();
-
+        try{
+            dba = new LevelDBAdapter();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
         SpringApplication.run(Main.class, args);
     }
 

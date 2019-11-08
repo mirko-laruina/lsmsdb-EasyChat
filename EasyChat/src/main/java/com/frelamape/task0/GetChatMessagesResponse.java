@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetChatMessagesResponse extends BasicResponse {
-    private List<SerializableMessage> messages = new ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 
     public GetChatMessagesResponse(List<Message> messages){
         super(true);
@@ -12,7 +12,7 @@ public class GetChatMessagesResponse extends BasicResponse {
     }
 
     public void add(Message message){
-        messages.add(new SerializableMessage(message));
+        messages.add(message);
     }
 
     public void addAll(List<Message> messages){

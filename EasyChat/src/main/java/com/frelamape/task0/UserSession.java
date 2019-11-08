@@ -1,30 +1,13 @@
 package com.frelamape.task0;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.sql.Timestamp;
+import java.io.Serializable;
 import java.time.Instant;
 
-@Entity
-@Table(name = "Sessions")
-public class UserSession {
-    @Id
-    @GenericGenerator(name = "session_generator", strategy = "com.frelamape.task0.SessionGenerator")
-    @GeneratedValue(generator = "session_generator")
+public class UserSession implements Serializable {
     private String sessionId;
-
-    @Column(name="userId")
     private long userId;
-
-    @Column(name="expiry")
-    private Timestamp expiry;
-
-    @Transient
-    private Instant expiryInstant;
+    private transient Instant expiry;
+//    private String expiry;
 
     public UserSession(){
     }
@@ -53,24 +36,15 @@ public class UserSession {
         this.sessionId = sid;
     }
 
-    public Timestamp getExpiry() {
-        if (expiry == null && expiryInstant != null)
-            expiry = Timestamp.from(expiryInstant);
+    public Instant getExpiryInstant() {
         return expiry;
     }
 
-    public void setExpiry(Timestamp expiry) {
+    public void setExpiryInstant(Instant expiry) {
         this.expiry = expiry;
     }
 
-    public Instant getExpiryInstant() {
-        if (expiryInstant == null && expiry != null)
-            expiryInstant = expiry.toInstant();
-        return expiryInstant;
-    }
-
-    public void setExpiryInstant(Instant expiryInstant) {
-        this.expiryInstant = expiryInstant;
-        this.setExpiry(Timestamp.from(this.expiryInstant));
+    public String getExpiry() {
+        return expiry.toString();
     }
 }
