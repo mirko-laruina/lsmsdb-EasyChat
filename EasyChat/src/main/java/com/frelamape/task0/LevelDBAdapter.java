@@ -393,6 +393,9 @@ public class LevelDBAdapter implements DatabaseAdapter {
     public long createUser(User user) {
         WriteBatch batch = null;
         try{
+            if(getUser(user.getUsername()) != null){
+                return -1;
+            }
             long nextId;
             byte[] nextIdBytes = levelDBStore.get(bytes("users:nextId"));
             if (nextIdBytes == null){
