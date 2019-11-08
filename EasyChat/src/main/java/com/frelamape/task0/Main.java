@@ -25,19 +25,28 @@ public class Main {
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
     public @ResponseBody String login(@RequestBody LoginRequest loginRequest) {
         Gson gson =  new Gson();
+        LoginResponse lr;
+
         if(loginRequest.getUsername().equals("") || loginRequest.getPassword().equals("")){
             return gson.toJson(new LoginResponse(false, ""));
         }
-        String dbPw = dba.getUser(loginRequest.getUsername()).getPassword();
-        boolean success = (dbPw != null && dbPw.equals(loginRequest.getPassword()));
-        String sid = "";
-        if(success){
-            User user = dba.getUser(loginRequest.getUsername());
-            UserSession session = new UserSession(user);
-            dba.setUserSession(session);
-            sid = session.getSessionId();
+
+        User user = dba.getUser(loginRequest.getUsername());
+        if (user != null) {
+            String dbPw = user.getPassword();
+            boolean success = (dbPw != null && dbPw.equals(loginRequest.getPassword()));
+            String sid = "";
+            if (success) {
+                UserSession session = new UserSession(user);
+                dba.setUserSession(session);
+                sid = session.getSessionId();
+                lr = new LoginResponse(success, sid);
+            } else{
+                lr = new LoginResponse(false, null);
+            }
+        } else {
+            lr = new LoginResponse(false, null);
         }
-        LoginResponse lr = new LoginResponse(success, sid);
         return gson.toJson(lr);
     }
 
