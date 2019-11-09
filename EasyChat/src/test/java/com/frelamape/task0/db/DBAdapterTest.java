@@ -1,52 +1,34 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db;
 
-import org.junit.*;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.io.File;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class LevelDBAdapterTest {
-    private static DatabaseAdapter db;
-    private static long USERID;
-    private static long ADD_USERID;
-    private static long ADD_USERID2;
-    private static long ADD_USERID3;
+@Ignore
+public class DBAdapterTest {
+    protected static DatabaseAdapter db;
+    protected static long USERID;
+    protected static long ADD_USERID;
+    protected static long ADD_USERID2;
+    protected static long ADD_USERID3;
     private final static String MESSAGE = "Lorem ipsum dolor sit amet " + new Date().getTime();
-    private static long CHATID ;
-
-    private final static String FILENAME = "/tmp/levelDBStore";
-
-    @BeforeClass
-    public static void setUp() throws Exception {
-        db = new LevelDBAdapter(FILENAME);
-        USERID = db.createUser(new User("carmela.dach", "omnis"));
-        ADD_USERID = db.createUser(new User("darren31", "boh"));
-        ADD_USERID2 = db.createUser(new User("stone53", "boh"));
-        ADD_USERID3 = db.createUser(new User("graham.naomi", "boh"));
-        CHATID = db.createChat("Chat", USERID, new ArrayList<>(Arrays.asList(ADD_USERID3, ADD_USERID2)));
-        db.createChat("Chat", 0L, new ArrayList<>(Arrays.asList(USERID, ADD_USERID2)));
-        db.addChatMessage(CHATID, new Message(new User(USERID), Instant.now(), "ciao"));
-        db.addChatMessage(CHATID, new Message(new User(ADD_USERID), Instant.now(), "ciao"));
-        db.addChatMessage(CHATID, new Message(new User(ADD_USERID2), Instant.now(), "ciao"));
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        db.close();
-        new File(FILENAME).delete();
-    }
+    protected static long CHATID;
 
     @Test
     public void getChats() {
-        List<Chat> chats = db.getChats(USERID);
+        List<? extends ChatEntity> chats = db.getChats(USERID, true);
         System.out.println(String.format("User %d has %d chats", USERID, chats.size()));
-        for (Chat chat:chats){
+        for (ChatEntity chat:chats){
             System.out.println(String.format("%d: %s", chat.getId(), chat.getName()));
         }
         assert chats.size() > 0;
@@ -54,10 +36,10 @@ public class LevelDBAdapterTest {
 
     @Test
     public void getChatMessages() {
-        List<Message> messages = db.getChatMessages(CHATID, -1, -1, 10);
+        List<? extends MessageEntity> messages = db.getChatMessages(CHATID, -1, -1, 10);
         System.out.println(String.format("Chat %d has %d messages", CHATID, messages.size()));
-        for (Message message:messages){
-            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp()));
+        for (MessageEntity message:messages){
+            System.out.println(String.format("%d: %s %s", message.getMessageId(), message.getText(), message.getTimestamp().toString()));
         }
 
         assert messages.size() > 0;
@@ -65,9 +47,9 @@ public class LevelDBAdapterTest {
 
     @Test
     public void getChatMembers() {
-        List<User> members = db.getChatMembers(CHATID);
+        List<? extends UserEntity> members = db.getChatMembers(CHATID);
         System.out.println(String.format("Chat %d has %d members", CHATID, members.size()));
-        for (User member:members){
+        for (UserEntity member:members){
             System.out.println(member.getUsername());
         }
 
@@ -80,11 +62,11 @@ public class LevelDBAdapterTest {
         assert db.addChatMember(CHATID, ADD_USERID);
         int newChatMembers = db.getChatMembers(CHATID).size();
         assert db.checkChatMember(CHATID, ADD_USERID);
-        assert db.getChats(ADD_USERID).contains(new Chat(CHATID, "Chat"));
+        assert db.getChats(ADD_USERID, false).contains(new Chat(CHATID, "Chat"));
         assertEquals(oldChatMembers + 1, newChatMembers);
         assert db.removeChatMember(CHATID, ADD_USERID);
         assert !db.checkChatMember(CHATID, ADD_USERID);
-        assert !db.getChats(ADD_USERID).contains(new Chat(CHATID, "Chat"));
+        assert !db.getChats(ADD_USERID, false).contains(new Chat(CHATID, "Chat"));
         int newNewChatMembers = db.getChatMembers(CHATID).size();
         assertEquals(oldChatMembers, newNewChatMembers);
     }
@@ -109,12 +91,12 @@ public class LevelDBAdapterTest {
         users.add(ADD_USERID2);
         long chatId = db.createChat("Chat", USERID, users);
         assert chatId != -1;
-        List<User> members = db.getChatMembers(chatId);
+        List<? extends UserEntity> members = db.getChatMembers(chatId);
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
-        assert db.getChats(USERID).contains(new Chat(chatId, "Chat"));
-        assert db.getChats(ADD_USERID).contains(new Chat(chatId, "Chat"));
-        assert db.getChats(ADD_USERID2).contains(new Chat(chatId, "Chat"));
+        assert db.getChats(USERID, false).contains(new Chat(chatId, "Chat"));
+        assert db.getChats(ADD_USERID, false).contains(new Chat(chatId, "Chat"));
+        assert db.getChats(ADD_USERID2, false).contains(new Chat(chatId, "Chat"));
         assert db.deleteChat(chatId);
         assert db.getChatMembers(chatId) == null;
     }
@@ -125,7 +107,7 @@ public class LevelDBAdapterTest {
         users.add(ADD_USERID);
         long chatId = db.createChat("Chat", USERID, users);
         assert chatId != -1;
-        List<User> members = db.getChatMembers(chatId);
+        List<? extends UserEntity> members = db.getChatMembers(chatId);
         assert members.contains(new User(USERID));
         assert members.contains(new User(ADD_USERID));
         assert db.existsChat(ADD_USERID, USERID);

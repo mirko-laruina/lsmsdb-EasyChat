@@ -1,4 +1,4 @@
-package com.frelamape.task0;
+package com.frelamape.task0.api;
 
 import java.util.List;
 

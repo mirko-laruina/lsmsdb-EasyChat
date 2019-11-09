@@ -1,30 +1,29 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db;
 
 import java.time.Instant;
 
-public class Message implements Comparable<Message> {
+public class Message extends MessageEntity {
     private long messageId;
     private User sender;
-    private transient Instant timestampInstant;
-    private String timestamp;
+    private Instant timestamp;
     private String text;
 
-    public Message() {
-    }
+    public Message(){}
 
     public Message(User sender, Instant timestampInstant, String text) {
         this.sender = sender;
-        setTimestampInstant(timestampInstant);
+        this.timestamp = timestampInstant;
         this.text = text;
     }
 
     public Message(long id, User sender, Instant timestampInstant, String text) {
         this.messageId = id;
         this.sender = sender;
-        setTimestampInstant(timestampInstant);
+        this.timestamp = timestampInstant;
         this.text = text;
     }
 
+    @Override
     public long getMessageId() {
         return messageId;
     }
@@ -33,23 +32,16 @@ public class Message implements Comparable<Message> {
         this.messageId = messageId;
     }
 
-    public Instant getTimestampInstant() {
-        return timestampInstant;
-    }
-
-    public String getTimestamp() {
+    @Override
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 
-    public void setTimestampInstant(Instant timestampInstant) {
-        this.timestampInstant = timestampInstant;
-        this.timestamp = timestampInstant.toString();
-    }
-
+    @Override
     public String getText() {
         return text;
     }
@@ -58,16 +50,12 @@ public class Message implements Comparable<Message> {
         this.text = text;
     }
 
-    public User getSender() {
+    @Override
+    public UserEntity getSender() {
         return sender;
     }
 
     public void setSender(User sender) {
         this.sender = sender;
-    }
-
-    @Override
-    public int compareTo(Message message) {
-        return this.getTimestamp().compareTo(message.getTimestamp());
     }
 }
