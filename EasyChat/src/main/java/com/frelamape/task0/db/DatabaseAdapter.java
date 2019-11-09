@@ -1,6 +1,5 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db;
 
-import java.time.Instant;
 import java.util.List;
 
 public interface DatabaseAdapter {
@@ -9,7 +8,7 @@ public interface DatabaseAdapter {
      *
      * @return the list of chats or null in case of error.
      */
-    List<Chat> getChats(long userId);
+    List<? extends ChatEntity> getChats(long userId, boolean loadMembers);
 
     /**
      * Returns a list of messages for the given chat, in the given time range, up to the given
@@ -22,14 +21,14 @@ public interface DatabaseAdapter {
      *          to n or {@code to}. If from is null, messages are counted from {@code to} up to n or {@code from}.
      * @return the list of messages or null in case of error.
      */
-    List<Message> getChatMessages(long chatId, long from, long to, int n);
+    List<? extends MessageEntity> getChatMessages(long chatId, long from, long to, int n);
 
     /**
      * Returns the list of members for the chat identified by the given chatId.
      *
      * @return the list of members or null in case of error.
      */
-    List<User> getChatMembers(long chatId);
+    List<? extends UserEntity> getChatMembers(long chatId);
 
     /**
      * Adds the user identified by the given userId to the chat identified by the given chatId.
@@ -55,11 +54,9 @@ public interface DatabaseAdapter {
     /**
      * Adds the given message to the appropriate chat.
      *
-     * The chat is retrieved from the {@link Message#chat} field, whose {@link Chat#chatId} must be set.
-     *
      * @return the id of the added message.
      */
-    long addChatMessage(long chatId, Message message);
+    long addChatMessage(long chatId, MessageEntity message);
 
     /**
      * Creates a new chat with the given name, admin and members.
@@ -82,28 +79,28 @@ public interface DatabaseAdapter {
      *
      * @return the chat or null in case of error.
      */
-    Chat getChat(long chatId);
+    ChatEntity getChat(long chatId, boolean loadMembers);
 
     /**
      * Registers a new user.
      *
      * @return the id of the created chat or -1 in case of error.
      */
-    long createUser(User user);
+    long createUser(UserEntity user);
 
     /**
      * Returns user identified by the given username.
      *
      * @return the user in case of success, null otherwise.
      */
-    User getUser(String username);
+    UserEntity getUser(String username);
 
     /**
      * Returns user identified by the given userId.
      *
      * @return the user in case of success, null otherwise.
      */
-    User getUser(long userId);
+    UserEntity getUser(long userId);
 
     /**
      * Returns userId of the user who owns the session identified by the given sessionId.
@@ -120,7 +117,7 @@ public interface DatabaseAdapter {
      *
      * @return {@code true} in case of success, {@code false} otherwise.
      */
-    boolean setUserSession(UserSession user);
+    boolean setUserSession(UserSessionEntity user);
 
     /**
      * Removes the session identified by the given sessionId.

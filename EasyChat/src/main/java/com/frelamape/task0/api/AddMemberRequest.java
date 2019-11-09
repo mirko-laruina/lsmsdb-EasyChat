@@ -1,4 +1,4 @@
-package com.frelamape.task0;
+package com.frelamape.task0.api;
 
 public class AddMemberRequest {
     private String username;

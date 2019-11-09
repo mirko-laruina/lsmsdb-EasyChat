@@ -1,12 +1,11 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db;
 
-public class User {
+public class User extends UserEntity {
     private long userId;
     private String username;
     private String password;
 
-    public User() {
-    }
+    public User() {}
 
     public User(long userId) {
         this.userId = userId;
@@ -22,12 +21,13 @@ public class User {
         this.username = username;
     }
 
-    public User(long userId, String username, String password){
+    public User(long userId, String username, String password) {
         this.userId = userId;
         this.username = username;
         this.password = password;
     }
 
+    @Override
     public long getUserId() {
         return userId;
     }
@@ -36,6 +36,7 @@ public class User {
         this.userId = userId;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
@@ -44,6 +45,7 @@ public class User {
         this.username = username;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }

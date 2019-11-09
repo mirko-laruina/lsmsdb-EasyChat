@@ -1,5 +1,6 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db.leveldb;
 
+import com.frelamape.task0.db.*;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.Options;
@@ -27,7 +28,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public List<Chat> getChats(long userId) {
+    public List<Chat> getChats(long userId, boolean loadMembers) {
         try {
             List<Chat> chats = new ArrayList<>();
             String chatListString = asString(levelDBStore.get(bytes(String.format("user:%d:chats", userId))));
@@ -38,8 +39,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
             for (String chatString : chatStrings) {
                 if (chatString.equals(""))
                     continue;
-                Chat chat = getChat(Long.parseLong(chatString));
-                chats.add(chat);
+                chats.add((Chat)getChat(Long.parseLong(chatString), loadMembers));
             }
             Collections.sort(chats);
             return chats;
@@ -50,9 +50,9 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public List<Message> getChatMessages(long chatId, long from, long to, int n) {
+    public List<MessageEntity> getChatMessages(long chatId, long from, long to, int n) {
         try {
-            List<Message> messages = new ArrayList<>();
+            List<MessageEntity> messages = new ArrayList<>();
 
             long i;
             int direction;
@@ -83,9 +83,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
                 if (timestamp == null || sender == null)
                     return null;
 
-                User senderUser = getUserWithoutPassword(sender);
-
-                messages.add(new Message(i, senderUser, Instant.parse(timestamp), text));
+                messages.add(new Message(i, (User)getUserWithoutPassword(sender), Instant.parse(timestamp), text));
             }
             if (direction == -1)
                 Collections.reverse(messages);
@@ -109,8 +107,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
                 if (memberString.equals(""))
                     continue;
 
-                User user = getUserWithoutPassword(Long.parseLong(memberString));
-                members.add(user);
+                members.add((User)getUserWithoutPassword(Long.parseLong(memberString)));
             }
             return members;
         } catch (DBException|NumberFormatException e){
@@ -235,7 +232,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long addChatMessage(long chatId, Message message) {
+    public long addChatMessage(long chatId, MessageEntity message) {
         WriteBatch batch = null;
         try{
             long nextId;
@@ -249,7 +246,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
             batch = levelDBStore.createWriteBatch();
             batch.put(bytes(String.format("chat:%d:messages:nextId", chatId)), longToBytes(nextId+1));
             batch.put(bytes(String.format("chat:%d:message:%d:text", chatId, nextId)), bytes(message.getText()));
-            batch.put(bytes(String.format("chat:%d:message:%d:timestamp", chatId, nextId)), bytes(message.getTimestamp()));
+            batch.put(bytes(String.format("chat:%d:message:%d:timestamp", chatId, nextId)), bytes(message.getTimestamp().toString()));
             batch.put(bytes(String.format("chat:%d:message:%d:sender", chatId, nextId)), longToBytes(message.getSender().getUserId()));
             batch.put(bytes(String.format("chat:%d:lastActivity", chatId)), bytes(Instant.now().toString()));
             levelDBStore.write(batch);
@@ -369,7 +366,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public Chat getChat(long chatId) {
+    public ChatEntity getChat(long chatId, boolean loadMembers) {
         try {
             String name = asString(levelDBStore.get(bytes(String.format("chat:%d:name", chatId))));
             Long admin = bytesToLong(levelDBStore.get(bytes(String.format("chat:%d:admin", chatId))));
@@ -382,6 +379,8 @@ public class LevelDBAdapter implements DatabaseAdapter {
             Chat chat = new Chat(chatId, name);
             chat.setAdminId(admin);
             chat.setLastActivityInstant(Instant.parse(lastActivity));
+            if (loadMembers)
+                chat.setMembers(getChatMembers(chatId));
             return chat;
         } catch (DBException|DateTimeParseException e){
             e.printStackTrace();
@@ -390,12 +389,9 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long createUser(User user) {
+    public long createUser(UserEntity user) {
         WriteBatch batch = null;
         try{
-            if(getUser(user.getUsername()) != null){
-                return -1;
-            }
             long nextId;
             byte[] nextIdBytes = levelDBStore.get(bytes("users:nextId"));
             if (nextIdBytes == null){
@@ -427,7 +423,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public User getUser(String username) {
+    public UserEntity getUser(String username) {
         byte[] userIdBytes = null;
 
         try{
@@ -443,7 +439,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public User getUser(long userId) {
+    public UserEntity getUser(long userId) {
         try{
             String username = asString(levelDBStore.get(bytes(String.format("user:%d:username", userId))));
             String password = asString(levelDBStore.get(bytes(String.format("user:%d:password", userId))));
@@ -457,7 +453,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
         }
     }
 
-    private User getUserWithoutPassword(long userId) {
+    private UserEntity getUserWithoutPassword(long userId) {
         try{
             String username = asString(levelDBStore.get(bytes(String.format("user:%d:username", userId))));
             if (username != null)
@@ -497,7 +493,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean setUserSession(UserSession user) {
+    public boolean setUserSession(UserSessionEntity user) {
         WriteBatch batch = null;
         try{
             batch = levelDBStore.createWriteBatch();
@@ -543,7 +539,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
 
     @Override
     public boolean existsChat(long user1, long user2) {
-        List<Chat> chats = getChats(user1);
+        List<Chat> chats = getChats(user1, false);
         if (chats == null)
             return false;
 

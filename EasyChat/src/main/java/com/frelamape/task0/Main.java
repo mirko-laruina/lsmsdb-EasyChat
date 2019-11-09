@@ -1,5 +1,8 @@
 package com.frelamape.task0;
 
+import com.frelamape.task0.api.*;
+import com.frelamape.task0.db.*;
+import com.frelamape.task0.db.leveldb.*;
 import com.google.gson.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,13 +34,13 @@ public class Main {
             return gson.toJson(new LoginResponse(false, ""));
         }
 
-        User user = dba.getUser(loginRequest.getUsername());
+        UserEntity user = dba.getUser(loginRequest.getUsername());
         if (user != null) {
             String dbPw = user.getPassword();
             boolean success = (dbPw != null && dbPw.equals(loginRequest.getPassword()));
             String sid = "";
             if (success) {
-                UserSession session = new UserSession(user);
+                UserSessionEntity session = new UserSession(user);
                 if (dba.setUserSession(session)){
                     sid = session.getSessionId();
                     lr = new LoginResponse(success, sid);
@@ -70,17 +73,12 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        List<Chat> chats = dba.getChats(userId);
+        List<? extends ChatEntity> chats = dba.getChats(userId, true);
         if (chats == null){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        for (Chat chat:chats){
-            chat.setMembers(dba.getChatMembers(chat.getId()));
-        }
-
-        GetUserChatsResponse gucr = new GetUserChatsResponse(userId);
-        gucr.addAll(chats);
+        GetUserChatsResponse gucr = new GetUserChatsResponse(userId, chats);
 
         return new ResponseEntity<>(gson.toJson(gucr.getChats()), HttpStatus.OK);
     }
@@ -113,7 +111,7 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        List<Message> msgs = dba.getChatMessages(chatId, fromLong, toLong, nInt);
+        List<? extends MessageEntity> msgs = dba.getChatMessages(chatId, fromLong, toLong, nInt);
         return new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse(msgs)), HttpStatus.OK);
     }
 
@@ -150,13 +148,11 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        //TODO: not very elegant
-        Chat chat = dba.getChat(chatId);
+        ChatEntity chat = dba.getChat(chatId, true);
         if (chat == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        chat.setMembers(dba.getChatMembers(chatId));
         return new ResponseEntity<>(gson.toJson(new GetChatResponse(chat)), HttpStatus.OK);
     }
 
@@ -170,7 +166,7 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Chat chat = dba.getChat(chatId);
+        ChatEntity chat = dba.getChat(chatId, false);
         if (chat == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -196,7 +192,7 @@ public class Main {
         if (userId == -1)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
-        Chat chat = dba.getChat(chatId);
+        ChatEntity chat = dba.getChat(chatId, false);
         if (chat == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         if (chat.getAdminId() != userId){
@@ -218,9 +214,9 @@ public class Main {
         }
 
         List<String> members = request.getMembers();
-        List<Long> membIds = new ArrayList<Long>();
+        List<Long> membIds = new ArrayList<>();
         for(String memb: members){
-            User tmpUser = dba.getUser(memb);
+            UserEntity tmpUser = dba.getUser(memb);
             if(tmpUser != null) {
                 long tmpUserId = tmpUser.getUserId();
                 if (tmpUserId != -1 && tmpUserId != userId)
@@ -247,7 +243,7 @@ public class Main {
         if (userId == -1)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
-        Chat chat = dba.getChat(chatId);
+        ChatEntity chat = dba.getChat(chatId, false);
         if (chat == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -262,6 +258,10 @@ public class Main {
     @RequestMapping(value={"/api/v1/users"}, method=RequestMethod.POST)
     public ResponseEntity registerUser(@RequestBody LoginRequest request){
         Gson gson = new Gson();
+
+        if (dba.getUser(request.getUsername()) != null){
+            return new ResponseEntity<>(gson.toJson(new LoginResponse(false, "")), HttpStatus.OK);
+        }
 
         long userId = dba.createUser(new User(request.getUsername(), request.getPassword()));
 

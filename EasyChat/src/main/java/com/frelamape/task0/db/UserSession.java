@@ -1,25 +1,32 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db;
+
+import com.frelamape.task0.SessionGenerator;
 
 import java.time.Instant;
 
-public class UserSession {
+public class UserSession extends UserSessionEntity {
     private String sessionId;
     private long userId;
     private transient Instant expiry;
-//    private String expiry;
 
     public UserSession(){
     }
 
-    public UserSession  (User user){
+    public UserSession(UserEntity user){
         this(user.getUserId());
     }
 
     public UserSession (long userId){
         this.userId = userId;
-        this.sessionId = SessionGenerator.generateSessionId();
+        setSessionId(SessionGenerator.generateSessionId());
     }
 
+    public UserSession (long userId, String sessionId){
+        this.userId = userId;
+        this.sessionId = sessionId;
+    }
+
+    @Override
     public long getUserId(){
         return userId;
     }
@@ -28,6 +35,7 @@ public class UserSession {
         this.userId = userId;
     }
 
+    @Override
     public String getSessionId(){
         return sessionId;
     }
@@ -36,15 +44,12 @@ public class UserSession {
         this.sessionId = sid;
     }
 
-    public Instant getExpiryInstant() {
+    @Override
+    public Instant getExpiry() {
         return expiry;
     }
 
-    public void setExpiryInstant(Instant expiry) {
+    public void setExpiry(Instant expiry) {
         this.expiry = expiry;
-    }
-
-    public String getExpiry() {
-        return expiry.toString();
     }
 }
