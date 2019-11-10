@@ -1,8 +1,4 @@
 language: java
 
-addons:
-  mariadb: '10.4'
-
 before_script: 
   - cd EasyChat
-  - sudo mysql -e "CREATE DATABASE Task0; USE Task0; source ../database.sql;"

@@ -23,7 +23,7 @@ class ChatMessages extends Component {
         messageList: [],
       });
       this.stopRefresh();
-      this.getMessages(this.props.chatId, this.props.sid, 0, 0, 0);
+      this.getMessages(this.props.chatId, this.props.sid, -1, -1, 0);
       this.startRefresh(this.props.chatId, this.props.sid);
     }
     if(prevPops.chatId === 0)
@@ -36,14 +36,14 @@ class ChatMessages extends Component {
 
   startRefresh(chat, sid){
     var self = this;
-    this.iid = window.setInterval(function() {
-      var lastMsgTime = 0;
-      if (self.state.messageList.length > 0){
-        var lastMsgTimestamp = self.state.messageList[self.state.messageList.length-1].timestamp;
-        lastMsgTime = new Date(lastMsgTimestamp).getTime();
-      }
-      self.getMessages(chat, sid, lastMsgTime, 0, 0)
+    this.iid = window.setInterval(function(){
+        var lastMsgId = -1;
+        if(self.state.messageList.length > 0){
+            lastMsgId = self.state.messageList[self.state.messageList.length-1].messageId;
+        }
+        self.getMessages(chat, sid, lastMsgId+1, -1, 0)
     }, 500);
+
   }
 
   getMessages(chat, sid, from, to, n){

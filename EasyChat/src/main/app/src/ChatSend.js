@@ -48,7 +48,7 @@ class ChatSend extends Component {
             <div className="sendContainer">
                 <Form onSubmit={this.sendMessage}>
                 {
-                    this.props.chatId === 0 ? null : (
+                    this.props.chatId === -1 ? null : (
                         <InputGroup size="lg">
                             <FormControl    as="textarea"
                                             rows="2"

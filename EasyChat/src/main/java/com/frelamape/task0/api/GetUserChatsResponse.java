@@ -1,4 +1,6 @@
-package com.frelamape.task0;
+package com.frelamape.task0.api;
+
+import com.frelamape.task0.db.ChatEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +14,17 @@ public class GetUserChatsResponse extends BasicResponse{
         this.userId = userId;
     }
 
-    public void add(Chat chat){
-        SerializableChat uc = new SerializableChat(chat);
-        uc.isAdmin = chat.getAdmin().getUserId() == this.userId;
-        chats.add(uc);
+    public GetUserChatsResponse(long userId, List<? extends ChatEntity> chats){
+        this(userId);
+        addAll(chats);
     }
 
-    public void addAll(List<Chat> chats) {
-        for (Chat chat:chats){
+    public void add(ChatEntity chat){
+        chats.add(new SerializableChat(chat, this.userId));
+    }
+
+    public void addAll(List<? extends ChatEntity> chats) {
+        for (ChatEntity chat:chats){
             add(chat);
         }
     }

@@ -9,6 +9,7 @@
 | chat:$chatId:name | Chats.name |
 | chat:$chatId:lastActivity | Chats.lastActivity |
 | chat:$chatId:members | List of chat members |
+| chat:$chatId:admin | Chats.adminId|
 | chat:$chatId:messages:nextId | Next id for a chat |
 | chat:$chatId:message:$messageId:text | Messages.text |
 | chat:$chatId:message:$messageId:timestamp | Messages.timestamp |
@@ -242,6 +243,7 @@ but collisions would have been a problem.
 | chat:$chatId:name | Chats.name |
 | chat:$chatId:lastActivity | Chats.lastActivity |
 | chat:$chatId:members | List of chat members |
+| chat:$chatId:admin | Chats.adminId|
 | chat:$chatId:messages:nextId | Next id for a chat |
 | chat:$chatId:message:$messageId:text | Messages.text |
 | chat:$chatId:message:$messageId:timestamp | Messages.timestamp |

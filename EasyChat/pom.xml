@@ -48,6 +48,21 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.4.7.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.iq80.leveldb</groupId>
+            <artifactId>leveldb-api</artifactId>
+            <version>0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.iq80.leveldb</groupId>
+            <artifactId>leveldb</artifactId>
+            <version>0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.leveldbjni</groupId>
+            <artifactId>leveldbjni-all</artifactId>
+            <version>1.8</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -78,12 +93,14 @@
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
+                        <phase>package</phase>
                     </execution>
                     <execution>
                         <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                        <phase>package</phase>
                     </execution>
                     <execution>
                         <id>Build frontend</id>
@@ -93,6 +110,7 @@
                         <configuration>
                             <arguments>run build</arguments>
                         </configuration>
+                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>

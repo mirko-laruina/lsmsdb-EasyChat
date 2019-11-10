@@ -18,7 +18,7 @@ public class SessionGenerator implements IdentifierGenerator {
         return generateSessionId();
     }
 
-    private String generateSessionId(){
+    public static String generateSessionId(){
         SecureRandom random = new SecureRandom();
         byte bytes[] = new byte[64];
         random.nextBytes(bytes);
