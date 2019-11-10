@@ -170,7 +170,7 @@ public class Main {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        ChatEntity chat = dba.getChat(chatId, false);
+        ChatEntity chat = dba.getChat(chatId, true);
         if (chat == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -179,7 +179,7 @@ public class Main {
         }
 
         boolean result;
-        if(dba.getChatMembers(chatId).size() <= 3){
+        if(chat.getMembers().size() <= 3){
             result = false;
         } else {
             result = dba.removeChatMember(chatId, memberId);
