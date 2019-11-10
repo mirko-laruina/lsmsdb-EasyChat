@@ -218,7 +218,6 @@ public class JPAAdapter implements DatabaseAdapter {
                     return -1;
                 }
             }
-            chat.setLastActivity(Timestamp.from(Instant.now()));
             entityManager.persist(chat);
             entityManager.getTransaction().commit();
             return chat.getId();
