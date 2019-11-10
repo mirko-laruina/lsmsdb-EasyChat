@@ -226,7 +226,7 @@ public class Main {
                 if (tmpUserId != -1 && tmpUserId != userId)
                     membIds.add(tmpUserId);
             } else{
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(gson.toJson(new BasicResponse(false)), HttpStatus.OK);
             }
         }
 
