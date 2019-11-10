@@ -50,10 +50,14 @@ echo ''
 echo "Getting chat"
 chat1=$(curl --request GET --url "localhost:8080/api/v1/chats?sessionId=$sid1" \
                     -s | jq -r '.[0] | .chatId')
-chat2=$(curl --request GET --url "localhost:8080/api/v1/chats?sessionId=$sid1" \
+chat2=$(curl --request GET --url "localhost:8080/api/v1/chats?sessionId=$sid2" \
+                    -s | jq -r '.[1] | .chatId')
+chat3=$(curl --request GET --url "localhost:8080/api/v1/chats?sessionId=$sid3" \
                     -s | jq -r '.[0] | .chatId')
-chat3=$(curl --request GET --url "localhost:8080/api/v1/chats?sessionId=$sid1" \
-                    -s | jq -r '.[0] | .chatId')
+
+echo $chat1
+echo $chat2
+echo $chat3
 
 echo "Starting benchmark on chat list API"
 siege -c 1 -r 5000 -H 'Content-Type: application/json' \
