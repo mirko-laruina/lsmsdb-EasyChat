@@ -74,16 +74,14 @@ public class LevelDBAdapter implements DatabaseAdapter {
             byte[] val;
             for (int j = 0;
                      (n <= 0 || j < n) && (from < 0 || i >= from) && (to < 0 || i < to)
-                             && (val = levelDBStore.get(bytes((String.format("chat:%d:message:%d:text", chatId, i))))) != null;
+                             && (val = levelDBStore.get(bytes((String.format("chat:%d:message:%d", chatId, i))))) != null;
                      i += direction, j++) {
-                String text = asString(val);
-                String timestamp = asString(levelDBStore.get(bytes(String.format("chat:%d:message:%d:timestamp", chatId, i))));
-                Long sender = bytesToLong(levelDBStore.get(bytes(String.format("chat:%d:message:%d:sender", chatId, i))));
+                Message message = MessageSerializer.deserialize(i, val);
 
-                if (timestamp == null || sender == null)
+                if (message == null)
                     return null;
 
-                messages.add(new Message(i, (User)getUserWithoutPassword(sender), Instant.parse(timestamp), text));
+                messages.add(message);
             }
             if (direction == -1)
                 Collections.reverse(messages);
@@ -245,9 +243,7 @@ public class LevelDBAdapter implements DatabaseAdapter {
 
             batch = levelDBStore.createWriteBatch();
             batch.put(bytes(String.format("chat:%d:messages:nextId", chatId)), longToBytes(nextId+1));
-            batch.put(bytes(String.format("chat:%d:message:%d:text", chatId, nextId)), bytes(message.getText()));
-            batch.put(bytes(String.format("chat:%d:message:%d:timestamp", chatId, nextId)), bytes(message.getTimestamp().toString()));
-            batch.put(bytes(String.format("chat:%d:message:%d:sender", chatId, nextId)), longToBytes(message.getSender().getUserId()));
+            batch.put(bytes(String.format("chat:%d:message:%d", chatId, nextId)), MessageSerializer.serialize(message));
             batch.put(bytes(String.format("chat:%d:lastActivity", chatId)), bytes(Instant.now().toString()));
             levelDBStore.write(batch);
 
@@ -343,10 +339,8 @@ public class LevelDBAdapter implements DatabaseAdapter {
 
             batch.delete(bytes(String.format("chat:%d:members", chatId)));
 
-            for (int i = 0; levelDBStore.get(bytes((String.format("chat:%d:message:%d:text", chatId, i)))) != null; i++){
-                batch.delete(bytes((String.format("chat:%d:message:%d:text", chatId, i))));
-                batch.delete(bytes((String.format("chat:%d:message:%d:timestamp", chatId, i))));
-                batch.delete(bytes((String.format("chat:%d:message:%d:sender", chatId, i))));
+            for (int i = 0; levelDBStore.get(bytes((String.format("chat:%d:message:%d", chatId, i)))) != null; i++){
+                batch.delete(bytes((String.format("chat:%d:message:%d", chatId, i))));
             }
 
             levelDBStore.write(batch);
