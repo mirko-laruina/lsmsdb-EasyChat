@@ -251,18 +251,3 @@ but collisions would have been a problem.
 | chats:nextId | Next id for a chat |
 
 Plus one API change:
-
-```java
-/**
-* Returns a list of messages for the given chat, in the given time range, up to the given
-* number of elements, sorted in ascending message sending time.
-*
-* @param chatId id of the chat whose messages are to be retrieved
-* @param fromId start of the id range (included). A value of -1 means that there is no lower bound.
-* @param toId end of the time range (excluded). A value of -1 means that there is no upper bound.
-* @param n maximum number of elements to return. If from is not -1, messages are counted from {@code from} up
-*          to n or {@code to}. If from is -1, messages are counted from {@code to} up to n or {@code from}.
-* @return the list of messages or null in case of error.
-*/
-List<Message> getChatMessages(long chatId, long fromId, long toId, int n);
-```
