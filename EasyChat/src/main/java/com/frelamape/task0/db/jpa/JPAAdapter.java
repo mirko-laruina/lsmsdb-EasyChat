@@ -1,12 +1,12 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db.jpa;
 
+import com.frelamape.task0.db.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -14,23 +14,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.frelamape.task0.Main.SESSION_DURATION_DAYS;
+
 public class JPAAdapter implements DatabaseAdapter {
     private EntityManagerFactory entityManagerFactory;
-    private int connectionId;
 
     public JPAAdapter(){
         entityManagerFactory = Persistence.createEntityManagerFactory("EasyChat");
-        connectionId = 0;
     }
 
     @Override
-    public List<Chat> getChats(long userId) {
+    public List<Chat> getChats(long userId, boolean loadMembers) {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             User user = entityManager.find(User.class, userId);
             for (Chat chat:user.getChats()){
-                Hibernate.initialize(chat.getMembers());
+                if (loadMembers)
+                    Hibernate.initialize(chat.getMembers());
             }
             List<Chat> chats = user.getChats();
             Collections.sort(chats);
@@ -46,7 +47,7 @@ public class JPAAdapter implements DatabaseAdapter {
 
     //TODO: filter from DB instead of programmatically
     @Override
-    public List<Message> getChatMessages(long chatId, Instant from, Instant to, int n) {
+    public List<Message> getChatMessages(long chatId, long from, long to, int n) {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
@@ -54,19 +55,19 @@ public class JPAAdapter implements DatabaseAdapter {
             if (chat != null){
                 List<Message> all = chat.getMessages();
                 Collections.sort(all);
-                if (from == null)
+                if (from == -1)
                     Collections.reverse(all);
                 List<Message> selected = new ArrayList<>();
                 for (Message message : all){
-                    if ((from == null || message.getInstantTimestamp().isAfter(from))
-                            && (to == null || message.getInstantTimestamp().isBefore(to))){
+                    if ((from == -1 || message.getMessageId() >= from)
+                            && (to == -1 || message.getMessageId() < to)){
                         selected.add(message);
                         if (n > 0 && selected.size() >= n) {
                             break;
                         }
                     }
                 }
-                if (from == null)
+                if (from == -1)
                     Collections.reverse(selected);
 
                 return selected;
@@ -169,15 +170,16 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long addChatMessage(Message message) {
+    public long addChatMessage(long chatId, MessageEntity message) {
         EntityManager entityManager = null;
+        Message dbMessage = new Message(chatId, message);
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
-            Chat chat = entityManager.getReference(Chat.class, message.getChat().getId());
+            Chat chat = entityManager.getReference(Chat.class, chatId);
             chat.setLastActivity(Timestamp.from(Instant.now()));
             entityManager.merge(chat);
-            entityManager.persist(message);
+            entityManager.persist(dbMessage);
             entityManager.getTransaction().commit();
             return message.getMessageId();
         } catch (Exception ex){
@@ -201,6 +203,7 @@ public class JPAAdapter implements DatabaseAdapter {
             User admin = entityManager.getReference(User.class, adminId);
             Chat chat = new Chat();
             chat.setName(name);
+            chat.setLastActivity(Timestamp.from(Instant.now()));
             if (admin != null){
                 chat.setAdmin(admin);
                 chat.getMembers().add(admin);
@@ -215,7 +218,6 @@ public class JPAAdapter implements DatabaseAdapter {
                     return -1;
                 }
             }
-            chat.setLastActivity(Timestamp.from(Instant.now()));
             entityManager.persist(chat);
             entityManager.getTransaction().commit();
             return chat.getId();
@@ -254,11 +256,13 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public Chat getChat(long chatId) {
+    public ChatEntity getChat(long chatId, boolean loadMembers) {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
             Chat chat = entityManager.find(Chat.class, chatId);
+            if (loadMembers)
+                Hibernate.initialize(chat.getMembers());
             return chat;
         } catch (Exception ex){
             ex.printStackTrace();
@@ -271,14 +275,15 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long createUser(User user) {
+    public long createUser(UserEntity user) {
         EntityManager entityManager = null;
+        User dbUser = new User(user);
         try{
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
-            entityManager.persist(user);
+            entityManager.persist(dbUser);
             entityManager.getTransaction().commit();
-            return user.getUserId();
+            return dbUser.getUserId();
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
@@ -291,7 +296,8 @@ public class JPAAdapter implements DatabaseAdapter {
         return -1;
     }
 
-    public User getUser(String username){
+    @Override
+    public UserEntity getUser(String username){
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
@@ -311,6 +317,22 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
+    public UserEntity getUser(long userId){
+        EntityManager entityManager = null;
+        try{
+            entityManager = entityManagerFactory.createEntityManager();
+            return entityManager.find(User.class, userId);
+        } catch (Exception ex){
+            ex.printStackTrace();
+        } finally {
+            if (entityManager != null){
+                entityManager.close();
+            }
+        }
+        return null;
+    }
+
+    @Override
     public long getUserFromSession(String sessionId) {
         EntityManager entityManager = null;
         try {
@@ -318,9 +340,9 @@ public class JPAAdapter implements DatabaseAdapter {
             entityManager.getTransaction().begin();
             UserSession session = entityManager.find(UserSession.class, sessionId);
             if(session!=null){
-                if (session.getExpiry() == null){
+                if (session.getExpiryTimestamp() == null){
                     return -1;
-                } else if (session.getExpiryInstant().isBefore(Instant.now())){
+                } else if (session.getExpiry().isBefore(Instant.now())){
                     removeSession(sessionId);
                     return -1;
                 } else{
@@ -341,15 +363,16 @@ public class JPAAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean setUserSession(UserSession sess) {
+    public boolean setUserSession(UserSessionEntity sess) {
         EntityManager entityManager = null;
+        UserSession dbSession = new UserSession(sess.getUserId(), sess.getSessionId());
         try {
             entityManager = entityManagerFactory.createEntityManager();
             entityManager.getTransaction().begin();
             Instant expiry = Instant.now();
-            expiry = expiry.plus(Main.SESSION_DURATION_DAYS, ChronoUnit.DAYS);
-            sess.setExpiryInstant(expiry);
-            entityManager.persist(sess);
+            expiry = expiry.plus(SESSION_DURATION_DAYS, ChronoUnit.DAYS);
+            dbSession.setExpiry(expiry);
+            entityManager.persist(dbSession);
             entityManager.getTransaction().commit();
             return true;
         } catch (Exception ex){

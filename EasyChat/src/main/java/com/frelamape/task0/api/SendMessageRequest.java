@@ -1,4 +1,4 @@
-package com.frelamape.task0;
+package com.frelamape.task0.api;
 
 public class SendMessageRequest {
     private String text;

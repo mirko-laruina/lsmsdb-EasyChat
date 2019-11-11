@@ -7,13 +7,16 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class Settings {
+    public final static String SQL_DBENGINE = "sql";
+    public final static String JPA_DBENGINE = "jpa";
+    public final static String LEVELDB_DBENGINE = "leveldb";
     private Properties properties;
 
     private String dbUser;
     private String dbPassword;
     private String dbName;
     private String dbUri;
-
+    private String dbEngine;
 
     public Settings(String propFileName) throws IOException {
         this(propFileName, null);
@@ -41,6 +44,7 @@ public class Settings {
             dbPassword = properties.getProperty("db_password");
             dbName = properties.getProperty("db_name");
             dbUri = properties.getProperty("db_uri");
+            dbEngine = properties.getProperty("db_engine").toLowerCase();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
         } finally {
@@ -65,6 +69,10 @@ public class Settings {
 
     public String getDbUri() {
         return dbUri;
+    }
+
+    public String getDbEngine() {
+        return dbEngine;
     }
 
     public String getConnStr(){

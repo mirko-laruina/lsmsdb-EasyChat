@@ -1,13 +1,16 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db.jpa;
+
+import com.frelamape.task0.db.ChatEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "Chats")
-public class Chat implements Comparable<Chat> {
+class Chat extends ChatEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long chatId;
@@ -59,10 +62,12 @@ public class Chat implements Comparable<Chat> {
         this.admin = admin;
     }
 
+    @Override
     public long getId() {
         return chatId;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -71,16 +76,30 @@ public class Chat implements Comparable<Chat> {
         this.name = name;
     }
 
+    @Override
+    public long getAdminId() {
+        return admin.getUserId();
+    }
+
+    @Override
+    public Instant getLastActivityInstant() {
+        if (lastActivity != null)
+            return lastActivity.toInstant();
+        else
+            return null;
+    }
+
+    @Override
+    public List<User> getMembers() {
+        return members;
+    }
+
     public List<Message> getMessages() {
         return messages;
     }
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
-    }
-
-    public List<User> getMembers() {
-        return members;
     }
 
     public void setMembers(List<User> members) {
@@ -107,16 +126,5 @@ public class Chat implements Comparable<Chat> {
 
     public Timestamp getLastActivity(){
         return this.lastActivity;
-    }
-
-    @Override
-    public int compareTo(Chat chat) {
-        if(chat.getLastActivity() == null){
-            return -1;
-        }
-        if(this.getLastActivity() == null){
-            return 1;
-        }
-        return chat.getLastActivity().compareTo(this.getLastActivity());
     }
 }
