@@ -6,11 +6,13 @@ import com.frelamape.task0.db.jpa.JPAAdapter;
 import com.frelamape.task0.db.leveldb.*;
 import com.frelamape.task0.db.sql.SQLAdapter;
 import com.google.gson.*;
+import jdk.internal.net.http.ResponseSubscribers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.annotation.PreDestroy;
 import java.io.FileNotFoundException;
@@ -19,6 +21,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @EnableAutoConfiguration
@@ -27,6 +30,7 @@ public class Main {
     public static final int SESSION_DURATION_DAYS = 5;
 
     static DatabaseAdapter dba = null;
+    WaitManager wm = new WaitManager();
 
     @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
@@ -89,34 +93,42 @@ public class Main {
 
     @CrossOrigin
     @RequestMapping(value={"/api/v1/chat/{chatId}/messages"}, method=RequestMethod.GET)
-    public ResponseEntity getMessages(@PathVariable(value="chatId") long chatId,
-                                      @RequestParam("sessionId") String sid,
-                                      @RequestParam(name = "from", required = false, defaultValue = "-1") String from,
-                                      @RequestParam(name = "to", required = false, defaultValue = "-1") String to,
-                                      @RequestParam(name = "n", required = false, defaultValue = "0") String n
+    public DeferredResult<ResponseEntity> getMessages(@PathVariable(value="chatId") long chatId,
+                                                     @RequestParam("sessionId") String sid,
+                                                     @RequestParam(name = "from", required = false, defaultValue = "-1") String from,
+                                                     @RequestParam(name = "to", required = false, defaultValue = "-1") String to,
+                                                     @RequestParam(name = "n", required = false, defaultValue = "0") String n
                                       ){
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
+        DeferredResult<ResponseEntity> re = new DeferredResult<>();
+        CompletableFuture.runAsync(() -> {
+            if(userId == -1 || !dba.checkChatMember(chatId, userId)){
+                re.setResult(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
+            }
 
-        if(userId == -1 || !dba.checkChatMember(chatId, userId)){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+            long fromLong = -1;
+            long toLong = -1;
+            int nInt = 0;
 
-        long fromLong = -1;
-        long toLong = -1;
-        int nInt = 0;
+            try {
+                fromLong = Long.parseLong(from);
+                toLong = Long.parseLong(to);
+                nInt = Integer.parseInt(n);
+            } catch (NumberFormatException e){
+                e.printStackTrace();
+                re.setResult(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+            }
 
-        try {
-            fromLong = Long.parseLong(from);
-            toLong = Long.parseLong(to);
-            nInt = Integer.parseInt(n);
-        } catch (NumberFormatException e){
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        List<? extends MessageEntity> msgs = dba.getChatMessages(chatId, fromLong, toLong, nInt);
-        return new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse(msgs)), HttpStatus.OK);
+            List<? extends MessageEntity> msgs = dba.getChatMessages(chatId, fromLong, toLong, nInt);
+            if(msgs.size() < 1){
+                //Wait for a message to come
+                wm.add(re, chatId);
+            } else {
+                re.setResult(new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse(msgs)), HttpStatus.OK));
+            }
+        });
+        return re;
     }
 
     @CrossOrigin
@@ -135,6 +147,7 @@ public class Main {
         long msgId;
         if(msg.getText().length() > 0) {
             msgId = dba.addChatMessage(chatId, msg);
+            wm.wakeup(chatId, msg);
         } else {
             msgId = -1;
         }
