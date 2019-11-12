@@ -83,7 +83,7 @@ In the sixth row we define the name of our persistence-unit without defining a d
 After that, hibernate is configured as persistence provider by specifying MySql as dialect of the persistence engine with the \textbf{hibernate.dialect} propriety. Finally, some other proprieties are defined in order to enable the logging of all the generated SQL statements to the console (\textbf{hibernate.show\_sql}) and format the generated SQL statement to make it more readable, but takes up more screen space (\textbf{hibernate.format\_sql}).
 
 \section{Relations}
-After the declaration of the entity, in our Java classes we can find the declaration of the relationship between entities. Generally the relations are more effective between tables in the database. Here the entity classes are treated as relational tables (concept of JPA), therefore the relationships between Entity classes are as follows:
+After the declaration of the entity, in our Java classes we can find the declaration of the relationship between entities. Here the entity classes are treated as relational tables (concept of JPA), therefore the relationships between Entity classes are as follows:
 
 \begin{itemize}
 \item{@OneToOne Relation}
@@ -99,7 +99,7 @@ In One-To-One relationship, one item can belong to only one other item. It means
 \subsection{@OneToMany Relations}
 In this relationship each row of one entity is referenced to many child records in other entity. The important thing is that child records cannot have multiple parents. In a one-to-many relationship between Table A and Table B, each row in Table A is linked to 0, 1 or many rows in Table B.
 
-Usually this type of relation is bidirectional: a one-to-many relation from an entity A to an entity B, makes it necessary to have a many-to-one relation form the entity B to the entity A.
+Sometimes this type of relation is bidirectional: a one-to-many relation from an entity A to an entity B, makes it necessary to have a many-to-one relation form the entity B to the entity A.
 
 Here an example of a one-to-many relation from our project:
 \lstinputlisting[language=Java]{code3.java}
@@ -136,9 +136,9 @@ With JPA, it's possible to perform various operations on an entity such as:
 
 In order to do those operation, first of all it's necessary to create an entity manager factory object connected to the database with the \textbf{createEntityManagerFactory()} method. The role of this method is to create and return an EntityManagerFactory for the named persistence unit. Thus, this method contains the name of persistence unit passed in the Persistence.xml file.
 \lstinputlisting[language=Java]{code7.java}
-After that, when we want to operate, we first need to obtain an entity manager from factory with the \textbf{createEntityManager()} method, and to initialize it with the \textbf{getTransaction().begin()} method. Finally, the operation has to be closed (\textbf{getTransaction().commit()}) and the factory resources released (\textbf{close()}).
+After that, when we want to operate, we first need to obtain an entity manager from factory with the \textbf{createEntityManager()} method, and, if we want to apply some changes to the data stored in the database, to initialize it with the \textbf{getTransaction().begin()} method. Finally, if we began a transaction, the operation has to be closed (\textbf{getTransaction().commit()}), but in any case it's necessary to release the factory resources (\textbf{close()}).
 All those passages are present in the following examples.
-Note that all those operations are influenced by "Lazy loading": it means that an entity will be loaded only when you actually accesses the entity for the first time. This can help improve the performance significantly since often you won't need the children and so they will not be loaded.
+Note that all those operations are influenced by "lazy loading": it means that an entity will be loaded only when you actually accesses the entity for the first time. This can help improve the performance significantly since often you won't need the children and so they will not be loaded.
 All the operations are illustrated below.
 
 \subsection{Insert}
