@@ -77,9 +77,14 @@ public class LevelDBAdapter implements DatabaseAdapter {
                              && (val = levelDBStore.get(bytes((String.format("chat:%d:message:%d", chatId, i))))) != null;
                      i += direction, j++) {
                 Message message = MessageSerializer.deserialize(i, val);
-
                 if (message == null)
                     return null;
+
+                UserEntity user = getUserWithoutPassword(message.getSender().getUserId());
+                if (user == null)
+                    return null;
+
+                message.setSender((User) user);
 
                 messages.add(message);
             }
