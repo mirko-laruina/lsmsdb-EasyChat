@@ -12,22 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class ChatWait {
-    private long chatId;
-    private List<DeferredResult> waitlist;
-
-    public ChatWait(long chatId){
-        this.chatId = chatId;
-    }
-
-    public void add(DeferredResult dr){
-        waitlist.add(dr);
-    }
-
-    public long getChatId() {
-        return chatId;
-    }
-}
 
 public class WaitManager {
     private Map<Long, List<DeferredResult>> chatList = new HashMap<>();
@@ -37,10 +21,14 @@ public class WaitManager {
         chatList.get(chatId).add(dr);
     }
 
-    public void wakeup(long chatId, Message msg){
-        for (DeferredResult dr: chatList.get(chatId)){
+    public void wakeup(long chatId, Object o){
+        List<DeferredResult> cl = chatList.get(chatId);
+        if(cl == null){
+            return;
+        }
+        for (DeferredResult dr: cl){
             Gson gson = new Gson();
-            dr.setResult(new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse(msg)), HttpStatus.OK));
+            dr.setResult(new ResponseEntity<>(gson.toJson(o), HttpStatus.OK));
         }
         chatList.put(chatId, null);
     }

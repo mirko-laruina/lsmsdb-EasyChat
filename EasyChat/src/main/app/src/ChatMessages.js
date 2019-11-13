@@ -15,6 +15,7 @@ class ChatMessages extends Component {
     this.iid = 0;
     this.lastTimeRequested = -1;
     this.isWaiting = false;
+    this.firstRequest = true
   }
 
   componentDidUpdate(prevPops){
@@ -22,28 +23,10 @@ class ChatMessages extends Component {
       this.setState({
         messageList: [],
       });
-      this.stopRefresh();
       this.getMessages(this.props.chatId, this.props.sid, -1, -1, 0);
-      this.startRefresh(this.props.chatId, this.props.sid);
     }
     if(prevPops.chatId === 0)
       this.ref.current.scrollTop = this.ref.current.scrollHeight;
-  }
-
-  stopRefresh(){
-    window.clearInterval(this.iid);
-  }
-
-  startRefresh(chat, sid){
-    var self = this;
-    this.iid = window.setInterval(function(){
-        var lastMsgId = -1;
-        if(self.state.messageList.length > 0){
-            lastMsgId = self.state.messageList[self.state.messageList.length-1].messageId;
-        }
-        self.getMessages(chat, sid, lastMsgId+1, -1, 0)
-    }, 500);
-
   }
 
   getMessages(chat, sid, from, to, n){
@@ -59,13 +42,20 @@ class ChatMessages extends Component {
       }})
       .then(function (response) {
         //TODO: check success
+        var newMessageList = self.state.messageList
+        response.data.messages.map((message) => {
+            newMessageList[message.messageId] = message
+        })
         self.setState({
-          messageList: self.state.messageList.concat(response.data.messages),
+          messageList: newMessageList,
         })
         if(response.data.messages.length > 0){
           self.ref.current.scrollTop = self.ref.current.scrollHeight;
         }
         self.isWaiting = false;
+        if(self.props.chatId == chat){
+            self.getMessages(chat, sid, self.state.messageList.length, -1, 0)
+        }
       })
       .catch(function (error) {
         console.log(error);

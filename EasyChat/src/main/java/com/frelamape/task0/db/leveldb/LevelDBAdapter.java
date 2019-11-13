@@ -80,7 +80,6 @@ public class LevelDBAdapter implements DatabaseAdapter {
 
                 if (message == null)
                     return null;
-
                 messages.add(message);
             }
             if (direction == -1)

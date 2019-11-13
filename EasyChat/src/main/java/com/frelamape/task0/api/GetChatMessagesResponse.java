@@ -18,6 +18,10 @@ public class GetChatMessagesResponse extends BasicResponse {
         add(msg);
     }
 
+    public GetChatMessagesResponse(){
+        super(true);
+    }
+
     public void add(MessageEntity message){
         messages.add(new SerializableMessage(message));
     }

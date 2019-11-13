@@ -6,7 +6,6 @@ import com.frelamape.task0.db.jpa.JPAAdapter;
 import com.frelamape.task0.db.leveldb.*;
 import com.frelamape.task0.db.sql.SQLAdapter;
 import com.google.gson.*;
-import jdk.internal.net.http.ResponseSubscribers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,8 @@ public class Main {
     public static final int SESSION_DURATION_DAYS = 5;
 
     static DatabaseAdapter dba = null;
-    WaitManager wm = new WaitManager();
+    private WaitManager wmmsgs = new WaitManager();
+    private WaitManager wmchats = new WaitManager();
 
     @CrossOrigin
     @RequestMapping(value={"/api/v1/auth/login"}, method=RequestMethod.POST)
@@ -102,6 +102,9 @@ public class Main {
         Gson gson = new Gson();
         long userId = dba.getUserFromSession(sid);
         DeferredResult<ResponseEntity> re = new DeferredResult<>();
+        re.onTimeout(() -> {
+            re.setErrorResult(new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse()), HttpStatus.OK));
+        });
         CompletableFuture.runAsync(() -> {
             if(userId == -1 || !dba.checkChatMember(chatId, userId)){
                 re.setResult(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
@@ -123,7 +126,7 @@ public class Main {
             List<? extends MessageEntity> msgs = dba.getChatMessages(chatId, fromLong, toLong, nInt);
             if(msgs.size() < 1){
                 //Wait for a message to come
-                wm.add(re, chatId);
+                wmmsgs.add(re, chatId);
             } else {
                 re.setResult(new ResponseEntity<>(gson.toJson(new GetChatMessagesResponse(msgs)), HttpStatus.OK));
             }
@@ -147,7 +150,7 @@ public class Main {
         long msgId;
         if(msg.getText().length() > 0) {
             msgId = dba.addChatMessage(chatId, msg);
-            wm.wakeup(chatId, msg);
+            wmmsgs.wakeup(chatId, new GetChatMessagesResponse(msg));
         } else {
             msgId = -1;
         }
