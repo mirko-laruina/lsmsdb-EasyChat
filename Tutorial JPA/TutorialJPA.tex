@@ -3,7 +3,9 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{graphicx}
 
+\pagecolor{white}
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
@@ -94,7 +96,13 @@ After the declaration of the entity, in our Java classes we can find the declara
 For all those types of relationship it's necessary that the two entities involved belong to the same package.
 
 \subsection{@OneToOne Relations}
-In One-To-One relationship, one item can belong to only one other item. It means each row of one entity is referred to one and only one row of another entity. In order to make this association is only necessary to define into one entity, an object of the other entity marked with the @OneToOne annotation.
+In One-To-One relationship, one item can belong to only one other item. It means each row of one entity is referred to one and only one row of another entity.
+One way to make this association is using a shared primary key i.e. marking the primary key column of the address table as the foreign key to the users table. This avoid us to create a new column, necessary if we wanted to manage the relation between a foreign key.
+
+Here an example of a one-to-one relation between a table 'users' and a table 'address':
+\lstinputlisting[language=Java, firstline=1, lastline=12]{code0.java}
+\lstinputlisting[language=Java, firstline=14, lastline=25]{code0.java}
+The two elements that we want to correlate are marked by the \textbf{@OneToOne} annotation while @MapsId tells Hibernate to use the id column of address as both primary key and foreign key. Moreover the \textbf{mappedBy} attribute is put in the User class since the foreign key is now present in the address table.
 
 \subsection{@OneToMany Relations}
 In this relationship each row of one entity is referenced to many child records in other entity. The important thing is that child records cannot have multiple parents. In a one-to-many relationship between Table A and Table B, each row in Table A is linked to 0, 1 or many rows in Table B.
@@ -117,12 +125,30 @@ Note that this relation is the inverse of the one-to-many relation showed in the
 \subsection{@ManyToMany Relation}
 The many-to-many mapping represents a collection-valued association where any number of entities can be associated with a collection of other entities. In relational database any number of rows of one entity can be referred to any number of rows of another entity.
 
+For example, in our project, a user can have multiple chat and a chat can be composed of many members.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{dia1.pdf}
+\end{figure}
+
+As we know, in RDBMSes we can create relationships with foreign keys. Since both sides should be able to reference the other, we need to create a separate table to hold the foreign keys:
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.90\textwidth]{dia2.pdf}
+\end{figure}
+
+Such a table is called a join table. In the join table, the combination of the two foreign keys will be its composite primary key.
+
 Here an example of a many-to-many relation from our project:
 \lstinputlisting[language=Java]{code5.java}
-The \textbf{@JoinTable} parameter specifies the name of the table to use as a jpa join table from many-to-many between Chats and User using name = "Chatmembers". This is because it is not possible to determine the ownership of a many to many jpa mappings because the database tables do not contain foreign keys to refer to other tables. \textbf{@JoinColumn} specifies the name of the column that will refer to the entity to be considered as the owner of the association while \textbf{@inverseJoinColumn} specifies the name of the reverse side of the relationship. In our case we chose Chat as the owner so that @JoinColumn refers to the 'chatId' column in the join table Chatmembers and @InverseJoinColumn refers to userId which is the inverse side of the mapping. As happen is the one-to-many relation, an array of element User is created.
+
+The \textbf{@JoinTable} parameter specifies the name of the table to use as a jpa join table from many-to-many between Chats and Users using name = "Chatmembers". This is because it is not possible to determine the ownership of a many to many jpa mappings because the database tables do not contain foreign keys to refer to other tables. \textbf{@JoinColumn} specifies the name of the column that will refer to the entity to be considered as the owner of the association while \textbf{@inverseJoinColumn} specifies the name of the reverse side of the relationship. In our case we chose Chat as the owner so that @JoinColumn refers to the 'chatId' column in the join table Chatmembers and @InverseJoinColumn refers to userId which is the inverse side of the mapping. As happen is the one-to-many relation, an array of element User is created.
 
 Note that \textbf{@ManyToMany} annotation in the User entity shows an inverse relationship, so use \textbf{mappedBy = members} to refer to the field in the Chat entity:
 \lstinputlisting[language=Java]{code6.java}
+Since a many-to-many relationship doesn't have an owner side in the database, we could configure the join table in the User class and reference it from the Chat class, obtaining the same result.
 
 \section{Persitence operations}
 With JPA, it's possible to perform various operations on an entity such as:

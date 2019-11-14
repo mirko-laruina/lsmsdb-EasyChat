@@ -1,0 +1,14 @@
+\babel@toc {english}{}
+\contentsline {section}{\numberline {1}What is JPA?}{2}% 
+\contentsline {section}{\numberline {2}Entity}{2}% 
+\contentsline {section}{\numberline {3}Persitence.xml}{3}% 
+\contentsline {section}{\numberline {4}Relations}{4}% 
+\contentsline {subsection}{\numberline {4.1}@OneToOne Relations}{4}% 
+\contentsline {subsection}{\numberline {4.2}@OneToMany Relations}{5}% 
+\contentsline {subsection}{\numberline {4.3}@ManyToOne Relation}{6}% 
+\contentsline {subsection}{\numberline {4.4}@ManyToMany Relation}{6}% 
+\contentsline {section}{\numberline {5}Persitence operations}{7}% 
+\contentsline {subsection}{\numberline {5.1}Insert}{8}% 
+\contentsline {subsection}{\numberline {5.2}Find}{8}% 
+\contentsline {subsection}{\numberline {5.3}Update}{9}% 
+\contentsline {subsection}{\numberline {5.4}Delete}{9}% 
