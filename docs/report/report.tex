@@ -5,6 +5,9 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{array}
+
+\renewcommand{\arraystretch}{1.5}
 
 \title{Task 1 Report}
 \date{11/11/2019}
@@ -150,7 +153,7 @@ information is available, at the cost of timing out the connection, at which
 point a new request is made.} by the client.
 
 \section{Database}
-\subsection{SQL}
+\subsection{MySQL}
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{figs/ER}
@@ -158,7 +161,7 @@ point a new request is made.} by the client.
     \label{fig:er}
 \end{figure}
 
-Figure~\ref{fig:er} shows the ER diagram of the SQL database. Every \emph{User} 
+Figure~\ref{fig:er} shows the ER diagram of the MySQL database. Every \emph{User} 
 is identified a \emph{userId} and has got a unique \emph{username} and a 
 \emph{password}. The user can be a member of many \emph{Chats} and can 
 be the administrator of many \emph{Chats}. On the other hand, a \emph{Chat} 
@@ -184,8 +187,20 @@ relationships as it can be seen from the ER diagram.
 \paragraph{Naive design}
 Starting from the entity model and the use-cases, we first drafted a naive key-value 
 implementation for the database and then we checked againts the use-cases whether 
-it was efficient and we made some tweaks to it in order to improve it. The naive
-conversion is shown in the next table:
+it was efficient and we made some tweaks to it in order to improve it. 
+
+We decided to generate ids incrementally by saving in the database the next id
+to be generated. This value will be updated anytime a new element is generated.
+
+Another design choice we made is to represent the many to many relationship 
+between users and chats through a list of chat members within the chat. We'll
+later see that this is not sufficient for efficiency and that another list of 
+user chats will need to be added.
+
+Finally, the chat messages are saved under the chats and have an id that is 
+unique only in the chat. Since messages cannot be deleted, no list is necessary.
+
+The naive conversion is shown in the next table:
 
 \begin{center}
 \begin{tabular}{ | c | c | }
@@ -216,10 +231,10 @@ Since mapping between use-cases and DB-abstraction-layer methods is
 straightforward, this analysis will take into consideration the 
 methods of the database abstraction layer interface. Let's first list the 
 methods whose implementation is trivial and presents no problems using the
-presented structure.
+proposed structure\footnote{If you're interested in their implementation, you 
+can see the code in the \emph{LevelDBAdapter} class.}. 
 
 \begin{lstlisting}[language = Java]
-List<User> getChatMembers(long chatId);
 boolean addChatMember(long chatId, long userId);
 boolean removeChatMember(long chatId, long userId);
 boolean checkChatMember(long chatId, long userId);
@@ -233,7 +248,7 @@ boolean setUserSession(UserSession user);
 boolean removeSession(String sessionId);
 \end{lstlisting}
 
-Let's now analyze the more tricky methods:
+Let's now analyze the methods that give some problems:
 
 \begin{lstlisting}[language = Java]
 /**
@@ -246,28 +261,7 @@ List<Chat> getChats(long userId);
 \end{lstlisting}
 
 Since one of the use-cases is retrieving the chats of one user, the naive
-conversion is not efficient since a linear search is required.
-Therefore, we should add a new list to map user chats, i.e.:
-
-\begin{center}
-    \begin{tabular}{ | c | c | }
-        \hline
-        user:\$userId:chats & List of chat ids where the user is present \\\hline
-    \end{tabular}
-\end{center}
-
-\begin{lstlisting}[language = Java]
-/**
-* Returns the list of chats for the user identified by 
-* the given userId.
-*
-* @return the list of chats or null in case of error.
-*/
-List<Chat> getChats(long userId);
-\end{lstlisting}
-
-Since one of the use-cases is retrieving the chats of one user, the naive
-conversion is not efficient since a linear search is required.
+conversion is not efficient since a linear search through all chats is required.
 Therefore, we should add a new list to map user chats, i.e.:
 
 \begin{center}
@@ -286,8 +280,9 @@ Therefore, we should add a new list to map user chats, i.e.:
 User getUser(String username);
 \end{lstlisting}
 
-This method is inefficient using the proposed naive implementation. 
-The use of a reverse index would make it more efficient, i.e.:
+This method is inefficient using the proposed naive implementation since it 
+would require a linear search among all users. 
+The use of a reverse index to map usernames to ids would make it more efficient, i.e.:
 
 \begin{center}
     \begin{tabular}{ | c | c | }
@@ -312,7 +307,8 @@ boolean existsChat(long user1, long user2);
 This method can be implemented in an inefficent way iterating through the 
 user's chats and its members. A more efficient way would be inserting a
 redundant list of private chats the user is in.
-However, since this is a proof-of-concept implementation, we decided not to
+However, since this is a proof-of-concept implementation and this method gets 
+called only on a not frequent operation (chat creation), we decided not to
 make this optimization.
 
 \begin{lstlisting}[language = Java]
@@ -340,7 +336,9 @@ message ids are strictly monotone, due to the id generation strategy we
 imposed.
 
 To tell the truth, this API was originally taking a time range, making its 
-implementation very complicated using a key-value database.
+implementation very complicated using a key-value database. However, we 
+decided to change it in order to make its use more flexible among different 
+database tecnologies.
 
 Another problem with this API was its slowness due to the three required 
 operations required to read the message from the database (there are 
