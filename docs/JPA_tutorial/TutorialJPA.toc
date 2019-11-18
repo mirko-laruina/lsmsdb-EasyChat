@@ -9,6 +9,6 @@
 \contentsline {subsection}{\numberline {4.4}@ManyToMany Relation}{6}% 
 \contentsline {section}{\numberline {5}Persitence operations}{7}% 
 \contentsline {subsection}{\numberline {5.1}Insert}{8}% 
-\contentsline {subsection}{\numberline {5.2}Find}{8}% 
-\contentsline {subsection}{\numberline {5.3}Update}{9}% 
-\contentsline {subsection}{\numberline {5.4}Delete}{9}% 
+\contentsline {subsection}{\numberline {5.2}Find}{9}% 
+\contentsline {subsection}{\numberline {5.3}Update}{10}% 
+\contentsline {subsection}{\numberline {5.4}Delete}{10}% 

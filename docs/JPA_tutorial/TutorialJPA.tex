@@ -55,6 +55,7 @@ Entities represent persistent data stored in a relational database automatically
 
 Here an example of how to create an entity:
 \lstinputlisting[language=Java]{code1.java}
+
 This class has the task of managing the “messages” entity within the DBMS.
 
 \textbf{@Id}: Marks the field as the key of the entity.
@@ -73,6 +74,7 @@ In JPA, the persistence.xml file is the central piece of configuration. That mak
 
 Here our persistence.xml file is shown:
 \lstinputlisting[language=XML]{code2.xml}
+
 In the sixth row we define the name of our persistence-unit without defining a dependency to a specific JPA implementation. After that, a list of proprieties are defined in order to provide the database connection:
 
 \begin{itemize}
@@ -102,6 +104,7 @@ One way to make this association is using a shared primary key i.e. marking the 
 Here an example of a one-to-one relation between a table 'users' and a table 'address':
 \lstinputlisting[language=Java, firstline=1, lastline=12]{code0.java}
 \lstinputlisting[language=Java, firstline=14, lastline=25]{code0.java}
+
 The two elements that we want to correlate are marked by the \textbf{@OneToOne} annotation while @MapsId tells Hibernate to use the id column of address as both primary key and foreign key. Moreover the \textbf{mappedBy} attribute is put in the User class since the foreign key is now present in the address table.
 
 \subsection{@OneToMany Relations}
@@ -111,6 +114,7 @@ Sometimes this type of relation is bidirectional: a one-to-many relation from an
 
 Here an example of a one-to-many relation from our project:
 \lstinputlisting[language=Java]{code3.java}
+
 In this example every element 'chat' of the entity Chats is associated, through the \textbf{mappedBy} propriety, with 0, 1 or many objects of type Message, the other entity involved. In order to do this, an array of element Message is created. With the \textbf{cascade = \{ CascadeType.ALL \}} propriety, when we perform some action on the target entity, the same action will be applied to the associated entity.
 
 \subsection{@ManyToOne Relation}
@@ -118,6 +122,7 @@ The many-to-one mapping represents a single-valued association where a collectio
 
 Here an example of a many-to-one relation from our project:
 \lstinputlisting[language=Java]{code4.java}
+
 The \textbf{@JoinColumn} parameter specifies the database table column that stores the foreign key for the related entity, and then an object with type or the related entity is created.
 
 Note that this relation is the inverse of the one-to-many relation showed in the previous example. This because, as i said before, this can be a bidirectional relation. 
@@ -148,6 +153,7 @@ The \textbf{@JoinTable} parameter specifies the name of the table to use as a jp
 
 Note that \textbf{@ManyToMany} annotation in the User entity shows an inverse relationship, so use \textbf{mappedBy = members} to refer to the field in the Chat entity:
 \lstinputlisting[language=Java]{code6.java}
+
 Since a many-to-many relationship doesn't have an owner side in the database, we could configure the join table in the User class and reference it from the Chat class, obtaining the same result.
 
 \section{Persitence operations}
@@ -162,6 +168,7 @@ With JPA, it's possible to perform various operations on an entity such as:
 
 In order to do those operation, first of all it's necessary to create an entity manager factory object connected to the database with the \textbf{createEntityManagerFactory()} method. The role of this method is to create and return an EntityManagerFactory for the named persistence unit. Thus, this method contains the name of persistence unit passed in the Persistence.xml file.
 \lstinputlisting[language=Java]{code7.java}
+
 After that, when we want to operate, we first need to obtain an entity manager from factory with the \textbf{createEntityManager()} method, and, if we want to apply some changes to the data stored in the database, to initialize it with the \textbf{getTransaction().begin()} method. Finally, if we began a transaction, the operation has to be closed (\textbf{getTransaction().commit()}), but in any case it's necessary to release the factory resources (\textbf{close()}).
 All those passages are present in the following examples.
 Note that all those operations are influenced by "lazy loading": it means that an entity will be loaded only when you actually accesses the entity for the first time. This can help improve the performance significantly since often you won't need the children and so they will not be loaded.
@@ -172,7 +179,18 @@ In JPA, we can easily insert data into database through entities. The EntityMana
 
 Here an example of how we inserted users into the database:
 \lstinputlisting[language=Java]{code8.java}
+
 After the execution of the program, the student table is generated under MySQL workbench.This table contains the user details.
+
+In case data we want to add belong to a one-to-many or many-to-many relation, a little more attention is required in order to maintain the relation: the \textbf{getReference} method is used to retrieve information from the related tables. getReference is similar to the \textbf{find} method but unlike it, the getReference only returns an entity Proxy which only has the identifier set. If you access the Proxy, the associated SQL statement will be triggered as long as the EntityManager is still open. However, in this case, we don’t need to access the entity Proxy. We only want to propagate the foreign key to the underlying table record so loading a Proxy is sufficient for this use case. So it is a realization with help of "lazy loading".
+
+Here an example of this operation:
+\lstinputlisting[language=Java, firstline=5, lastline=12]{code12.java}
+
+ \textbf{getReference} is used also in the management of insert that imply a many-to-one relation. In this case the procedure is easy and similar to a simply entity creation
+
+Here an example of this operation:
+\lstinputlisting[language=Java, firstline=54, lastline=60]{code12.java}
 
 \subsection{Find}
 To find an entity, EntityManger interface provides \textbf{find()} method that searches an element on the basis of primary key.
@@ -185,6 +203,7 @@ JPA allows us to change the records in database by updating an entity.
 
 Here an example of how we update data into the database:
 \lstinputlisting[language=Java]{code10.java}
+
 \textbf{Merge} creates a new instance of your entity, copies the state from the supplied entity, and makes the new copy managed. The instance you pass in will not be managed (any changes you make will not be part of the transaction unless you call merge again).
 
 \subsection{Delete}
@@ -192,5 +211,10 @@ To delete a record from database, EntityManager interface provides remove() meth
 
 Here an example of how we delete data into the database:
 \lstinputlisting[language=Java]{code11.java}
+
+In the same way we did for the insert, little precautions need to be taken to manage delete in case of one-to-many or many-to-many relation with the usage of the \textbf{getReference} method.
+
+Here an example of this operation:
+\lstinputlisting[language=Java, firstline=29, lastline=36]{code12.java}
 
 \end{document}
