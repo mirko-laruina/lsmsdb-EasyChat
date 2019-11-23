@@ -48,7 +48,9 @@ Anonymous user, registered user, group admin and a time-based event.
 \subsubsection{Functional requirements}
 
 An \textbf{anonymous user} must be able to register in order to become a 
-\emph{registered user}.
+\emph{registered user}. Login is carried out using username and password selected 
+by the user when registering. Username and password are also the only two information
+necessary for the registration and they can be free selected by the user.
 
 A \textbf{registered user} must be able to:
 \begin{itemize}
@@ -58,11 +60,20 @@ A \textbf{registered user} must be able to:
     \item Create a group chat
 \end{itemize}
 
-A \textbf{group admin} must be able to:
+A list of his chats is permanently shown to the user. Both creating a private chat or a 
+group chat require the username of the correspondents.
+When an user create a group chat, he automatically become admin of the chat in question.
+
+A \textbf{group admin} is the only one who must be able to:
 \begin{itemize}
     \item Add users to the group
     \item Remove users from the group
 \end{itemize}
+
+Adding an user to the group requires once again to specify the username of the 
+correspondent. However, an admin can't leave the group without deleting the group itself.
+
+Lastly, an user can close the session just by logging out pushing the specific button. 
 
 The \textbf{time-based event} updates the user interface on regular intervals
 to show new received messages from the current chat, if any.
