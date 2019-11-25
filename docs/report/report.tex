@@ -81,9 +81,17 @@ The \textbf{time-based event} updates the user interface on regular intervals
 to show new received messages from the current chat, if any.
 
 \subsubsection{Non-Functional requirements}
-The application must be able to handle concurrent request to the database remaining 
-consistent between every operation. A real-time system (but not hard real-time) of response is also required 
-for this type of application in order to ensure a comfortable use.
+\begin{itemize}
+	\item \textbf{Data concurrency:} the application must be able to handle concurrent requests to the database remaining consistent between every operation even with high volume of data. 
+	
+	\item \textbf{Data consistency:} A real-time updating component (characterized by not so hard constraints)  based on a pull/push time protocol is also required for this type of application in order to to ensure a comfortable and efficient use .
+	
+	\item \textbf{responsiveness:} Client-side Web application must provide a responsive view both for pc,laptops or mobile devices.
+	
+	\item \textbf{Scalability:} At the increase of the storage occupancy of a chat (single or group one) the access and download time of the chat must remain almost constant. This is possible by implementing a partial and/or "on request" loading rather than from scratch.
+	
+	 
+\end{itemize}
 
 \clearpage
 \section{Design}
