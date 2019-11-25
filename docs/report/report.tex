@@ -73,13 +73,17 @@ A \textbf{group admin} is the only one who must be able to:
 Adding an user to the group requires once again to specify the username of the 
 correspondent. However, an admin can't leave the group without deleting the group itself.
 
-Lastly, an user can close the session just by logging out pushing the specific button. 
+Lastly, an user can close the session just by logging out pushing the specific button. If a user 
+close the application without logging out, he will automatically reconnect to his account at 
+the next connection. This feature is allowed through cookies.
 
 The \textbf{time-based event} updates the user interface on regular intervals
 to show new received messages from the current chat, if any.
 
 \subsubsection{Non-Functional requirements}
-TODO
+The application must be able to handle concurrent request to the database remaining 
+consistent between every operation. A real-time system (but not hard real-time) of response is also required 
+for this type of application in order to ensure a comfortable use.
 
 \clearpage
 \section{Design}
