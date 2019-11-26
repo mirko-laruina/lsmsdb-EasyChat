@@ -154,13 +154,6 @@ since some more complex functional constraints could not be included in the
 generation. However, that was sufficient for the first functional tests of the
 application.
 
-\subsubsection{JPA}
-Given the database, the Java implementation using JPA was very fast, especially
-compared to using plain SQL. We made use of both one-to-many and many-to-many 
-relationships as it can be seen from the ER diagram.
-
-TODO
-
 \subsection{Java backend}
 The Java backend provides simple REST APIs for managing the chat application. 
 In order to do so, it uses the \emph{Spring} framework\footnote{More information
@@ -176,6 +169,13 @@ using a generic \emph{DatabaseAdapter} interface that can be implemented to
 provide access to different databases (as we have done in this Task with plain SQL, 
 JPA and levelDB implementations). The database backend can be set from a configuration
 file, where some other db-specific settings can be set.
+
+\subsubsection{JPA}
+Once the database design was set, the Java implementation of the methods using 
+JPA was very easy and fast. A new implementation of the \emph{DatabaseAdapter}
+class has been done, along with JPA implementations of the data model interfaces.
+Both one-to-many and many-to-many relationships have been used. A more detailed 
+explanation of the JPA implementation can be found in the tutorial.
 
 \subsection{ReactJS frontend}
 The fronted has been developed using the \emph{ReactJS} framework\footnote{More
@@ -206,12 +206,21 @@ makes a request to the server and the server does not respond until new
 information is available, at the cost of timing out the connection, at which 
 point a new request is made.} by the client.
 
+\clearpage
 \section{Testing and Evaluation}
+The application has been tested using unit tests and a final integration test.
 
-The database APIs have been tested using some test units through \emph{JUnit4}
+\subsection{Unit tests}
+The database APIs have been tested using unit tests through \emph{JUnit4}
 \footnote{More information at \url{https://junit.org/junit4/}} before being 
-integrated with the ReactJS frontend.
+integrated with the API backend code. In particular, every method in 
+\emph{DatabaseAdapter} is tested against sample data, verifying its result.
 
-TODO
+These automated unit tests made it possible to identify bugs at their root cause,
+saving a lot of time in debugging.
+
+\subsection{Integration test}
+In the end, once everything had been put together, we performed a final test 
+in order to verify the correctness of all use cases.
 
 \end{document}
