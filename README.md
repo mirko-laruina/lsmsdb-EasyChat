@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/mirko-laruina/lsmsdb-EasyChat.svg?branch=master)](https://travis-ci.org/mirko-laruina/lsmsdb-EasyChat)
-# Large Scale and Multi Structured Databases - Task 0
+# Large Scale and Multi Structured Databases - EasyChat
 ## Development phase
 ### Spring
 The source file is compiled and the Spring server started using Maven
