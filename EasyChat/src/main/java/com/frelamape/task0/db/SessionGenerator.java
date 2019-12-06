@@ -1,4 +1,4 @@
-package com.frelamape.task0;
+package com.frelamape.task0.db;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;

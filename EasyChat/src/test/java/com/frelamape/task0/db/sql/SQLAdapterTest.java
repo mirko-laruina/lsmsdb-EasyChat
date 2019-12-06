@@ -2,8 +2,6 @@ package com.frelamape.task0.db.sql;
 
 import com.frelamape.task0.Settings;
 import com.frelamape.task0.db.DBAdapterTest;
-import com.frelamape.task0.db.jpa.JPAAdapter;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

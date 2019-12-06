@@ -1,10 +1,8 @@
 package com.frelamape.task0.db.jpa;
 
 import com.frelamape.task0.db.UserSessionEntity;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 

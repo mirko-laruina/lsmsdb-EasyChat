@@ -49,8 +49,8 @@ Anonymous user, registered user, group admin and a time-based event.
 
 An \textbf{anonymous user} must be able to register in order to become a 
 \emph{registered user}. Login is carried out using username and password selected 
-by the user when registering. Username and password are also the only two information
-necessary for the registration and they can be free selected by the user.
+by the user when registering. Username must be unique. Username and password 
+are also the only two informationvnecessary for the registration.
 
 A \textbf{registered user} must be able to:
 \begin{itemize}
@@ -73,13 +73,25 @@ A \textbf{group admin} is the only one who must be able to:
 Adding an user to the group requires once again to specify the username of the 
 correspondent. However, an admin can't leave the group without deleting the group itself.
 
-Lastly, an user can close the session just by logging out pushing the specific button. 
+Lastly, an user can close the session just by logging out pushing the specific button. If a user 
+close the application without logging out, he will automatically reconnect to his account at 
+the next connection. This feature is allowed through cookies.
 
 The \textbf{time-based event} updates the user interface on regular intervals
 to show new received messages from the current chat, if any.
 
 \subsubsection{Non-Functional requirements}
-TODO
+\begin{itemize}
+	\item \textbf{Data concurrency:} the application must be able to handle concurrent requests to the database remaining consistent between every operation even with high volume of data. 
+	
+	\item \textbf{Data consistency:} A real-time updating component (characterized by not so hard constraints)  based on a pull/push time protocol is also required for this type of application in order to to ensure a comfortable and efficient use .
+	
+	\item \textbf{Responsiveness:} Client-side Web application must provide a responsive view both for pc,laptops or mobile devices.
+	
+	\item \textbf{Scalability:} At the increase of the storage occupancy of a chat (single or group one) the access and download time of the chat must remain almost constant. This is possible by implementing a partial and/or "on request" loading rather than from scratch.
+	
+	 
+\end{itemize}
 
 \clearpage
 \section{Design}
@@ -87,28 +99,25 @@ TODO
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{figs/use_case_diagram}
-    \caption{Use-case diagram}
+    \caption{Use-case diagram. Use-cases indicated with a star (\texttt{*})
+        require the user to be the chat administrator.}
     \label{fig:usecase}
 \end{figure}
-Figure~\ref{fig:usecase} shows the use-case diagram for the project. Please note 
-that the \texttt{Add user} and \texttt{Remove member} 
-operations are only allowed to the \texttt{Chat admin}.
 
 \subsection{Class diagram}
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{figs/class_diagram}
-    \caption{Class diagram for the identified entities.}
+    \caption{Class diagram for the identified entities}
     \label{fig:class_diagram}
 \end{figure}
 
-Figure~\ref{fig:class_diagram} shows the class diagram derived from the specifications. 
 It can be seen that we chose to keep it as simple as possible by not making  
 any distinction between \emph{private chats} and \emph{group chats}, 
 creating a single \emph{Chat} entity.
 
 \subsection{Software Architecture}
-TODO
+TODO(Mirko)
 
 The proposed software architecture is a classic three-layer architecture:
 \begin{enumerate}
@@ -122,7 +131,7 @@ The proposed software architecture is a classic three-layer architecture:
 
 \subsection{Database}
 \subsubsection{Relational DB Design}
-\begin{figure}[]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{figs/ER}
     \caption{ER diagram for the database.}
@@ -145,13 +154,6 @@ since some more complex functional constraints could not be included in the
 generation. However, that was sufficient for the first functional tests of the
 application.
 
-\subsubsection{JPA}
-Given the database, the Java implementation using JPA was very fast, especially
-compared to using plain SQL. We made use of both one-to-many and many-to-many 
-relationships as it can be seen from the ER diagram.
-
-TODO
-
 \subsection{Java backend}
 The Java backend provides simple REST APIs for managing the chat application. 
 In order to do so, it uses the \emph{Spring} framework\footnote{More information
@@ -167,6 +169,13 @@ using a generic \emph{DatabaseAdapter} interface that can be implemented to
 provide access to different databases (as we have done in this Task with plain SQL, 
 JPA and levelDB implementations). The database backend can be set from a configuration
 file, where some other db-specific settings can be set.
+
+\subsubsection{JPA}
+Once the database design was set, the Java implementation of the methods using 
+JPA was very easy and fast. A new implementation of the \emph{DatabaseAdapter}
+class has been done, along with JPA implementations of the data model interfaces.
+Both one-to-many and many-to-many relationships have been used. A more detailed 
+explanation of the JPA implementation can be found in the tutorial.
 
 \subsection{ReactJS frontend}
 The fronted has been developed using the \emph{ReactJS} framework\footnote{More
@@ -197,12 +206,21 @@ makes a request to the server and the server does not respond until new
 information is available, at the cost of timing out the connection, at which 
 point a new request is made.} by the client.
 
+\clearpage
 \section{Testing and Evaluation}
+The application has been tested using unit tests and a final integration test.
 
-The database APIs have been tested using some test units through \emph{JUnit4}
+\subsection{Unit tests}
+The database APIs have been tested using unit tests through \emph{JUnit4}
 \footnote{More information at \url{https://junit.org/junit4/}} before being 
-integrated with the ReactJS frontend.
+integrated with the API backend code. In particular, every method in 
+\emph{DatabaseAdapter} is tested against sample data, verifying its result.
 
-TODO
+These automated unit tests made it possible to identify bugs at their root cause,
+saving a lot of time in debugging.
+
+\subsection{Integration test}
+In the end, once everything had been put together, we performed a final test 
+in order to verify the correctness of all use cases.
 
 \end{document}

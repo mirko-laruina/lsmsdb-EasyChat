@@ -1,7 +1,5 @@
 package com.frelamape.task0.db;
 
-import com.frelamape.task0.SessionGenerator;
-
 import java.time.Instant;
 
 public class UserSession extends UserSessionEntity {
