@@ -45,38 +45,47 @@ public class JPAAdapter implements DatabaseAdapter {
         return null;
     }
 
-    //TODO: filter from DB instead of programmatically
     @Override
     public List<Message> getChatMessages(long chatId, long from, long to, int n) {
         EntityManager entityManager = null;
         try{
+            StringBuilder st = new StringBuilder();
             entityManager = entityManagerFactory.createEntityManager();
-            Chat chat = entityManager.find(Chat.class, chatId);
-            if (chat != null){
-                List<Message> all = chat.getMessages();
-                Collections.sort(all);
-                if (from == -1)
-                    Collections.reverse(all);
-                List<Message> selected = new ArrayList<>();
-                for (Message message : all){
-                    if ((from == -1 || message.getMessageId() >= from)
-                            && (to == -1 || message.getMessageId() < to)){
-                        selected.add(message);
-                        if (n > 0 && selected.size() >= n) {
-                            break;
-                        }
-                    }
-                }
-                if (from == -1)
-                    Collections.reverse(selected);
+            st.append("SELECT M FROM Message M WHERE M.chat = :chat");
+            if (from != -1)
+                st.append(" AND M.messageId >= :from");
+            if (to != -1)
+                st.append(" AND M.messageId < :to");
+            if (from == -1)
+                st.append(" ORDER BY M.messageId DESC");
+            else
+                st.append(" ORDER BY M.messageId ASC");
 
-                return selected;
-            }
+            Chat chat = entityManager.getReference(Chat.class, chatId);
+            if (chat == null)
+                return null;
+
+            Query query = entityManager.createQuery(st.toString());
+            query.setParameter("chat", chat);
+            if (from != -1)
+                query.setParameter("from", from);
+            if (to != -1)
+                query.setParameter("to", to);
+            if (n != 0)
+                query.setMaxResults(n);
+            List<Message> resultList = query.getResultList();
+
+            // for some reasons, JPA is sorting the results differently from what I would like to
+            if (from == -1)
+                Collections.reverse(resultList);
+
+            return resultList;
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            if (entityManager != null)
+            if (entityManager != null){
                 entityManager.close();
+            }
         }
         return null;
     }
