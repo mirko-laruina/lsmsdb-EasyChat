@@ -58,9 +58,8 @@ public class SQLAdapter implements DatabaseAdapter {
         try{
             StringBuilder st = new StringBuilder();
             st.append("SELECT M.messageId, M.timestamp, M.text, U.userId, U.username\n"
-                    + "FROM Chats C INNER JOIN Messages M ON C.chatId = M.chatId\n"
-                    + "INNER JOIN Users U on U.userId = M.senderUserId\n"
-                    + "WHERE C.chatId = ?");
+                    + "FROM Messages M INNER JOIN Users U on U.userId = M.senderUserId\n"
+                    + "WHERE M.chatId = ?");
             if (from != -1)
                 st.append("\nAND M.messageId >= ?");
             if (to != -1)
