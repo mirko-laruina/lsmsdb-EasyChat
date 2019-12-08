@@ -9,7 +9,7 @@
 
 \renewcommand{\arraystretch}{1.5}
 
-\title{Task 1 Report}
+\title{Key-Value DB Feasability Study and Implementation}
 \date{11/11/2019}
 \author{Federico Fregosi, Mirko Laruina,\\
         Riccardo Mancini, Gianmarco Petrelli}
@@ -18,7 +18,7 @@
 \pagenumbering{gobble}
 \maketitle
 \vfill
-% \setcounter{tocdepth}{1}
+\setcounter{tocdepth}{2}
 \tableofcontents
 \vfill
 \clearpage
@@ -26,24 +26,35 @@
 \pagenumbering{arabic}
 
 \section{Feasability study}
-TODO(Riccardo)
-\subsection{Naive design}
-Starting from the entity model and the use-cases, we first drafted a naive key-value 
-implementation for the database and then we checked againts the use-cases whether 
-it was efficient and we made some tweaks to it in order to improve it. 
 
+Since there are few entities in our database, we decided to implement the whole 
+database as a key-value database. By doing so, we learned how to manage different
+kinds of relationships between entities in a key-value database.
+
+In the conversion from a relational database to a key-value one, we decided to 
+proceed as follows:
+\begin{enumerate}
+    \item identify a naive design for the keys
+    \item check the design again the use-cases to check problems or 
+        inefficiencies
+    \item add additional keys in order to fix the problems or speed up some use-cases
+    \item merge all changes in the final design
+\end{enumerate}
+
+\subsection{Naive design}
 We decided to generate ids incrementally by saving in the database the next id
-to be generated. This value will be updated anytime a new element is generated.
+to be used. This value will be updated each time a new element is generated.
 
 Another design choice we made is to represent the many to many relationship 
 between users and chats through a list of chat members within the chat. We'll
-later see that this is not sufficient for efficiency and that another list of 
-user chats will need to be added.
+later see that this is not sufficient in order to provide efficient read 
+operations and the redoundant list of chats of each user will be added.
 
 Finally, the chat messages are saved under the chats and have an id that is 
 unique only in the chat. Since messages cannot be deleted, no list is necessary.
 
-The naive conversion is shown in the next table:
+The naive conversion is shown in the next table. A word preceeded by a dollar 
+(\$) indicates a value (that is the id in every case).
 
 \begin{center}
 \begin{tabular}{ | c | c | }
@@ -66,16 +77,15 @@ The naive conversion is shown in the next table:
 \end{tabular}
 \end{center}
 
-Where we decided to generate incremental ids using the nextId fields to store 
-the id of the next generated entity.
-
 \subsection{Use-cases analysis}
 Since mapping between use-cases and DB-abstraction-layer methods is 
-straightforward, this analysis will take into consideration the 
-methods of the database abstraction layer interface. Let's first list the 
-methods whose implementation is trivial and presents no problems using the
+straight-forward, this analysis will take into consideration the 
+methods of the database abstraction layer interface. 
+
+Let's first list the 
+methods whose implementation is trivial and presents no issues using the
 proposed structure\footnote{If you're interested in their implementation, you 
-can see the code in the \emph{LevelDBAdapter} class.}. 
+can have a look at the code in the \emph{LevelDBAdapter} class.}. 
 
 \begin{lstlisting}[language = Java]
 boolean addChatMember(long chatId, long userId);
@@ -93,6 +103,8 @@ boolean removeSession(String sessionId);
 
 Let's now analyze the methods that give some problems:
 
+\subsubsection{getChats}
+
 \begin{lstlisting}[language = Java]
 /**
 * Returns the list of chats for the user identified by 
@@ -105,7 +117,7 @@ List<Chat> getChats(long userId);
 
 Since one of the use-cases is retrieving the chats of one user, the naive
 conversion is not efficient since a linear search through all chats is required.
-Therefore, we should add a new list to map user chats, i.e.:
+Therefore, we should add a new redoundant list to map user chats, i.e.:
 
 \begin{center}
     \begin{tabular}{ | c | c | }
@@ -113,6 +125,8 @@ Therefore, we should add a new list to map user chats, i.e.:
         user:\$userId:chats & List of chat ids where the user is present \\\hline
     \end{tabular}
 \end{center}
+
+\subsubsection{getUser}
 
 \begin{lstlisting}[language = Java]
 /**
@@ -134,6 +148,8 @@ The use of a reverse index to map usernames to ids would make it more efficient,
     \end{tabular}
 \end{center}
 
+\subsubsection{existsChat}
+
 \begin{lstlisting}[language = Java]
 /**
 * Returns true if there exists a private chat between user1 and 
@@ -153,6 +169,8 @@ redundant list of private chats the user is in.
 However, since this is a proof-of-concept implementation and this method gets 
 called only on a not frequent operation (chat creation), we decided not to
 make this optimization.
+
+\subsubsection{getChatMessages}
 
 \begin{lstlisting}[language = Java]
 /**
@@ -179,7 +197,7 @@ message ids are strictly monotone, due to the id generation strategy we
 imposed.
 
 To tell the truth, this API was originally taking a time range, making its 
-implementation very complicated using a key-value database. However, we 
+implementation more complicated using a key-value database. However, we 
 decided to change it in order to make its use more flexible among different 
 database tecnologies.
 
@@ -217,20 +235,25 @@ at: \url{https://github.com/google/leveldb}}. It is a simple Key-Value database,
 providing just three methods to access the store: \emph{put}, \emph{get} and 
 \emph{delete}.
 
-TODO(Riccardo)
+Since we included a Database-abstraction layer in our application server, the 
+implementation required just adding a new Java class implementing the 
+\emph{DatabaseAdapter} interface.
 
 \section{Testing and Evaluation}
 
-TODO(Riccardo)
+The \emph{Key-Value} implementation went under the same testing methods as the 
+JPA one (unit tests and final integration test). Furthermore, since our Java 
+backend provides a convenient HTTP API, we were able to use 
+the open-source software Siege\footnote{More information at: 
+\url{https://www.joedog.org/siege-home/}} in order to benchmark the different 
+database backends as described in the following section. This was also a way
+to test the robustness of our implementation.
 
 \subsection{Benchmarking}
 \label{sec:bench}
-Since our Java backend provides a convenient HTTP API, we were able to use 
-the open-source software Siege\footnote{More information at: 
-\url{https://www.joedog.org/siege-home/}} in order to benchmark the different 
-database backends. 
 
-We used one concurrent user and measured the average \emph{transactions per second} (tps) for 
+The benchmark was carried out using Siege. We simulated one user sending multiple
+requests and we measured the average \emph{transactions per second} (tps) for 
 5000 requests over three runs.
 
 \paragraph{Disclaimer} 
@@ -255,9 +278,8 @@ since it is the only one that didn't take advantage of caching (as the other two
 
 From the results it can be seen that:
 \begin{itemize}
-    \item plain SQL is slightly better than JPA.
-    \item Message field aggregation in LevelDB is more than 3x faster in getting 
-            the list of messages.
+    \item plain SQL is more efficient than JPA.
+    \item Message field aggregation in LevelDB leads to more than 3x better performances.
     \item LevelDB is much faster than SQL in the first two operations, while shows
             similar performances in reading many values (as in the last operation).
 \end{itemize}
