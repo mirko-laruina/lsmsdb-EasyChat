@@ -46,9 +46,11 @@ We decided to generate ids incrementally by saving in the database the next id
 to be used. This value will be updated each time a new element is generated.
 
 Another design choice we made is to represent the many to many relationship 
-between users and chats through a list of chat members within the chat. We'll
-later see that this is not sufficient in order to provide efficient read 
-operations and the redoundant list of chats of each user will be added.
+between users and chats through a list of chat members within the chat inside 
+a structured attribute of the chat entity. 
+Furthermore, we'll later see that this is not sufficient in order to provide 
+efficient read operations and the redoundant list of chats of each user will 
+be added as a structured attribute of the user entity.
 
 Finally, the chat messages are saved under the chats and have an id that is 
 unique only in the chat. Since messages cannot be deleted, no list is necessary.
@@ -67,13 +69,13 @@ The naive conversion is shown in the next table. A word preceeded by a dollar
     users:nextId & Next id for a user \\\hline
     chat:\$chatId:name & Chats.name \\\hline
     chat:\$chatId:lastActivity & Chats.lastActivity \\\hline
-    chat:\$chatId:members & List of chat members \\\hline
     chat:\$chatId:admin & Chats.adminId\\\hline
     chat:\$chatId:messages:nextId & Next id for a chat \\\hline
     chat:\$chatId:message:\$messageId:text & Messages.text \\\hline
     chat:\$chatId:message:\$messageId:timestamp & Messages.timestamp \\\hline
     chat:\$chatId:message:\$messageId:sender & Messages.senderUserId \\\hline
     chats:nextId & Next id for a chat \\\hline
+    chatmembers:\$chatId:\$userId & Empty. Present iff user is member of chat \\\hline
 \end{tabular}
 \end{center}
 
@@ -82,26 +84,7 @@ Since mapping between use-cases and DB-abstraction-layer methods is
 straight-forward, this analysis will take into consideration the 
 methods of the database abstraction layer interface. 
 
-Let's first list the 
-methods whose implementation is trivial and presents no issues using the
-proposed structure\footnote{If you're interested in their implementation, you 
-can have a look at the code in the \emph{LevelDBAdapter} class.}. 
-
-\begin{lstlisting}[language = Java]
-boolean addChatMember(long chatId, long userId);
-boolean removeChatMember(long chatId, long userId);
-boolean checkChatMember(long chatId, long userId);
-long addChatMessage(Message message);
-long createChat(String name, long adminId, List<Long> userIds);
-boolean deleteChat(long chatId);
-Chat getChat(long chatId);
-long createUser(User user);
-long getUserFromSession(String sessionId);
-boolean setUserSession(UserSession user);
-boolean removeSession(String sessionId);
-\end{lstlisting}
-
-Let's now analyze the methods that give some problems:
+Let's first analyze the methods that give some problems:
 
 \subsubsection{getChats}
 
@@ -115,16 +98,45 @@ Let's now analyze the methods that give some problems:
 List<Chat> getChats(long userId);
 \end{lstlisting}
 
-Since one of the use-cases is retrieving the chats of one user, the naive
-conversion is not efficient since a linear search through all chats is required.
-Therefore, we should add a new redoundant list to map user chats, i.e.:
+The above methods is inefficient because, in order to retrieve the chat a user 
+is member of, I should try all chat ids to see if the key exists. As an alternative, 
+I could take advantage of the ordering property of LevelDB but the same problem 
+would arise in the complimentary method that retrieves the chat members.
+
+Since the number of chats a user is member of and the number of chat members 
+are small in practice we decided to replace the intermediate entity with two 
+structured attributes of chat and user, respectively (see the table below). 
+The attributes hold a 
+comma-separated list of ids. The redoundancy is necessary in order to make 
+both operations of retrieval of chat members efficient. 
 
 \begin{center}
     \begin{tabular}{ | c | c | }
         \hline
+        chat:\$chatId:members & List of chat members \\\hline
         user:\$userId:chats & List of chat ids where the user is present \\\hline
     \end{tabular}
 \end{center}
+
+This implementation increases the complexity and the time required for all those
+other methods that modify said lists, namely:
+\begin{lstlisting}[language = Java]
+    boolean addChatMember(long chatId, long userId);
+    boolean removeChatMember(long chatId, long userId);
+\end{lstlisting}
+
+This is due to the fact that both lists must be downloaded, edited and uploaded back.
+However, this is not a big deal since addition and removal are fairly unfrequent 
+operations.
+
+Another operation that is involved by this change is \textit{checkChatMember} (see 
+below). Compared to the ``naive'' implementation, it is slower but the time penalty
+is not as significant as in the previous case, due to the fact that a chat holds 
+few members in practice.
+
+\begin{lstlisting}[language = Java]
+    boolean checkChatMember(long chatId, long userId);
+\end{lstlisting}
 
 \subsubsection{getUser}
 
@@ -163,12 +175,12 @@ The use of a reverse index to map usernames to ids would make it more efficient,
 boolean existsChat(long user1, long user2);
 \end{lstlisting}
 
-This method can be implemented in an inefficent way iterating through the 
+This method can be implemented in a simple way iterating through the 
 user's chats and its members. A more efficient way would be inserting a
-redundant list of private chats the user is in.
-However, since this is a proof-of-concept implementation and this method gets 
+redundant list of private chats the user is involved in.
+However, since this is just a proof-of-concept implementation and this method gets 
 called only on a not frequent operation (chat creation), we decided not to
-make this optimization.
+perform this optimization.
 
 \subsubsection{getChatMessages}
 
@@ -193,19 +205,36 @@ List<Message> getChatMessages(long chatId, long from, long to, int n);
 \end{lstlisting}
 
 Even though it may look tricky, this query is in fact quite trivial since 
-message ids are strictly monotone, due to the id generation strategy we 
-imposed.
+message ids are strictly monotone and adjacent, due to the id generation 
+strategy we imposed and the impossibility to delete messages.
 
-To tell the truth, this API was originally taking a time range, making its 
-implementation more complicated using a key-value database. However, we 
-decided to change it in order to make its use more flexible among different 
-database tecnologies.
+To tell the truth, this API was originally thought to take a time range, making its 
+implementation more complicated using a key-value database. However, during the
+first design phases we decided to change it in order to make its use more 
+flexible among different database tecnologies.
 
-Another problem with this API was its slowness due to the three required 
+Another problem with this API was its slowness due to the three
 operations required to read the message from the database (there are 
-3 fields to be fetched). This problem was discovered thanks to the benchmarks
-of section~\ref{sec:bench}. The solution has been to aggregate the three fields 
-under one single key since they are always fetched together.
+3 fields to be fetched). This problem was highlighted by the benchmarks
+of section~\ref{sec:bench}. The solution is to aggregate the three attributes 
+in a single structured attribute since they are always fetched together.
+
+\subsubsection{Trivial methods}
+Let's finally list the 
+methods whose implementation is trivial and presents no issues using the
+proposed structure\footnote{If you're interested in their implementation, you 
+can have a look at the code in the \emph{LevelDBAdapter} class.}. 
+
+\begin{lstlisting}[language = Java]
+long addChatMessage(Message message);
+long createChat(String name, long adminId, List<Long> userIds);
+boolean deleteChat(long chatId);
+Chat getChat(long chatId);
+long createUser(User user);
+long getUserFromSession(String sessionId);
+boolean setUserSession(UserSession user);
+boolean removeSession(String sessionId);
+\end{lstlisting}
 
 \subsection{Final design}
 \begin{center}
