@@ -56,10 +56,7 @@ public class JPAAdapter implements DatabaseAdapter {
                 st.append(" AND M.messageId >= :from");
             if (to != -1)
                 st.append(" AND M.messageId < :to");
-            if (from == -1)
-                st.append(" ORDER BY M.messageId DESC");
-            else
-                st.append(" ORDER BY M.messageId ASC");
+            st.append(" ORDER BY M.messageId ASC");
 
             Chat chat = entityManager.getReference(Chat.class, chatId);
             if (chat == null)
@@ -74,10 +71,6 @@ public class JPAAdapter implements DatabaseAdapter {
             if (n != 0)
                 query.setMaxResults(n);
             List<Message> resultList = query.getResultList();
-
-            // for some reasons, JPA is sorting the results differently from what I would like to
-            if (from == -1)
-                Collections.reverse(resultList);
 
             return resultList;
         } catch (Exception ex){
