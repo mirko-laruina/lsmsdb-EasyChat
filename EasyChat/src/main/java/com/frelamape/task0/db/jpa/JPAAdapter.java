@@ -28,19 +28,24 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             User user = entityManager.find(User.class, userId);
             for (Chat chat:user.getChats()){
                 if (loadMembers)
                     Hibernate.initialize(chat.getMembers());
             }
             List<Chat> chats = user.getChats();
+            entityManager.getTransaction().commit();
             Collections.sort(chats);
             return chats;
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            if (entityManager != null)
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
                 entityManager.close();
+            }
         }
         return null;
     }
@@ -94,16 +99,21 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             if (chat != null){
                 Hibernate.initialize(chat.getMembers());
+                entityManager.getTransaction().commit();
                 return chat.getMembers();
             }
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            if (entityManager != null)
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
                 entityManager.close();
+            }
         }
         return null;
     }
@@ -164,16 +174,24 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             User user = entityManager.find(User.class, userId);
+
+            boolean checkResult = false;
             if (chat != null && user != null){
-                return chat.getMembers().contains(user);
+                checkResult = chat.getMembers().contains(user);
             }
+            entityManager.getTransaction().commit();
+            return checkResult;
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
-            if (entityManager != null)
+            if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
                 entityManager.close();
+            }
         }
         return false;
     }
@@ -269,14 +287,18 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             Chat chat = entityManager.find(Chat.class, chatId);
             if (loadMembers)
                 Hibernate.initialize(chat.getMembers());
+            entityManager.getTransaction().commit();
             return chat;
         } catch (Exception ex){
             ex.printStackTrace();
         } finally {
             if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
                 entityManager.close();
             }
         }
