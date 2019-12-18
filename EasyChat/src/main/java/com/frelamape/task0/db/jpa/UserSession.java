@@ -74,5 +74,6 @@ class UserSession extends UserSessionEntity {
 
     public void setExpiry(Instant expiry) {
         this.expiry = expiry;
+        this.expiryTimestamp = Timestamp.from(this.expiry);
     }
 }
