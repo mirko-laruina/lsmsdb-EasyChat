@@ -112,6 +112,7 @@ public class JPAAdapter implements DatabaseAdapter {
             User user = entityManager.getReference(User.class, userId);
             if (chat != null && user != null){
                 chat.getMembers().add(user);
+                //We do not need merge: entity is NOT detached since entityManager is still open
                 entityManager.getTransaction().commit();
                 return true;
             }
