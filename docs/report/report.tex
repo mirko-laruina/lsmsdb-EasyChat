@@ -10,7 +10,7 @@
 \renewcommand{\arraystretch}{1.5}
 
 \title{Task 1 Report}
-\date{11/11/2019}
+\date{18/12/2019}
 \author{Federico Fregosi, Mirko Laruina,\\
         Riccardo Mancini, Gianmarco Petrelli}
 
@@ -70,7 +70,7 @@ In order to create a private or group chat, the user must type in the username
 of the other participants.
 When an user create a new group chat, he automatically becomes the admin of the chat in question.
 
-A \textbf{group admin} is the only chat member who is be able to:
+A \textbf{group admin} is the only chat member who is able to:
 \begin{itemize}
     \item Add members to the group chat
     \item Remove users from the group chat
@@ -135,31 +135,6 @@ Client-side, a ReactJS front-end has been chosen for the implementation of the w
 \clearpage
 \section{Implementation}
 
-\subsection{Database}
-\subsubsection{Relational DB Design}
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\textwidth]{figs/ER}
-    \caption{ER diagram for the database.}
-    \label{fig:er}
-\end{figure}
-
-Figure~\ref{fig:er} shows the ER diagram of the MySQL database. Every \emph{User} 
-is identified a \emph{userId} and has got a unique \emph{username} and a 
-\emph{password}. The user can be a member of many \emph{Chats} and can 
-be the administrator of many \emph{Chats}. On the other hand, a \emph{Chat} 
-can be administered by only one \emph{User}. A \emph{User} can send a 
-\emph{Message} to a \emph{Chat}. Each \emph{User} and each \emph{Chat} can 
-have many \emph{Messages} while a \emph{Message} can belong to one \emph{Chat}
-and one \emph{User} only. The \emph{Session} represents a logged user session.
-Each \emph{User} can have many open \emph{Sessions}.
-
-Once the database had been created, we filled it with random test data using the free
-service available at \url{http://filldb.info/}. Generated data is not perfect, 
-since some more complex functional constraints could not be included in the 
-generation. However, that was sufficient for the first functional tests of the
-application.
-
 \subsection{Java backend}
 The Java backend provides simple REST APIs for managing the chat application. 
 In order to do so, it uses the \emph{Spring} framework\footnote{More information
@@ -172,16 +147,59 @@ by the ReactJS frontend.
 These APIs are implemented using a simple database abstraction layer which provides 
 corresponding APIs to the database. This is implemented in Java 
 using a generic \emph{DatabaseAdapter} interface that can be implemented to 
-provide access to different databases (as we have done in this Task with plain SQL, 
-JPA and levelDB implementations). The database backend can be set from a configuration
+provide access to different databases (as we have done in task 0 with plain SQL, 
+and in this task with JPA and levelDB implementations). 
+The database backend can be set from a configuration
 file, where some other db-specific settings can be set.
 
+You can find a synthetic UML class diagram in the attachments.
+
 \subsubsection{JPA}
-Once the database design was set, the Java implementation of the methods using 
+
+Using JPA and Hibernate, the following classes were made:
+\begin{itemize}
+    \item \emph{Chat}
+    \item \emph{Message}
+    \item \emph{User}
+    \item \emph{UserSession}
+\end{itemize}
+
+Furthermore, relationships between the classes were set as follows:
+\begin{itemize}
+    \item \emph{Chat} has a one to many relationship with \emph{Message};
+    \item \emph{Chat} has a many to many relationship with \emph{User};
+    \item \emph{User} has a one to many relationship with \emph{Message};
+    \item \emph{User} has a one to many relationship with \emph{UserSession};
+\end{itemize}
+
+A more detailed explanation of the JPA implementation can be found in the tutorial.
+
+The resulting design can be summarized with the ER diagram of figure~\ref{fig:er}.
+Every \emph{User} is identified a \emph{userId} and has got a unique \emph{username} and a 
+\emph{password}. The user can be a member of many \emph{Chats} and can 
+be the administrator of many \emph{Chats}. On the other hand, a \emph{Chat} 
+can be administered by only one \emph{User}. A \emph{User} can send a 
+\emph{Message} to a \emph{Chat}. Each \emph{User} and each \emph{Chat} can 
+have many \emph{Messages} while a \emph{Message} can belong to one \emph{Chat}
+and one \emph{User} only. The \emph{Session} represents a logged user session.
+Each \emph{User} can have many open \emph{Sessions}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{figs/ER}
+    \caption{ER diagram for the database.}
+    \label{fig:er}
+\end{figure}
+
+Once the classes and the design were set, the Java implementation of the methods using 
 JPA was very easy and fast. A new implementation of the \emph{DatabaseAdapter}
 class has been done, along with JPA implementations of the data model interfaces.
-Both one-to-many and many-to-many relationships have been used. A more detailed 
-explanation of the JPA implementation can be found in the tutorial.
+
+Once the database had been created, we filled it with random test data using the free
+service available at \url{http://filldb.info/}. Generated data is not perfect, 
+since some more complex functional constraints could not be included in the 
+generation. However, that was sufficient for the first functional tests of the
+application.
 
 \subsection{ReactJS frontend}
 The frontend has been developed using the \emph{ReactJS} framework\footnote{More
