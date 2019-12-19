@@ -62,6 +62,8 @@ public class JPAAdapter implements DatabaseAdapter {
                 st.append(" AND M.messageId >= :from");
             if (to != -1)
                 st.append(" AND M.messageId < :to");
+            // according to the API specification, messages are to be counted starting from `from` upwards if `from` is
+            // not -1, from `to` (or the last message) downwards otherwise
             if (from == -1)
                 st.append(" ORDER BY M.messageId DESC");
             else
@@ -80,8 +82,10 @@ public class JPAAdapter implements DatabaseAdapter {
             if (n != 0)
                 query.setMaxResults(n);
             List<Message> resultList = query.getResultList();
-
+            
             entityManager.getTransaction().commit();
+
+            if (from == -1) //sorting is descending instead of ascending, I need to reverse it
                 Collections.reverse(resultList);
 
             return resultList;
@@ -335,6 +339,8 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            // no explicit transaction boundaries are required since only one
+            // READ operation is performed
             Query query = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username");
             query.setParameter("username", username);
             List<User> resultList = query.getResultList();
@@ -355,6 +361,8 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            // no explicit transaction boundaries are required since only one
+            // READ operation is performed
             return entityManager.find(User.class, userId);
         } catch (Exception ex){
             ex.printStackTrace();
@@ -450,6 +458,11 @@ public class JPAAdapter implements DatabaseAdapter {
         EntityManager entityManager = null;
         try{
             entityManager = entityManagerFactory.createEntityManager();
+            // no explicit transaction boundaries are required since only one
+            // READ operation is performed
+            
+            // a native query is more efficient than manually checking all
+            // chats of both users
             Query query = entityManager.createNativeQuery("SELECT M.chatId\n\n"
                     + "FROM Chatmembers M INNER JOIN Chatmembers M2\n"
                     + "ON M.chatId = M2.chatId\n"

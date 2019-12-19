@@ -15,10 +15,10 @@ public interface DatabaseAdapter {
      * number of elements, sorted in ascending message sending time.
      *
      * @param chatId id of the chat whose messages are to be retrieved
-     * @param from start of the time range (included). It can be null, whose meaning is that there is no lower bound.
-     * @param to end of the time range (excluded). It can be null, whose meaning is that there is no upper bound.
-     * @param n maximum number of elements to return. If from is not null, messages are counted from {@code from} up
-     *          to n or {@code to}. If from is null, messages are counted from {@code to} up to n or {@code from}.
+     * @param from start of the time range (included). It can be {@code -1}, whose meaning is that there is no lower bound.
+     * @param to end of the time range (excluded). It can be {@code -1}, whose meaning is that there is no upper bound.
+     * @param n maximum number of elements to return. If from is not {@code -1}, messages are counted from {@code from} up
+     *          to n or {@code to}. If from is {@code -1}, messages are counted from {@code to} up to n or {@code from}.
      * @return the list of messages or null in case of error.
      */
     List<? extends MessageEntity> getChatMessages(long chatId, long from, long to, int n);

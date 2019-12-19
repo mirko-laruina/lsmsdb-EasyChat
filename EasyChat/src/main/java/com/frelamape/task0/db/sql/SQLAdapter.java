@@ -64,6 +64,8 @@ public class SQLAdapter implements DatabaseAdapter {
                 st.append("\nAND M.messageId >= ?");
             if (to != -1)
                 st.append("\nAND M.messageId < ?");
+            // according to the API specification, messages are to be counted starting from `from` upwards if `from` is
+            // not -1, from `to` (or the last message) downwards otherwise
             if (from == -1)
                 st.append("\nORDER BY M.messageId DESC");
             else
