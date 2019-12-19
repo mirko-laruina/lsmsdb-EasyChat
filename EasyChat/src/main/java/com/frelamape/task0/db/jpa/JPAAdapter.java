@@ -56,6 +56,7 @@ public class JPAAdapter implements DatabaseAdapter {
         try{
             StringBuilder st = new StringBuilder();
             entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
             st.append("SELECT M FROM Message M WHERE M.chat = :chat");
             if (from != -1)
                 st.append(" AND M.messageId >= :from");
@@ -80,7 +81,7 @@ public class JPAAdapter implements DatabaseAdapter {
                 query.setMaxResults(n);
             List<Message> resultList = query.getResultList();
 
-            if (from == -1)
+            entityManager.getTransaction().commit();
                 Collections.reverse(resultList);
 
             return resultList;
@@ -88,6 +89,8 @@ public class JPAAdapter implements DatabaseAdapter {
             ex.printStackTrace();
         } finally {
             if (entityManager != null){
+                if (entityManager.getTransaction().isActive())
+                    entityManager.getTransaction().rollback();
                 entityManager.close();
             }
         }
