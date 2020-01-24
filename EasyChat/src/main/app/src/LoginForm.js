@@ -95,7 +95,7 @@ class LoginForm extends Component {
                         <Alert variant="danger"
                           style={{ marginBottom: '20px'}}
                           className={this.state.wrongAuth ? 'hidden' : ''}>Username already taken</Alert>
-                          <Button variant="link" onClick={(evt) => this.setState({registerPage: false})}>Log in</Button>
+                          <Button variant="link" onClick={(evt) => this.setState({registerPage: false, wrongAuth: 'hidden'})}>Log in</Button>
                         <Button variant="primary" type="submit">
                           Sign on!
                         </Button>
@@ -105,7 +105,7 @@ class LoginForm extends Component {
                         <Alert variant="danger"
                           style={{ marginBottom: '20px'}}
                           className={this.state.wrongAuth ? 'hidden' : ''}>Wrong username or password</Alert>
-                         <Button variant="link" onClick={(evt) => this.setState({registerPage: true})}>Sign on!</Button>
+                         <Button variant="link" onClick={(evt) => this.setState({registerPage: true, wrongAuth: 'hidden'})}>Sign on!</Button>
                         <Button variant="primary" type="submit">
                           Log in!
                         </Button>
